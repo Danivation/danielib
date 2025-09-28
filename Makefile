@@ -37,7 +37,7 @@ EXCLUDE_SRC_FROM_LIB+=$(foreach file, $(SRCDIR)/main,$(foreach cext,$(CEXTS),$(f
 # files that get distributed to every user (beyond your source archive) - add
 # whatever files you want here. This line is configured to add all header files
 # that are in the directory include/LIBNAME
-TEMPLATE_FILES=$(INCDIR)/$(LIBNAME)/*.h $(INCDIR)/$(LIBNAME)/*.hpp
+TEMPLATE_FILES=$(INCDIR)/$(LIBNAME)/**/*.h $(INCDIR)/$(LIBNAME)/**/*.hpp
 
 .DEFAULT_GOAL=quick
 

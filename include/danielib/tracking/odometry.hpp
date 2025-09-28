@@ -1,3 +1,4 @@
+#pragma once
 #include "pros/rotation.hpp"
 
 namespace danielib {
