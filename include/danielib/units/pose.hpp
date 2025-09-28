@@ -1,9 +1,9 @@
 #pragma once
 
 namespace danielib::units {
-class pose {
+class Pose {
     public:
-        pose(float x, float y, float theta);
+        Pose(float x, float y, float theta);
     private:
         // private etc
 };

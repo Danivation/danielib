@@ -4,26 +4,26 @@
 #include "pros/imu.hpp"
 
 namespace danielib {
-class tracker_wheel {
+class TrackerWheel {
     public:
-        tracker_wheel(pros::Rotation* sensor, float wheel_diameter, float offset);
+        TrackerWheel(pros::Rotation* sensor, float wheel_diameter, float offset);
     protected:
         pros::Rotation* sensor;
         float wheel_diameter;
         float offset;
 };
 
-class inertial {
+class Inertial {
     public:
-        inertial(pros::Imu* sensor, float scale = 1.0f);
-        inertial(pros::Imu* sensor_1, pros::Imu* sensor_2, float scale_1 = 1.0f, float scale_2 = 1.0f);
+        Inertial(pros::Imu* sensor, float scale = 1.0f);
+        Inertial(pros::Imu* sensor_1, pros::Imu* sensor_2, float scale_1 = 1.0f, float scale_2 = 1.0f);
 };
 
 /**
  * @brief Class for adding odometry to a drivetrain
  */
-class odometry {
+class Sensors {
     public:
-        odometry(tracker_wheel* vertical_tracker, tracker_wheel* horizontal_tracker, inertial* imu);
+        Sensors(TrackerWheel* vertical_tracker, TrackerWheel* horizontal_tracker, Inertial* imu);
 };
 } // namespace danielib

@@ -8,13 +8,13 @@ namespace danielib {
 /**
  * @brief Creates a drivetrain object
  */
-class drivetrain {
+class Drivetrain {
     public:
-        drivetrain(pros::MotorGroup* left_motors, pros::MotorGroup* right_motors, danielib::odometry* odom_sensors, float track_width, float wheel_size, float wheel_rpm);
+        Drivetrain(pros::MotorGroup* left_motors, pros::MotorGroup* right_motors, danielib::Sensors* odom_sensors, float track_width, float wheel_size, float wheel_rpm);
     protected:
         pros::MotorGroup* left_motors;
         pros::MotorGroup* right_motors;
-        danielib::odometry odom_sensors;
+        danielib::Sensors* odom_sensors;
         float track_width;
         float wheel_size;
         float wheel_rpm;
