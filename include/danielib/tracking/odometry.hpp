@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include "pros/rotation.hpp"
 #include "pros/imu.hpp"
 
@@ -14,8 +15,8 @@ class tracker_wheel {
 
 class inertial {
     public:
-        inertial(pros::Imu* sensor, float scale);
-        inertial(pros::Imu* sensor_1, pros::Imu* sensor_2, float scale_1, float scale_2);
+        inertial(pros::Imu* sensor, float scale = 1.0f);
+        inertial(pros::Imu* sensor_1, pros::Imu* sensor_2, float scale_1 = 1.0f, float scale_2 = 1.0f);
 };
 
 /**
@@ -23,6 +24,6 @@ class inertial {
  */
 class odometry {
     public:
-        odometry(tracker_wheel* vertical_tracker, tracker_wheel* horizontal_tracker, inertial imu);
+        odometry(tracker_wheel* vertical_tracker, tracker_wheel* horizontal_tracker, inertial* imu);
 };
 } // namespace danielib

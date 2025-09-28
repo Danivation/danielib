@@ -10,7 +10,7 @@ namespace danielib {
  */
 class drivetrain {
     public:
-        drivetrain(pros::MotorGroup* left_motors, pros::MotorGroup* right_motors, danielib::odometry odom_sensors, float track_width, float wheel_size, float wheel_rpm);
+        drivetrain(pros::MotorGroup* left_motors, pros::MotorGroup* right_motors, danielib::odometry* odom_sensors, float track_width, float wheel_size, float wheel_rpm);
     protected:
         pros::MotorGroup* left_motors;
         pros::MotorGroup* right_motors;
