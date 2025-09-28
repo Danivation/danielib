@@ -1,8 +1,7 @@
 #pragma once
 #include "pros/motors.h"
 #include "pros/motor_group.hpp"
-#include "danielib/tracking/odometry.hpp"
-#include "danielib/units/units.hpp"
+#include "danielib/sensors.hpp"
 
 namespace danielib {
 /**
@@ -11,6 +10,7 @@ namespace danielib {
 class Drivetrain {
     public:
         Drivetrain(pros::MotorGroup* left_motors, pros::MotorGroup* right_motors, danielib::Sensors* odom_sensors, float track_width, float wheel_size, float wheel_rpm);
+        
     protected:
         pros::MotorGroup* left_motors;
         pros::MotorGroup* right_motors;
