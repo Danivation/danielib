@@ -32,4 +32,9 @@ float PID::update(const float target, const float current) {
     // return the final output
     return (error * kP) + (integral * kI) + (derivative * kD);
 }
+
+void PID::reset() {
+    integral = 0;
+    prevError = 0;
+}
 } // namespace danielib
