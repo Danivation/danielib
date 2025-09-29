@@ -1,6 +1,6 @@
 #pragma once
 
-namespace danielib::units {
+namespace danielib {
 class Pose {
     public:
         Pose(float x, float y, float theta);
