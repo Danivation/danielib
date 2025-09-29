@@ -1,8 +1,10 @@
 #include "danielib/danielib.hpp"
 
 namespace danielib {
+
+/* 
 // odometry class constructor
-odometry::odometry(odometry::tracker *t_horizontal, odometry::tracker *t_vertical)
+Drivetrain::odometry(odometry::tracker *t_horizontal, odometry::tracker *t_vertical)
 {
     pt_horizontal = t_horizontal;
     pt_vertical = t_vertical;
@@ -113,5 +115,5 @@ void odometry::startTracking(float x, float y, float theta)
 void odometry::stopTracking() {
     odomEnabled = false;
 }
-
+ */
 } // namespace danielib

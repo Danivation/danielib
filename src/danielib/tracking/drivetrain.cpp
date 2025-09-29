@@ -1,0 +1,33 @@
+#include "danielib/danielib.hpp"
+
+namespace danielib {
+
+TrackerWheel::TrackerWheel(pros::Rotation* sensor, float wheelDiameter, float offset) :
+    sensor(sensor),
+    wheelDiameter(wheelDiameter),
+    offset(offset)
+{}
+
+Inertial::Inertial(pros::Imu* sensor1, float scale1, pros::Imu* sensor2, float scale2) :
+    sensor1(sensor1),
+    scale1(scale1),
+    sensor2(sensor2),
+    scale2(scale2)
+{}
+
+Sensors::Sensors(TrackerWheel* verticalTracker, TrackerWheel* horizontalTracker, Inertial* imu) :
+    verticalTracker(verticalTracker),
+    horizontalTracker(horizontalTracker),
+    imu(imu)
+{}
+
+Drivetrain::Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, float trackWidth, float wheelSize, float wheelRPM) :
+    leftMotors(leftMotors),
+    rightMotors(rightMotors),
+    odomSensors(odomSensors),
+    trackWidth(trackWidth),
+    wheelSize(wheelSize),
+    wheelRPM(wheelRPM),
+    currentPose({0, 0, 0})
+{}
+} // namespace danielib

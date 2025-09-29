@@ -5,17 +5,21 @@
 namespace danielib {
 class TrackerWheel {
     public:
-        TrackerWheel(pros::Rotation* sensor, float wheel_diameter, float offset);
+        TrackerWheel(pros::Rotation* sensor, float wheelDiameter, float offset);
     protected:
         pros::Rotation* sensor;
-        float wheel_diameter;
-        float offset;
+        const float wheelDiameter;
+        const float offset;
 };
 
 class Inertial {
     public:
-        Inertial(pros::Imu* sensor, float scale = 1.0f);
-        Inertial(pros::Imu* sensor_1, pros::Imu* sensor_2, float scale_1 = 1.0f, float scale_2 = 1.0f);
+        Inertial(pros::Imu* sensor1, float scale1 = 1.0f, pros::Imu* sensor2 = nullptr, float scale2 = 1.0f);
+    protected:
+        pros::Imu* sensor1;
+        const float scale1;
+        pros::Imu* sensor2;
+        const float scale2;
 };
 
 /**
@@ -23,6 +27,10 @@ class Inertial {
  */
 class Sensors {
     public:
-        Sensors(TrackerWheel* vertical_tracker, TrackerWheel* horizontal_tracker, Inertial* imu);
+        Sensors(TrackerWheel* verticalTracker, TrackerWheel* horizontalTracker, Inertial* imu);
+    protected:
+        TrackerWheel* verticalTracker;
+        TrackerWheel* horizontalTracker;
+        Inertial* imu;
 };
 } // namespace danielib
