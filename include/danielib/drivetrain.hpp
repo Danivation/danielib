@@ -38,6 +38,10 @@ class Drivetrain {
     private:
         pros::Task* trackingTask = nullptr;
         Pose currentPose = {0, 0, 0};
+
+        float prevVertical = 0;
+        float prevHorizontal = 0;
+        float prevTheta = 0;
         void update();
 };
 } // namespace danielib

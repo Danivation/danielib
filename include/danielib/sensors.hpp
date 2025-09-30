@@ -6,6 +6,10 @@ namespace danielib {
 class TrackerWheel {
     public:
         TrackerWheel(pros::Rotation* sensor, float wheelDiameter, float offset);
+
+        void reset();
+        float getPosition();
+        float getOffset();
     protected:
         pros::Rotation* sensor;
         const float wheelDiameter;
@@ -15,6 +19,12 @@ class TrackerWheel {
 class Inertial {
     public:
         Inertial(pros::Imu* sensor1, float scale1 = 1.0f, pros::Imu* sensor2 = nullptr, float scale2 = 1.0f);
+
+        void calibrate();
+        float getRotation();
+        float getHeading();
+        void setRotation(float angle);
+        void setHeading(float angle);
     protected:
         pros::Imu* sensor1;
         const float scale1;
@@ -28,7 +38,6 @@ class Inertial {
 class Sensors {
     public:
         Sensors(TrackerWheel* verticalTracker, TrackerWheel* horizontalTracker, Inertial* imu);
-    protected:
         TrackerWheel* verticalTracker;
         TrackerWheel* horizontalTracker;
         Inertial* imu;
