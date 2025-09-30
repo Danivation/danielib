@@ -1,6 +1,34 @@
 #include "danielib/danielib.hpp"
+#include <cmath>
 
-namespace danielib {
+using namespace danielib;
+
+void Drivetrain::setPose(float x, float y, float theta) {
+    currentPose = Pose(x, y, toRadians(theta));
+}
+
+void Drivetrain::setPose(Pose pose) {
+    currentPose = pose;
+}
+
+void Drivetrain::startTracking() {
+    if (trackingTask == nullptr) {
+        trackingTask = new pros::Task {[=] {
+            while (true) {
+                Drivetrain::update();
+                pros::delay(10);
+            }
+        }};
+    }
+}
+
+void Drivetrain::stopTracking() {
+    if (trackingTask != nullptr) {
+        trackingTask->remove();
+        delete trackingTask;
+        trackingTask = nullptr;
+    }
+}
 
 /* 
 // odometry class constructor
@@ -116,4 +144,3 @@ void odometry::stopTracking() {
     odomEnabled = false;
 }
  */
-} // namespace danielib

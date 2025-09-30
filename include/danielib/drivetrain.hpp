@@ -13,8 +13,8 @@ class Drivetrain {
     public:
         Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, float trackWidth, float wheelSize, float wheelRPM);
 
-        pros::Task startOdom();
-        void stopOdom();
+        void startTracking();
+        void stopTracking();
 
         void setPose(float x, float y, float theta);
         void setPose(Pose pose);
@@ -35,7 +35,9 @@ class Drivetrain {
         const float trackWidth;
         const float wheelSize;
         const float wheelRPM;
-
-        Pose currentPose;
+    private:
+        pros::Task* trackingTask = nullptr;
+        Pose currentPose = {0, 0, 0};
+        void update();
 };
 } // namespace danielib

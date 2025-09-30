@@ -27,7 +27,6 @@ Drivetrain::Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMoto
     odomSensors(odomSensors),
     trackWidth(trackWidth),
     wheelSize(wheelSize),
-    wheelRPM(wheelRPM),
-    currentPose({0, 0, 0})
+    wheelRPM(wheelRPM)
 {}
 } // namespace danielib
