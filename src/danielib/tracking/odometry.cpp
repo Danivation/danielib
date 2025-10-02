@@ -17,7 +17,7 @@ void Drivetrain::update() {
     float localY;
 
     // prevent divide by 0
-    if (deltaTheta < 1e-5) {
+    if (deltaTheta == 0) {
         localX = deltaHorizontal;
         localY = deltaVertical;
     } else {
@@ -28,11 +28,14 @@ void Drivetrain::update() {
 
     // convert cartesian coordinates (local) to polar coordinates
     float avgTheta = prevTheta + (deltaTheta / 2);
-    float polarRadius = hypotf(localY, localX);
-    float localPolarAngle = atan2f(localY, localX);
+
+    // fixed math, this method works but is slower
+    /*
+    float polarRadius = hypotf(localX, localY);
+    float localPolarAngle = atan2f(localX, localY);
 
     // rotate polar coordinates according to the robot's local frame
-    float globalPolarAngle = localPolarAngle - avgTheta;
+    float globalPolarAngle = localPolarAngle + avgTheta;
 
     // convert polar coordinates back into cartesian coordinates (global)
     float deltaX = polarRadius * cosf(globalPolarAngle);
@@ -41,6 +44,13 @@ void Drivetrain::update() {
     // update global positions
     currentPose.x += deltaX;
     currentPose.y += deltaY;
+    */
+
+    // cooler math that works better (update global positions)
+    currentPose.x += localY * sinf(avgTheta);
+    currentPose.y += localY * cosf(avgTheta);
+    currentPose.x += localX * -cosf(avgTheta);
+    currentPose.y += localX * sinf(avgTheta);
     currentPose.theta = odomSensors->imu->getRotation();
 
     // update previous values

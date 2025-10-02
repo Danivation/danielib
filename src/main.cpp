@@ -1,6 +1,8 @@
 #include "main.h"
 #include "danielib/danielib.hpp"
 
+pros::Controller master(CONTROLLER_MASTER);
+
 pros::Rotation vertical_rotation(-20);
 pros::Rotation horizontal_rotation(12);
 pros::Imu imu(13);
@@ -18,27 +20,31 @@ danielib::Sensors odom(&vertical_tracker, &horizontal_tracker, &inertial);
     {3, 3, 4}
 }); */
 
-danielib::Drivetrain drive(&left_mg, &right_mg, &odom, /* &controllers, */ 11.5, 3.25, 450);
+danielib::Drivetrain chassis(&left_mg, &right_mg, &odom, /* &controllers, */ 11.5, 3.25, 450);
 
 void screen_print() {
     //pros::lcd::initialize();
+    master.clear();
     while (true) {
         // odom position
-        pros::lcd::print(0, "X: %f", drive.getPose().x);
-        pros::lcd::print(1, "Y: %f", drive.getPose().y);
-        pros::lcd::print(2, "Theta: %.2f", reduce_0_to_360(drive.getPose().theta));
+        pros::lcd::print(0, "X: %f", chassis.getPose().x);
+        pros::lcd::print(1, "Y: %f", chassis.getPose().y);
+        pros::lcd::print(2, "Theta: %.2f", reduce_0_to_360(chassis.getPose().theta));
 
         // delay to save resources
-        pros::delay(100);
+        pros::delay(50);
+
+        master.print(0, 0, "(%3.2f, %3.2f, %3.2f)             ", chassis.getPose().x, chassis.getPose().y, reduce_0_to_360(chassis.getPose().theta));
+        pros::delay(50);
     }
 }
 
 void initialize() {
     pros::lcd::initialize(); // initialze llemu
-    drive.calibrate();
-    drive.startTracking();
+    chassis.calibrate();
+    chassis.startTracking();
     // pros::delay(50);
-    // drive.setPose(0, 0, 0);
+    // chassis.setPose(0, 0, 0);
 
     pros::Task screen_task(screen_print);
 }
