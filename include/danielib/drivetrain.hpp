@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include "pros/motors.h"
 #include "pros/motor_group.hpp"
 #include "pros/rtos.h"
@@ -23,9 +24,9 @@ class Drivetrain {
         void setPose(Pose pose);
         Pose getPose();
 
-        void driveForDistance(float distance, int timeout = 0);
+        void driveForDistance(float distance, int timeout = infinityf());
         void driveToPoint(); // if within like 2 degrees just drive, if not, turn then drive
-        void turnToHeading(float heading, int timeout = 0);
+        void turnToHeading(float heading, int timeout = infinityf());
         void turnToPoint();
         void moveToPoint();
         void moveToPose();
