@@ -34,11 +34,11 @@ float Inertial::getHeading() {
 
 void Inertial::setRotation(float angle) {
     sensor1->set_rotation(angle);
-    sensor2->set_rotation(angle);
+    if (sensor2 != nullptr) sensor2->set_rotation(angle);
 }
 
 void Inertial::setHeading(float angle) {
     sensor1->set_heading(angle);
-    sensor2->set_heading(angle);
+    if (sensor2 != nullptr) sensor2->set_heading(angle);
 }
 }

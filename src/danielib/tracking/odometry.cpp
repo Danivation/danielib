@@ -9,12 +9,15 @@ void Drivetrain::update() {
     float deltaHorizontal = odomSensors->horizontalTracker->getPosition() - prevHorizontal;
     float deltaTheta = toRadians(odomSensors->imu->getRotation()) - prevTheta;
 
+    // TODO: add some logic to check if the pose was updated manually (changed with setPose) so it doesnt freak out because of the big deltas
+    // the x and y shouldnt freak out cause its just adding to the pose but theta might
+
     // find how much robot has traveled since last update
     float localX;
     float localY;
 
     // prevent divide by 0
-    if (deltaTheta == 0) {
+    if (deltaTheta < 1e-5) {
         localX = deltaHorizontal;
         localY = deltaVertical;
     } else {
@@ -55,10 +58,12 @@ void Drivetrain::calibrate() {
 
 void Drivetrain::setPose(float x, float y, float theta) {
     currentPose = Pose(x, y, theta);
+    odomSensors->imu->setRotation(theta);
 }
 
 void Drivetrain::setPose(Pose pose) {
     currentPose = pose;
+    odomSensors->imu->setRotation(pose.theta);
 }
 
 Pose Drivetrain::getPose() {
@@ -67,7 +72,10 @@ Pose Drivetrain::getPose() {
 
 void Drivetrain::startTracking() {
     if (trackingTask == nullptr) {
-        trackingTask = new pros::Task {[=] {
+        // reset pose to zero
+        setPose(0, 0, 0);
+        // start tracking task
+        trackingTask = new pros::Task {[&] {
             while (true) {
                 Drivetrain::update();
                 pros::delay(10);
@@ -78,8 +86,11 @@ void Drivetrain::startTracking() {
 
 void Drivetrain::stopTracking() {
     if (trackingTask != nullptr) {
+        // remove task from the rtos scheduler
         trackingTask->remove();
+        // frees up memory allocated by the task
         delete trackingTask;
+        // resets the pointer to nullptr to signify no task running
         trackingTask = nullptr;
     }
 }

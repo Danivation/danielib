@@ -37,8 +37,8 @@ void initialize() {
     pros::lcd::initialize(); // initialze llemu
     drive.calibrate();
     drive.startTracking();
-    pros::delay(50);
-    drive.setPose(0, 0, 0);
+    // pros::delay(50);
+    // drive.setPose(0, 0, 0);
 
     pros::Task screen_task(screen_print);
 }
