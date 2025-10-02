@@ -42,14 +42,12 @@ void initialize() {
     pros::lcd::initialize(); // initialze llemu
     chassis.calibrate();
     chassis.startTracking();
-    // pros::delay(50);
-    // chassis.setPose(0, 0, 0);
 
     pros::Task screen_task(screen_print);
 
     pros::delay(1000);
 
-    chassis.turnToHeading(90);
+    chassis.driveForDistance(24);
 }
 
 void competition_initialize() {

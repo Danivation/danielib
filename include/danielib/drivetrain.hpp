@@ -23,7 +23,7 @@ class Drivetrain {
         void setPose(Pose pose);
         Pose getPose();
 
-        void driveForDistance();
+        void driveForDistance(float distance, int timeout = 0);
         void driveToPoint(); // if within like 2 degrees just drive, if not, turn then drive
         void turnToHeading(float heading, int timeout = 0);
         void turnToPoint();
