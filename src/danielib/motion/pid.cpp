@@ -12,8 +12,7 @@ PID::PID(float kP, float kI, float kD, float timeout, float windupRange, float e
     exitTime(exitTime)
 {}
 
-float PID::update(const float target, const float current) {
-    const float error = target - current;
+float PID::update(const float error) {
     integral += error;
 
     // if the error switches signs, reset the integral

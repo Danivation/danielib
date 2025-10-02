@@ -4,6 +4,7 @@
 #include "pros/rtos.h"
 #include "danielib/sensors.hpp"
 #include "danielib/pose.hpp"
+#include "danielib/pid.hpp"
 
 namespace danielib {
 /**
@@ -11,7 +12,7 @@ namespace danielib {
  */
 class Drivetrain {
     public:
-        Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, /* Controllers* controllerSettings,  */float trackWidth, float wheelSize, float wheelRPM);
+        Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, float trackWidth, float wheelSize, float wheelRPM, PID* linearPID, PID* angularPID);
 
         void startTracking();
         void stopTracking();
@@ -24,20 +25,22 @@ class Drivetrain {
 
         void driveForDistance();
         void driveToPoint(); // if within like 2 degrees just drive, if not, turn then drive
-        void turnToHeading(float heading, int timeout);
+        void turnToHeading(float heading, int timeout = 0);
         void turnToPoint();
         void moveToPoint();
         void moveToPose();
         void followPath();
         void followPoints();
-    protected:
+    private:
+        PID* linearPID;
+        PID* angularPID;
         pros::MotorGroup* leftMotors;
         pros::MotorGroup* rightMotors;
         Sensors* odomSensors;
         const float trackWidth;
         const float wheelSize;
         const float wheelRPM;
-    private:
+
         pros::Task* trackingTask = nullptr;
         Pose currentPose = {0, 0, 0};
 

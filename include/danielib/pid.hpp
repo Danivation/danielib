@@ -22,7 +22,7 @@ class PID {
          * @param target target value for the PID to reach
          * @param current current sensor value
          */
-        float update(float target, float current);
+        float update(float error);
 
         /**
          * @brief Reset the PID's internal calculations

@@ -16,11 +16,10 @@ danielib::Inertial inertial(&imu);
 
 danielib::Sensors odom(&vertical_tracker, &horizontal_tracker, &inertial);
 
-/* danielib::Controllers controllers({
-    {3, 3, 4}
-}); */
+danielib::PID linearPID(7.5, 0.1, 40, 1000, 1);
+danielib::PID angularPID(2.3, 0.2, 13.7, 1000, 5);
 
-danielib::Drivetrain chassis(&left_mg, &right_mg, &odom, /* &controllers, */ 11.5, 3.25, 450);
+danielib::Drivetrain chassis(&left_mg, &right_mg, &odom, 11.5, 3.25, 450, &linearPID, &angularPID);
 
 void screen_print() {
     //pros::lcd::initialize();
@@ -47,6 +46,10 @@ void initialize() {
     // chassis.setPose(0, 0, 0);
 
     pros::Task screen_task(screen_print);
+
+    pros::delay(1000);
+
+    chassis.turnToHeading(90);
 }
 
 void competition_initialize() {

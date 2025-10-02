@@ -21,12 +21,14 @@ Sensors::Sensors(TrackerWheel* verticalTracker, TrackerWheel* horizontalTracker,
     imu(imu)
 {}
 
-Drivetrain::Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, float trackWidth, float wheelSize, float wheelRPM) :
+Drivetrain::Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, float trackWidth, float wheelSize, float wheelRPM, PID* linearPID, PID* angularPID) :
     leftMotors(leftMotors),
     rightMotors(rightMotors),
     odomSensors(odomSensors),
     trackWidth(trackWidth),
     wheelSize(wheelSize),
-    wheelRPM(wheelRPM)
+    wheelRPM(wheelRPM),
+    linearPID(linearPID),
+    angularPID(angularPID)
 {}
 } // namespace danielib

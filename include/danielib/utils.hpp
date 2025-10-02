@@ -28,6 +28,13 @@ inline float reduce_0_to_360(float angle) {
     return angle;
 }
 
+// reduce to -180-180
+inline float reduce_to_180_180(float angle) {
+    while (angle < -180) angle += 360;
+    while (angle >= 180) angle -= 360;
+    return angle;
+}
+
 // reduce to 0-2pi
 inline float reduce_radians(float angle) {
     // reduce to 0-2pi
