@@ -46,6 +46,12 @@ void Drivetrain::update() {
     prevTheta = toRadians(odomSensors->imu->getRotation());
 }
 
+void Drivetrain::calibrate() {
+    odomSensors->horizontalTracker->reset();
+    odomSensors->verticalTracker->reset();
+    odomSensors->imu->calibrate();
+}
+
 void Drivetrain::setPose(float x, float y, float theta) {
     currentPose = Pose(x, y, theta);
 }

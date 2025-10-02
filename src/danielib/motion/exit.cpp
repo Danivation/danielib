@@ -2,7 +2,7 @@
 #include <cmath>
 
 namespace danielib {
-ExitCondition::ExitCondition(const float exitRange, const float exitTime) :
+ExitCondition::ExitCondition(const float exitRange, const int exitTime) :
     exitRange(exitRange),
     exitTime(exitTime)
 {}

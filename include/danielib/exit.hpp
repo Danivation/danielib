@@ -3,7 +3,7 @@
 namespace danielib {
 class ExitCondition {
     public:
-        ExitCondition(const float exitRange, const float exitTime);
+        ExitCondition(const float exitRange, const int exitTime);
         bool isDone();
         /**
          * @brief Update the exit condition with the specified input
@@ -17,7 +17,7 @@ class ExitCondition {
         void reset();
     protected:
         const float exitRange;
-        const float exitTime;
+        const int exitTime;
         int startTime = -1;
         bool done = false;
 };

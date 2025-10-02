@@ -11,10 +11,12 @@ namespace danielib {
  */
 class Drivetrain {
     public:
-        Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, float trackWidth, float wheelSize, float wheelRPM);
+        Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, /* Controllers* controllerSettings,  */float trackWidth, float wheelSize, float wheelRPM);
 
         void startTracking();
         void stopTracking();
+
+        void calibrate();
 
         void setPose(float x, float y, float theta);
         void setPose(Pose pose);
@@ -22,7 +24,7 @@ class Drivetrain {
 
         void driveForDistance();
         void driveToPoint(); // if within like 2 degrees just drive, if not, turn then drive
-        void turnToHeading();
+        void turnToHeading(float heading, int timeout);
         void turnToPoint();
         void moveToPoint();
         void moveToPose();

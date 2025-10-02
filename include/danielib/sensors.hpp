@@ -42,4 +42,13 @@ class Sensors {
         TrackerWheel* horizontalTracker;
         Inertial* imu;
 };
+
+/* class Controllers {
+    public:
+        Controllers(std::initializer_list<PID> ints) :
+            ints(ints)
+        {}
+        std::initializer_list<PID> ints;
+        
+}; */
 } // namespace danielib
