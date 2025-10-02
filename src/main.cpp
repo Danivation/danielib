@@ -36,9 +36,8 @@ void screen_print() {
 void initialize() {
     pros::lcd::initialize(); // initialze llemu
     drive.calibrate();
-    imu.set_rotation(0);
-    horizontal_rotation.reset_position();
-    vertical_rotation.reset_position();
+    drive.startTracking();
+    pros::delay(50);
     drive.setPose(0, 0, 0);
 
     pros::Task screen_task(screen_print);

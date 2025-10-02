@@ -7,7 +7,7 @@ void TrackerWheel::reset() {
 }
 
 float TrackerWheel::getPosition() {
-    return (wheelDiameter * M_PI / 360) * sensor->get_position();
+    return (wheelDiameter * M_PI / 360) * (sensor->get_position() / 100);
 }
 
 float TrackerWheel::getOffset() {
@@ -16,7 +16,7 @@ float TrackerWheel::getOffset() {
 
 void Inertial::calibrate() {
     sensor1->reset(false);
-    sensor2->reset(false);
+    if (sensor2 != nullptr) sensor2->reset(false);
     pros::delay(2500);
 }
 

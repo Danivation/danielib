@@ -10,7 +10,7 @@ class TrackerWheel {
         void reset();
         float getPosition();
         float getOffset();
-    protected:
+    //protected:
         pros::Rotation* sensor;
         const float wheelDiameter;
         const float offset;
@@ -25,7 +25,7 @@ class Inertial {
         float getHeading();
         void setRotation(float angle);
         void setHeading(float angle);
-    protected:
+    //protected:
         pros::Imu* sensor1;
         const float scale1;
         pros::Imu* sensor2;

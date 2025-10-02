@@ -50,6 +50,7 @@ void Drivetrain::calibrate() {
     odomSensors->horizontalTracker->reset();
     odomSensors->verticalTracker->reset();
     odomSensors->imu->calibrate();
+    //pros::delay(2500);
 }
 
 void Drivetrain::setPose(float x, float y, float theta) {
