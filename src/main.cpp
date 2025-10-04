@@ -16,8 +16,8 @@ danielib::Inertial inertial(&imu);
 
 danielib::Sensors odom(&vertical_tracker, &horizontal_tracker, &inertial);
 
-danielib::PID linearPID(7.5, 0.1, 40, 1000, 1);
-danielib::PID angularPID(2.3, 0.2, 13.7, 1000, 5);
+danielib::PID linearPID(7.5, 0.1, 40, 1, 0.5, 100);
+danielib::PID angularPID(2.3, 0.2, 13.7, 5, 1, 100);
 
 danielib::Drivetrain chassis(&left_mg, &right_mg, &odom, 11.5, 3.25, 450, &linearPID, &angularPID);
 

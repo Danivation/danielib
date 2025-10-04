@@ -64,6 +64,7 @@ void Drivetrain::calibrate() {
     odomSensors->verticalTracker->reset();
     odomSensors->imu->calibrate();
     //pros::delay(2500);
+    pros::c::controller_rumble(pros::E_CONTROLLER_MASTER, ".");
 }
 
 void Drivetrain::setPose(float x, float y, float theta) {

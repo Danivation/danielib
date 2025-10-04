@@ -2,11 +2,10 @@
 #include <cmath>
 
 namespace danielib {
-PID::PID(float kP, float kI, float kD, float timeout, float windupRange, float exitRange, float exitTime) :
+PID::PID(float kP, float kI, float kD, float windupRange, float exitRange, float exitTime) :
     kP(kP),
     kI(kI),
     kD(kD),
-    timeout(timeout),
     windupRange(windupRange),
     exitRange(exitRange),
     exitTime(exitTime)

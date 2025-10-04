@@ -12,10 +12,10 @@ bool ExitCondition::isDone() {
 }
 
 bool ExitCondition::update(const float input) {
-    const int curTime = pros::millis();
+    const int currentTime = pros::millis();
     if (std::fabs(input) > exitRange) startTime = -1;
-    else if (startTime == -1) startTime = curTime;
-    else if (curTime >= startTime + exitTime) done = true;
+    else if (startTime == -1) startTime = currentTime;
+    else if (currentTime >= startTime + exitTime) done = true;
     return done;
 }
 

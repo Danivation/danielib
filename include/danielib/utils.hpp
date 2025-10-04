@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 
+// returns the sign of the input as -1, 0, or 1
 template <typename T> constexpr auto sgn(const T& lhs) {
     auto q = lhs;
     if (q > 0) return T(1);
@@ -10,35 +11,31 @@ template <typename T> constexpr auto sgn(const T& lhs) {
 
 // degrees to radians
 inline float toRadians(float angle) {
-    // degrees to radians
-    return angle * (M_PI / 180);
+    return angle * (M_PI / 180.0f);
 }
 
 // radians to degrees
 inline float toDegrees(float angle) {
-    // radians to degrees
-    return angle * (180 / M_PI);
+    return angle * (180.0f / M_PI);
 }
 
-// reduce to 0-360
-inline float reduce_0_to_360(float angle) {
-    // reduce to 0-360
-    while (angle < 0) angle += 360;
-    while (angle >= 360) angle -= 360;
+// reduce angle to range [0, 360)
+inline float reduce_to_0_360(float angle) {
+    angle = fmodf(angle, 360.0f);
+    if (angle < 0) angle += 360.0f;
     return angle;
 }
 
-// reduce to -180-180
+// reduce angle to range [-180, 180)
 inline float reduce_to_180_180(float angle) {
-    while (angle < -180) angle += 360;
-    while (angle >= 180) angle -= 360;
-    return angle;
+    angle = fmodf(angle + 180.0f, 360.0f);
+    if (angle < 0) angle += 360.0f;
+    return angle - 180.0f;
 }
 
-// reduce to 0-2pi
+// reduce radians to range [0, 2pi)
 inline float reduce_radians(float angle) {
-    // reduce to 0-2pi
-    while (angle < 0) angle += 2.0f * M_PI;
-    while (angle >= 2.0f * M_PI) angle -= 2.0f * M_PI;
+    angle = fmodf(angle, M_PI * 2.0f);
+    if (angle < 0) angle += M_PI * 2.0f;
     return angle;
 }
