@@ -34,7 +34,7 @@ void screen_print() {
         pros::delay(50);
 
         master.print(0, 0, "(%3.2f, %3.2f, %3.2f)             ", chassis.getPose().x, chassis.getPose().y, reduce_to_0_360(chassis.getPose().theta));
-        pros::delay(50);
+        pros::delay(100);
     }
 }
 
@@ -45,9 +45,12 @@ void initialize() {
 
     pros::Task screen_task(screen_print);
 
-    pros::delay(1000);
+    pros::delay(100);
 
+    printf("moving to pose \n");
     chassis.driveForDistance(24);
+    //chassis.moveToPose(0, 24, 0, 1000, 0.4);
+    printf("done moving to pose \n");
 }
 
 void competition_initialize() {

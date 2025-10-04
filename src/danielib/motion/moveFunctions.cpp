@@ -4,6 +4,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     const float earlyExitRange = 0; // change this later to add support for motion chaining and stuff, and make the closeness distance also adjust with it
 
     if (!isTracking()) return;
+    printf("starting moveToPose \n");
     const int startTime = pros::millis();
     ExitCondition linearExit(linearPID->exitRange, linearPID->exitTime);
     ExitCondition angularExit(angularPID->exitRange, angularPID->exitTime);
@@ -19,7 +20,8 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     bool close = false;
     bool prevSameSide = false;
 
-    while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
+    //while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
+    while (pros::millis() < startTime + timeout) {
         Pose robotPose = getPose(true);
 
         // disable turning if robot is close to target
