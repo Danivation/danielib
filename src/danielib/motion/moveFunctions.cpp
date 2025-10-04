@@ -19,20 +19,12 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     bool close = false;
     bool prevSameSide = false;
 
-    float power = 0;
-    float currentDistance = odomSensors->verticalTracker->getPosition();
-    float error = 0;
-
-    while (pros::millis() < startTime + timeout && !linearExit.isDone()) {
+    while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
         Pose robotPose = getPose(true);
 
+        // disable turning if robot is close to target
         float distance = robotPose.distance(targetPose);
-
-        if (distance < 6 && close == false) {
-            close = true;
-            // max speed stuff so it like yk doesnt do weird stuff
-            // params.maxSpeed = fmax(fabs(prevLateralOut), 60);
-        }
+        if (distance < 6 && close == false) close = true;
 
         // calculate carrot point for boomerang
         Pose carrotPose = targetPose - Pose(cos(targetPose.theta), sin(targetPose.theta)) * leadDist * distance;
@@ -46,17 +38,33 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         if (!sameSide && prevSameSide && close) break;
         prevSameSide = sameSide;
 
-
         // calculate errors
-        float angularError = reduce_to_180_180(robotPose.theta - targetPose.theta);
+        float angularError = close ? angleError(robotPose.theta, targetPose.theta, true) : 
+                                     angleError(robotPose.theta, robotPose.angle(carrotPose), true);
+        float linearError = robotPose.distance(carrotPose);
+        linearError *= cos(angleError(robotPose.theta, robotPose.angle(carrotPose), true));
 
+        // update exit conditions
+        linearExit.update(linearError);
+        angularExit.update(toDegrees(angularError));
 
-        error = distance - currentDistance;
-        power = linearPID->update(error);
-        linearExit.update(error);
+        // calculate outputs
+        float linearOut = linearPID->update(linearError);
+        float angularOut = angularPID->update(toDegrees(angularError));
+        if (close) angularOut = 0;
 
-        leftMotors->move(power);
-        rightMotors->move(power);
+        // desaturate outputs
+        float leftPower = linearOut + angularOut;
+        float rightPower = linearOut - angularOut;
+        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower));
+        if (ratio > 1) {
+            leftPower /= ratio;
+            rightPower /= ratio;
+        }
+
+        // move motors
+        leftMotors->move(leftPower);
+        rightMotors->move(rightPower);
 
         pros::delay(10);
     }

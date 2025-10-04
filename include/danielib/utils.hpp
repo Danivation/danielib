@@ -39,3 +39,18 @@ inline float reduce_radians(float angle) {
     if (angle < 0) angle += M_PI * 2.0f;
     return angle;
 }
+
+inline constexpr float sanitizeAngle(float angle, bool radians = false) {
+    if (radians) return std::fmod(std::fmod(angle, 2 * M_PI) + 2 * M_PI, 2 * M_PI);
+    else return std::fmod(std::fmod(angle, 360) + 360, 360);
+}   
+
+inline float angleError(float target, float position, bool radians = false) {
+    // bound angles from 0 to 2pi or 0 to 360
+    target = sanitizeAngle(target, radians);
+    position = sanitizeAngle(position, radians);
+    const float max = radians ? 2 * M_PI : 360;
+    const float rawError = target - position;
+
+    return std::remainder(rawError, max);
+}

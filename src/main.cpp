@@ -28,12 +28,12 @@ void screen_print() {
         // odom position
         pros::lcd::print(0, "X: %f", chassis.getPose().x);
         pros::lcd::print(1, "Y: %f", chassis.getPose().y);
-        pros::lcd::print(2, "Theta: %.2f", reduce_0_to_360(chassis.getPose().theta));
+        pros::lcd::print(2, "Theta: %.2f", reduce_to_0_360(chassis.getPose().theta));
 
         // delay to save resources
         pros::delay(50);
 
-        master.print(0, 0, "(%3.2f, %3.2f, %3.2f)             ", chassis.getPose().x, chassis.getPose().y, reduce_0_to_360(chassis.getPose().theta));
+        master.print(0, 0, "(%3.2f, %3.2f, %3.2f)             ", chassis.getPose().x, chassis.getPose().y, reduce_to_0_360(chassis.getPose().theta));
         pros::delay(50);
     }
 }
