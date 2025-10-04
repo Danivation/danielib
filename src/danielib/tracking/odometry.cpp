@@ -105,3 +105,7 @@ void Drivetrain::stopTracking() {
         trackingTask = nullptr;
     }
 }
+
+bool Drivetrain::isTracking() {
+    return (trackingTask != nullptr);
+}

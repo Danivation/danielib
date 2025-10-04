@@ -1,6 +1,7 @@
 #include "danielib/danielib.hpp"
 
 void danielib::Drivetrain::turnToHeading(float heading, int timeout) {
+    if (!isTracking()) return;
     const int startTime = pros::millis();
     ExitCondition angularExit(angularPID->exitRange, angularPID->exitTime);
 

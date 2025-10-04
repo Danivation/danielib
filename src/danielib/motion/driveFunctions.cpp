@@ -1,6 +1,7 @@
 #include "danielib/danielib.hpp"
 
 void danielib::Drivetrain::driveForDistance(float distance, int timeout) {
+    if (!isTracking()) return;
     const int startTime = pros::millis();
     ExitCondition linearExit(linearPID->exitRange, linearPID->exitTime);
 

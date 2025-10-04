@@ -17,6 +17,7 @@ class Drivetrain {
 
         void startTracking();
         void stopTracking();
+        bool isTracking();
 
         void calibrate();
 
@@ -28,8 +29,8 @@ class Drivetrain {
         void driveToPoint(); // if within like 2 degrees just drive, if not, turn then drive
         void turnToHeading(float heading, int timeout = infinityf());
         void turnToPoint();
-        void moveToPoint();
-        void moveToPose();
+        void moveToPoint(float x, float y, int timeout = infinityf());
+        void moveToPose(float x, float y, float heading, int timeout = infinityf(), float leadDist = 0.4);
         void followPath();
         void followPoints();
     private:
