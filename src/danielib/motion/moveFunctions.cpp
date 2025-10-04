@@ -13,7 +13,8 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     angularPID->reset();
     angularExit.reset();
 
-    Pose targetPose(x, y, heading);
+    // deal with everything in radians internally
+    Pose targetPose(x, y, toRadians(heading));
 
     bool close = false;
     bool prevSameSide = false;
@@ -23,7 +24,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     float error = 0;
 
     while (pros::millis() < startTime + timeout && !linearExit.isDone()) {
-        Pose robotPose = getPose();
+        Pose robotPose = getPose(true);
 
         float distance = robotPose.distance(targetPose);
 

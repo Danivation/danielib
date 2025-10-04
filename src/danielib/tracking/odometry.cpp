@@ -77,7 +77,8 @@ void Drivetrain::setPose(Pose pose) {
     odomSensors->imu->setRotation(pose.theta);
 }
 
-Pose Drivetrain::getPose() {
+Pose Drivetrain::getPose(bool inRadians) {
+    if (inRadians) return Pose(currentPose.x, currentPose.y, toRadians(currentPose.theta));
     return currentPose;
 }
 
