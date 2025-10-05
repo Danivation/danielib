@@ -6,6 +6,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
     float maxSpeed = 127;       // max speed param
     float linearMaxSlew = 20;
+    float angularMaxSlew = 15;
 
     if (!isTracking()) return;
     const int startTime = pros::millis();
@@ -67,7 +68,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
         // calculate outputs
         float linearOut = linearPID->update(linearError);
-        float angularOut = angularPID->update(toDegrees(angularError));
+        float angularOut = -angularPID->update(toDegrees(angularError));
         if (close) angularOut = 0;
 
         // clamp to max speed
@@ -75,12 +76,13 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
         linearOut = slew(linearOut, prevLinearOut, linearMaxSlew);
+        angularOut = slew(angularOut, prevAngularOut, angularMaxSlew);
 
         // update previous values
         prevLinearOut = linearOut;
         prevAngularOut = angularOut;
 
-        // desaturate outputs
+        // calculate and desaturate outputs
         float leftPower = linearOut + angularOut;
         float rightPower = linearOut - angularOut;
         float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower)) / maxSpeed;  // 127 = max speed
