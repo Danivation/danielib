@@ -1,12 +1,10 @@
 #include "danielib/danielib.hpp"
 
-void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, float leadDist) {
+void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, float leadDist, float driftFactor, float maxSpeed) {
     const float earlyExitRange = 0; // change this later to add support for motion chaining and stuff, and make the closeness distance also adjust with it
     const float closeDist = 5;  // distance for it to be considered close
 
     // tunable parameters and stuff
-    float maxSpeed = 127;
-    float driftFactor = 3;
     float linearMaxSlew = 20;
     float angularMaxSlew = 5;
 

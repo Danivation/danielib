@@ -44,13 +44,9 @@ void initialize() {
     chassis.startTracking();
 
     pros::Task screen_task(screen_print);
-
     pros::delay(100);
 
-    //printf("moving to pose \n");
-    //chassis.driveForDistance(24);
-    chassis.moveToPose(-24, 48, 270);
-    //printf("done moving to pose \n");
+    chassis.moveToPose(-24, 48, 0, 5000, 0.35, 3, 127);
 }
 
 void competition_initialize() {

@@ -25,12 +25,54 @@ class Drivetrain {
         void setPose(Pose pose);
         Pose getPose(bool inRadians = false);
 
+        /**
+         * @brief Drives straight for a given distance
+         * 
+         * @param distance target distance in inches
+         * @param timeout timeout in ms
+         */
         void driveForDistance(float distance, int timeout = infinityf());
-        void driveToPoint(); // if within like 2 degrees just drive, if not, turn then drive
+        /**
+         * @brief Turns to face a given target point, then drives straight to it
+         * @note doesn't exist yet
+         * 
+         * @param x x coordinate in inches
+         * @param y y coordinate in inches
+         * @param timeout timeout in ms
+         */
+        void driveToPoint(float x, float y, int timeout = infinityf()); // if within like 2 degrees just drive, if not, turn then drive
+        /**
+         * @brief Turns to a given target heading
+         * 
+         * @param heading target heading in degrees
+         * @param timeout timeout in ms
+         */
         void turnToHeading(float heading, int timeout = infinityf());
-        void turnToPoint();
-        void moveToPoint(float x, float y, int timeout = infinityf());
-        void moveToPose(float x, float y, float heading, int timeout = infinityf(), float leadDist = 0.4);
+        /**
+         * @brief Turns to face a given target point
+         * @note doesn't exist yet
+         * 
+         * @param x x coordinate in inches
+         * @param y y coordinate in inches
+         * @param timeout timeout in ms
+         */
+        void turnToPoint(float x, float y, int timeout = infinityf());
+        /**
+         * @brief this doesnt actually exist yet
+         */
+        void moveToPoint();
+        /**
+         * @brief Moves to a given target pose using a boomerang controller
+         * 
+         * @param x x coordinate in inches
+         * @param y y coordinate in inches
+         * @param heading heading in degrees
+         * @param timeout timeout in ms
+         * @param leadDist boomerang carrot point multiplier, higher number leads to curvier turns
+         * @param driftFactor limits the speed the drivetrain can move to avoid slipping, higher number leads to faster movements but more slippage
+         * @param maxSpeed max speed the drivetrain can move out of 127
+         */
+        void moveToPose(float x, float y, float heading, int timeout = infinityf(), float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 127);
         void followPath();
         void followPoints();
     private:
