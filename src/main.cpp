@@ -48,8 +48,8 @@ void initialize() {
     pros::delay(100);
 
     printf("moving to pose \n");
-    chassis.driveForDistance(24);
-    //chassis.moveToPose(0, 24, 0, 1000, 0.4);
+    //chassis.driveForDistance(24);
+    chassis.moveToPose(0, 24, 0);
     printf("done moving to pose \n");
 }
 

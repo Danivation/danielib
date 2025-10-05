@@ -20,6 +20,9 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     bool close = false;
     bool prevSameSide = false;
 
+    // counter so that the terminal doesnt get overloaded with data
+    int loopCounter = 0;
+
     //while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
     while (pros::millis() < startTime + timeout) {
         Pose robotPose = getPose(true);
@@ -29,7 +32,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         if (distance < 6 && close == false) close = true;
 
         // calculate carrot point for boomerang
-        Pose carrotPose = targetPose - Pose(cos(targetPose.theta), sin(targetPose.theta)) * leadDist * distance;
+        Pose carrotPose = targetPose - Pose(sin(targetPose.theta), cos(targetPose.theta)) * leadDist * distance;
         if (close) carrotPose = targetPose;
 
         // calculate if the robot is on the same side of the endpoint line as the carrot point
@@ -43,8 +46,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         // calculate errors
         float angularError = close ? angleError(robotPose.theta, targetPose.theta, true) : 
                                      angleError(robotPose.theta, robotPose.angle(carrotPose), true);
-        float linearError = robotPose.distance(carrotPose);
-        linearError *= cos(angleError(robotPose.theta, robotPose.angle(carrotPose), true));
+        float linearError = robotPose.distance(carrotPose) * cos(angularError);
 
         // update exit conditions
         linearExit.update(linearError);
@@ -58,15 +60,26 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         // desaturate outputs
         float leftPower = linearOut + angularOut;
         float rightPower = linearOut - angularOut;
-        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower));
+        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower)) / 127;  // 127 = max speed
         if (ratio > 1) {
             leftPower /= ratio;
             rightPower /= ratio;
         }
 
         // move motors
-        leftMotors->move(leftPower);
-        rightMotors->move(rightPower);
+        // leftMotors->move(leftPower);
+        // rightMotors->move(rightPower);
+
+        // log info to terminal
+        loopCounter++;
+        if (loopCounter % 3 == 0) {
+            printf("R: (%.2f, %.2f, %.2f), T: (%.2f, %.2f, %.2f), C: (%.2f, %.2f, %.2f), LE: %.2f, AE: %.2f, LO: %.2f, AO: %.2f \n", 
+                robotPose.x, robotPose.y, robotPose.theta,
+                targetPose.x, targetPose.y, targetPose.theta,
+                carrotPose.x, carrotPose.y, carrotPose.theta,
+                linearError, angularError, linearOut, angularOut
+            );
+        }
 
         pros::delay(10);
     }
