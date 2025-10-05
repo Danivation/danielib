@@ -64,6 +64,7 @@ inline float slew(float target, float current, float maxChange) {
     return current + change;
 }
 
+// get curvature between two poses by finding a circle using their headings, theta must be in radians and increase ccw
 inline float getCurvature(danielib::Pose pose, danielib::Pose other) {
     // calculate whether the pose is on the left or right side of the circle
     float side = sgn(std::sin(pose.theta) * (other.x - pose.x) - std::cos(pose.theta) * (other.y - pose.y));
@@ -75,4 +76,8 @@ inline float getCurvature(danielib::Pose pose, danielib::Pose other) {
 
     // return curvature
     return side * ((2 * x) / (d * d));
+}
+
+inline danielib::Pose fixRadians(danielib::Pose pose) {
+    return danielib::Pose(pose.x, pose.y, M_PI_2 - pose.theta);
 }

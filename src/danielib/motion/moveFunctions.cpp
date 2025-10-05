@@ -6,9 +6,9 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
     // tunable parameters and stuff
     float maxSpeed = 127;
-    float driftFactor = 7;
+    float driftFactor = 3;
     float linearMaxSlew = 20;
-    float angularMaxSlew = 25;
+    float angularMaxSlew = 5;
 
     if (!isTracking()) return;
     const int startTime = pros::millis();
@@ -68,7 +68,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         linearExit.update(linearError);
         angularExit.update(toDegrees(angularError));
 
-        // calculate outputs
+        // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
         float linearOut = linearPID->update(linearError);
         float angularOut = -angularPID->update(toDegrees(angularError));
         if (close) angularOut = 0;
@@ -81,7 +81,8 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         linearOut = slew(linearOut, prevLinearOut, linearMaxSlew);
         angularOut = slew(angularOut, prevAngularOut, angularMaxSlew);
 
-        float radius = 1 / fabs(getCurvature(robotPose, carrotPose));
+        // todo: fix radian increasing ccw inconsistency
+        float radius = 1 / fabs(getCurvature(fixRadians(robotPose), fixRadians(carrotPose)));
         float maxSlipSpeed(sqrt(driftFactor * radius * 9.8));
         linearOut = std::clamp(linearOut, -maxSlipSpeed, maxSlipSpeed);
 
