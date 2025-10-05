@@ -67,12 +67,12 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         }
 
         // move motors
-        // leftMotors->move(leftPower);
-        // rightMotors->move(rightPower);
+        leftMotors->move(leftPower);
+        rightMotors->move(rightPower);
 
         // log info to terminal
         loopCounter++;
-        if (loopCounter % 3 == 0) {
+        if (loopCounter % 3 == 1) {
             printf("R: (%.2f, %.2f, %.2f), T: (%.2f, %.2f, %.2f), C: (%.2f, %.2f, %.2f), LE: %.2f, AE: %.2f, LO: %.2f, AO: %.2f \n", 
                 robotPose.x, robotPose.y, robotPose.theta,
                 targetPose.x, targetPose.y, targetPose.theta,

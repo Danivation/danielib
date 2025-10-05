@@ -31,7 +31,8 @@ danielib::Pose danielib::Pose::lerp(danielib::Pose other, float t) const {
 
 float danielib::Pose::distance(danielib::Pose other) const { return std::hypot(this->x - other.x, this->y - other.y); }
 
-float danielib::Pose::angle(danielib::Pose other) const { return std::atan2(other.y - this->y, other.x - this->x); }
+// fix so 0 rad is +Y by swapping the x and y
+float danielib::Pose::angle(danielib::Pose other) const { return std::atan2(other.x - this->x, other.y - this->y); }
 
 danielib::Pose danielib::Pose::rotate(float angle) const {
     return danielib::Pose(this->x * std::cos(angle) - this->y * std::sin(angle),
