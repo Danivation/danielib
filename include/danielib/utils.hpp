@@ -54,3 +54,11 @@ inline float angleError(float target, float position, bool radians = false) {
 
     return std::remainder(rawError, max);
 }
+
+inline float slew(float target, float current, float maxChange) {
+    float change = target - current;
+    if (maxChange == 0) return target;
+    if (change > maxChange) change = maxChange;
+    else if (change < -maxChange) change = -maxChange;
+    return current + change;
+}

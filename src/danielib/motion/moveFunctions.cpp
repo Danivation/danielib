@@ -2,9 +2,12 @@
 
 void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, float leadDist) {
     const float earlyExitRange = 0; // change this later to add support for motion chaining and stuff, and make the closeness distance also adjust with it
+    const float closeDist = 5;  // distance for it to be considered close
+
+    float maxSpeed = 127;       // max speed param
+    float linearMaxSlew = 20;
 
     if (!isTracking()) return;
-    printf("starting moveToPose \n");
     const int startTime = pros::millis();
     ExitCondition linearExit(linearPID->exitRange, linearPID->exitTime);
     ExitCondition angularExit(angularPID->exitRange, angularPID->exitTime);
@@ -19,6 +22,8 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
     bool close = false;
     bool prevSameSide = false;
+    float prevLinearOut = 0;
+    float prevAngularOut = 0;
 
     // counter so that the terminal doesnt get overloaded with data
     int loopCounter = 0;
@@ -29,7 +34,10 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
         // disable turning if robot is close to target
         float distance = robotPose.distance(targetPose);
-        if (distance < 6 && close == false) close = true;
+        if (distance < closeDist && close == false) {
+            close = true;
+            maxSpeed = fmax(fabs(prevLinearOut), 60);
+        }
 
         // calculate carrot point for boomerang
         Pose carrotPose = targetPose - Pose(sin(targetPose.theta), cos(targetPose.theta)) * leadDist * distance;
@@ -57,10 +65,20 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         float angularOut = angularPID->update(toDegrees(angularError));
         if (close) angularOut = 0;
 
+        // clamp to max speed
+        linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
+        angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
+
+        linearOut = slew(linearOut, prevLinearOut, linearMaxSlew);
+
+        // update previous values
+        prevLinearOut = linearOut;
+        prevAngularOut = angularOut;
+
         // desaturate outputs
         float leftPower = linearOut + angularOut;
         float rightPower = linearOut - angularOut;
-        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower)) / 127;  // 127 = max speed
+        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower)) / maxSpeed;  // 127 = max speed
         if (ratio > 1) {
             leftPower /= ratio;
             rightPower /= ratio;
@@ -74,9 +92,9 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         loopCounter++;
         if (loopCounter % 3 == 1) {
             printf("R: (%.2f, %.2f, %.2f), T: (%.2f, %.2f, %.2f), C: (%.2f, %.2f, %.2f), LE: %.2f, AE: %.2f, LO: %.2f, AO: %.2f \n", 
-                robotPose.x, robotPose.y, robotPose.theta,
-                targetPose.x, targetPose.y, targetPose.theta,
-                carrotPose.x, carrotPose.y, carrotPose.theta,
+                robotPose.x, robotPose.y, toDegrees(robotPose.theta),
+                targetPose.x, targetPose.y, toDegrees(targetPose.theta),
+                carrotPose.x, carrotPose.y, toDegrees(carrotPose.theta),
                 linearError, angularError, linearOut, angularOut
             );
         }

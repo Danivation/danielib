@@ -16,8 +16,8 @@ danielib::Inertial inertial(&imu);
 
 danielib::Sensors odom(&vertical_tracker, &horizontal_tracker, &inertial);
 
-danielib::PID linearPID(7.5, 0.1, 40, 1, 0.5, 100);
-danielib::PID angularPID(2.3, 0.2, 13.7, 5, 1, 100);
+danielib::PID linearPID(7.5, 0.1, 20, 1, 0.5, 100);
+danielib::PID angularPID(2.3, 0.2, 13.7, 3, 1, 100);
 
 danielib::Drivetrain chassis(&left_mg, &right_mg, &odom, 11.5, 3.25, 450, &linearPID, &angularPID);
 
@@ -47,10 +47,10 @@ void initialize() {
 
     pros::delay(100);
 
-    printf("moving to pose \n");
+    //printf("moving to pose \n");
     //chassis.driveForDistance(24);
-    chassis.moveToPose(0, 24, 0);
-    printf("done moving to pose \n");
+    chassis.moveToPose(0, 24, 0, 2000);
+    //printf("done moving to pose \n");
 }
 
 void competition_initialize() {
