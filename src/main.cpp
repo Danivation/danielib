@@ -49,7 +49,7 @@ void initialize() {
 
     //printf("moving to pose \n");
     //chassis.driveForDistance(24);
-    chassis.moveToPose(0, 24, 0, 2000);
+    chassis.moveToPose(-24, 48, 270);
     //printf("done moving to pose \n");
 }
 

@@ -4,9 +4,11 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     const float earlyExitRange = 0; // change this later to add support for motion chaining and stuff, and make the closeness distance also adjust with it
     const float closeDist = 5;  // distance for it to be considered close
 
-    float maxSpeed = 127;       // max speed param
+    // tunable parameters and stuff
+    float maxSpeed = 127;
+    float driftFactor = 7;
     float linearMaxSlew = 20;
-    float angularMaxSlew = 15;
+    float angularMaxSlew = 25;
 
     if (!isTracking()) return;
     const int startTime = pros::millis();
@@ -75,8 +77,13 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
+        // constrain outputs to avoid slipping
         linearOut = slew(linearOut, prevLinearOut, linearMaxSlew);
         angularOut = slew(angularOut, prevAngularOut, angularMaxSlew);
+
+        float radius = 1 / fabs(getCurvature(robotPose, carrotPose));
+        float maxSlipSpeed(sqrt(driftFactor * radius * 9.8));
+        linearOut = std::clamp(linearOut, -maxSlipSpeed, maxSlipSpeed);
 
         // update previous values
         prevLinearOut = linearOut;

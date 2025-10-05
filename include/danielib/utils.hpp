@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include "danielib/pose.hpp"
 
 // returns the sign of the input as -1, 0, or 1
 template <typename T> constexpr auto sgn(const T& lhs) {
@@ -61,4 +62,17 @@ inline float slew(float target, float current, float maxChange) {
     if (change > maxChange) change = maxChange;
     else if (change < -maxChange) change = -maxChange;
     return current + change;
+}
+
+inline float getCurvature(danielib::Pose pose, danielib::Pose other) {
+    // calculate whether the pose is on the left or right side of the circle
+    float side = sgn(std::sin(pose.theta) * (other.x - pose.x) - std::cos(pose.theta) * (other.y - pose.y));
+    // calculate center point and radius
+    float a = -std::tan(pose.theta);
+    float c = std::tan(pose.theta) * pose.x - pose.y;
+    float x = std::fabs(a * other.x + other.y + c) / std::sqrt((a * a) + 1);
+    float d = std::hypot(other.x - pose.x, other.y - pose.y);
+
+    // return curvature
+    return side * ((2 * x) / (d * d));
 }
