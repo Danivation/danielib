@@ -41,6 +41,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
         // calculate carrot point for boomerang
         Pose carrotPose = targetPose - Pose(sin(targetPose.theta), cos(targetPose.theta)) * leadDist * distance;
+        carrotPose.theta = targetPose.theta;
         if (close) carrotPose = targetPose;
 
         // calculate if the robot is on the same side of the endpoint line as the carrot point
@@ -52,8 +53,12 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         prevSameSide = sameSide;
 
         // calculate errors
-        float angularError = close ? angleError(robotPose.theta, targetPose.theta, true) : 
+
+        // if close, target heading is the heading of the target point
+        // if not close, target heading is the heading to face the carrot point
+        float angularError = close ? angleError(robotPose.theta, targetPose.theta, true) :
                                      angleError(robotPose.theta, robotPose.angle(carrotPose), true);
+        //float angularError = angleError(robotPose.theta, carrotPose.theta, true);
         float linearError = robotPose.distance(carrotPose) * cos(angularError);
 
         // update exit conditions
@@ -91,11 +96,11 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         // log info to terminal
         loopCounter++;
         if (loopCounter % 3 == 1) {
-            printf("R: (%.2f, %.2f, %.2f), T: (%.2f, %.2f, %.2f), C: (%.2f, %.2f, %.2f), LE: %.2f, AE: %.2f, LO: %.2f, AO: %.2f \n", 
-                robotPose.x, robotPose.y, toDegrees(robotPose.theta),
+            printf(/* "R: (%.2f, %.2f, %.2f), T: (%.2f, %.2f, %.2f), C: (%.2f, %.2f, %.2f), */ "LE: %.2f,  AE: %.2f,  LO: %.2f,  AO: %.2f\n", 
+/*                 robotPose.x, robotPose.y, toDegrees(robotPose.theta),
                 targetPose.x, targetPose.y, toDegrees(targetPose.theta),
-                carrotPose.x, carrotPose.y, toDegrees(carrotPose.theta),
-                linearError, angularError, linearOut, angularOut
+                carrotPose.x, carrotPose.y, toDegrees(carrotPose.theta), */
+                linearError, toDegrees(angularError), linearOut, angularOut
             );
         }
 
