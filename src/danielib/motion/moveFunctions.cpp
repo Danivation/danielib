@@ -63,7 +63,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         float linearError = robotPose.distance(carrotPose) * cos(angularError);
 
         // update exit conditions
-        linearExit.update(linearError);
+        linearExit.update(robotPose.distance(targetPose));
         angularExit.update(toDegrees(angularError));
 
         // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
