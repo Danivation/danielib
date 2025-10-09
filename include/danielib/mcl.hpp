@@ -35,12 +35,6 @@ class Particle {
         void updateDeltaNoise(const Pose& delta);
         // what do we expect the distance of the given beam to be?
         float expectedDistance(const Beam& beam);
-        // what 
-
-        // if this particle is correct, given the measured beam, where would the object be that the beam hit?
-        Pose expectedPoint(Beam beam);
-        // what should the distance sensor measurement be? (distance from the given pose to its first obstacle)
-        float distanceToWall(Pose point);
         // gaussian distribution
         float gaussian(float x);
         // updates the weight of a point

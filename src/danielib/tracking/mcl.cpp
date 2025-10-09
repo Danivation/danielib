@@ -29,22 +29,16 @@ void Particle::updateDeltaNoise(const Pose& delta) {
     this->theta += thetaNoise * 2 * (dist(rng) - 0.5) + delta.theta;
 }
 
-Pose Particle::expectedPoint(const Beam& beam) {
-    float globalTheta = this->theta + beam.angle;
-    return Pose(
-        this->x + beam.distance * cosf(globalTheta),
-        this->y + beam.distance * sinf(globalTheta),
-        globalTheta
-    );
-}
+float Particle::expectedDistance(const Beam& beam) {
+    // this is like the one function where i have to do raidan stuff and /0 checks
+    float beamAngle = toRadians(this->theta + beam.angleOffset);
 
-float Particle::distanceToWall(Pose point, float beamAngleOffset) {
-    // use inches for field units, the field is really only about 140 inches across
+    // use inches for field units, the field is about 140 inches across
     return std::min({
-        fabs((point.x - 70) / cosf(point.theta)),
-        fabs((point.x + 70) / cosf(point.theta)),
-        fabs((point.y - 70) / sinf(point.theta)),
-        fabs((point.y - 70) / sinf(point.theta))
+        fabs((this->x - 70) / cosf(beamAngle)),
+        fabs((this->x + 70) / cosf(beamAngle)),
+        fabs((this->y - 70) / sinf(beamAngle)),
+        fabs((this->y + 70) / sinf(beamAngle))
     });
 }
 
@@ -55,7 +49,7 @@ float Particle::gaussian(float x) {
 void Particle::updateWeight(std::span<const Beam> beams) {
     float sum = 0;
     for (const Beam& beam : beams) {
-        sum += gaussian(distanceToWall(expectedPoint(beam)));
+        sum += gaussian(expectedDistance(beam) - beam.distance);
     }
     this->weight = sum;
 }
