@@ -30,28 +30,23 @@ void screen_print() {
         pros::lcd::print(1, "Y: %f", chassis.getPose().y);
         pros::lcd::print(2, "Theta: %.2f", reduce_to_0_360(chassis.getPose().theta));
 
+        //printf("serial line \n");
 
-
-        
-        printf("{\"particles\": [[120.0, 80.0, 0.5, 0.8], [130.0, 90.0, 0.6, 0.9]], \"pose\": [%f, %f, %f]}\n", 
+        printf("{\"particles\": [[1, 1, 1, 1]], \"pose\": [%f, %f, %f]}\n", 
             chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
 
-        // // delay to save resources
-        // pros::delay(50);
-
-        // master.print(0, 0, "(%3.2f, %3.2f, %3.2f)             ", chassis.getPose().x, chassis.getPose().y, reduce_to_0_360(chassis.getPose().theta));
-        // pros::delay(100);
+        pros::delay(100);
     }
 }
 
 void initialize() {
     pros::lcd::initialize(); // initialze llemu
+    pros::Task screen_task(screen_print);
+
     chassis.calibrate();
     chassis.startTracking();
 
-    pros::Task screen_task(screen_print);
-    pros::delay(100);
-
+    //pros::delay(100);
     //chassis.moveToPose(-24, 48, 0, 5000, 0.35, 3, 127);
 }
 
