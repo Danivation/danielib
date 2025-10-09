@@ -151,7 +151,7 @@ class Pose {
          * // result.x = 0, result.y = 1
          * @endcode
          */
-        Pose lerp(Pose other, float t) const;
+        Pose lerp(const Pose& other, const float t) const;
         /**
          * @brief Get the distance between two poses
          *
@@ -169,7 +169,7 @@ class Pose {
          * float result = poseA.distance(poseB); // result = 5
          * @endcode
          */
-        float distance(Pose other) const;
+        float distance(const Pose& other) const;
         /**
          * @brief Get the angle between two poses
          *
@@ -187,7 +187,7 @@ class Pose {
          * float result = poseA.angle(poseB); // result = 0.785398
          * @endcode
          */
-        float angle(Pose other) const;
+        float angle(const Pose& other) const;
         /**
          * @brief Rotate a pose by an angle
          *
@@ -205,6 +205,9 @@ class Pose {
          * // result.x = 0, result.y = 1
          * @endcode
          */
-        Pose rotate(float angle) const;
+        Pose rotate(const float angle) const;
+
+        // converts a pose in inches to a pose in some variation of meters (by default, 0.01 meters or 1 cm)
+        Pose metric(const float meterScale = 0.01) const;
 };
 } // namespace danielib

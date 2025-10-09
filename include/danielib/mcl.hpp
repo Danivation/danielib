@@ -2,27 +2,28 @@
 #include <cmath>
 #include <random>
 #include <vector>
+#include <span>
 #include "danielib/pose.hpp"
 #include "danielib/utils.hpp"
 
 namespace danielib::MCL {
 // tunable parameters
 const float numParticles = 100;
-const float gaussianStdev = 1;
+const float gaussianStDev = 1;
 const float gaussianFactor = 1;
 const float thetaNoise = toRadians(2);
 const float xyNoise = 0.1;
 
 class Beam {
     public:
-        Beam(float angle, float distance);
-        float angle;
+        Beam(float angleOffset, float distance);
+        float angleOffset;
         float distance;
 };
 
 class Particle {
     public:
-        Particle(Pose pose, float weight = -1);
+        Particle(const Pose& pose, float weight = -1);
         Particle(float x, float y, float theta, float weight = -1);
 
         float x;
@@ -31,15 +32,19 @@ class Particle {
         float weight;
 
         // update noise on the particle randomly
-        void updateDeltaNoise(Pose delta);
-        // if the particle is correct, where should the beam have landed?
+        void updateDeltaNoise(const Pose& delta);
+        // what do we expect the distance of the given beam to be?
+        float expectedDistance(const Beam& beam);
+        // what 
+
+        // if this particle is correct, given the measured beam, where would the object be that the beam hit?
         Pose expectedPoint(Beam beam);
-        // approximate distance from point to wall
+        // what should the distance sensor measurement be? (distance from the given pose to its first obstacle)
         float distanceToWall(Pose point);
         // gaussian distribution
         float gaussian(float x);
         // updates the weight of a point
-        void updateWeight(std::vector<Beam> beams);
+        void updateWeight(std::span<const Beam> beams);
 };
 
 class Localization {
@@ -50,10 +55,10 @@ class Localization {
         Pose averagePose = {0, 0, 0};
 
         // runs the localization loop
-        Pose run(Pose delta, std::vector<Beam> beams);
+        Pose run(Pose delta, std::span<Beam> beams);
         // updates particles (applies delta noise)
         void update(Pose delta);
         // resamples particles (resamples using beams)
-        void resample(std::vector<Beam> beams);
+        void resample(std::span<Beam> beams);
 };
 }
