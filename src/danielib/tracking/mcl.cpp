@@ -68,7 +68,7 @@ float Particle::gaussian(float x) {
 void Particle::updateWeight(std::span<const Beam> beams) {
     float sum = 1.0f;
     for (const Beam& beam : beams) {
-        if (beam.distance >= 5000) break;       // exit if beam records nothing or is invalid
+        if (beam.distance >= 5000) continue;       // skip if beam records nothing or is invalid
         sum *= gaussian(expectedDistance(beam) - beam.distance);
     }
     this->weight = sum;
@@ -80,9 +80,27 @@ Localization::Localization(std::vector<BeamSensor> sensors) :
     averagePose(0, 0, 0)
 {}
 
+void Localization::setPose(Pose pose) {
+    particles = std::vector<Particle>(numParticles, pose);
+    averagePose = pose;
+}
+
 Pose Localization::run(const Pose& delta, std::span<const Beam> beams) {
     this->update(delta);
     this->resample(beams);
+
+    printf("{\"particles\": [");
+
+    for (const auto& particle : particles) {
+        printf("[%.4f, %.4f, %.2f, %.2f]", particle.x, particle.y, particle.theta, particle.weight);
+
+        if (&particle != &particles.back()) {
+            printf(",");
+        }
+    }
+
+    printf("], \"pose\": [%f, %f, %f]}\n", averagePose.x, averagePose.y, averagePose.theta);
+
     return this->averagePose;
 }
 

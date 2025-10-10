@@ -10,7 +10,7 @@
 namespace danielib {
 inline namespace MCL {
 // tunable parameters
-const float numParticles = 100;
+const float numParticles = 50;
 const float gaussianStDev = 1;
 const float gaussianFactor = 1;
 const float thetaNoise = toRadians(2);
@@ -57,6 +57,8 @@ class Localization {
         std::vector<BeamSensor> sensors;
         std::vector<Particle> particles;
         Pose averagePose = {0, 0, 0};
+
+        void setPose(Pose pose);
 
         // runs the localization loop
         Pose run(const Pose& delta, std::span<const Beam> beams);

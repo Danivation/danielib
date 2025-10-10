@@ -85,7 +85,8 @@ void Drivetrain::startTracking() {
 void Drivetrain::startTrackingWithLocalization() {
     if (trackingTask == nullptr) {
         // reset pose to zero
-        setPose(0, 0, 0);
+        setPose(-24, -48, 0);
+        localization->setPose({-24, -48, 0});
         // start tracking task
         trackingTask = new pros::Task {[&] {
             while (true) {
@@ -95,8 +96,9 @@ void Drivetrain::startTrackingWithLocalization() {
                 }
 
                 Drivetrain::update();
-                Drivetrain::setPose(localization->run(deltaPose, beams_vec));
-                pros::delay(50);
+                Pose locPose = localization->run(deltaPose, beams_vec);
+                Drivetrain::setPose(locPose.x, locPose.y, currentPose.theta);
+                pros::delay(100);
             }
         }};
     }

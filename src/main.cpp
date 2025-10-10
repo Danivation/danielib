@@ -34,10 +34,16 @@ void screen_print() {
         pros::lcd::print(1, "Y: %f", chassis.getPose().y);
         pros::lcd::print(2, "Theta: %.2f", reduce_to_0_360(chassis.getPose().theta));
 
+        pros::lcd::print(4, "Distances: %d (left), %d (right)", left_distance.get_distance(), right_distance.get_distance());
+
         //printf("serial line \n");
 
-        printf("{\"particles\": [], \"pose\": [%f, %f, %f]}\n", 
-            chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
+        // printf("{\"particles\": [");
+
+        // for ()
+
+        // printf("], \"pose\": [%f, %f, %f]}\n", 
+        //     chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
 
         pros::delay(100);
     }
