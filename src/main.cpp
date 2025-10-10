@@ -18,11 +18,12 @@ danielib::TrackerWheel horizontal_tracker(&horizontal_rotation, 2.75, -7.75);
 danielib::Inertial inertial(&imu);
 
 danielib::Sensors odom(&vertical_tracker, &horizontal_tracker, &inertial);
+danielib::MCL::Localization mcl({{-90, &left_distance}, {90, &right_distance}});
 
 danielib::PID linearPID(7.5, 0.1, 20, 1, 0.5, 100);
 danielib::PID angularPID(2.3, 0.2, 13.7, 3, 1, 100);
 
-danielib::Drivetrain chassis(&left_mg, &right_mg, &odom, 11.5, 3.25, 450, &linearPID, &angularPID);
+danielib::Drivetrain chassis(&left_mg, &right_mg, &odom, &mcl, 11.5, 3.25, 450, &linearPID, &angularPID);
 
 void screen_print() {
     //pros::lcd::initialize();

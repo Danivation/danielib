@@ -89,7 +89,13 @@ void Drivetrain::startTrackingWithLocalization() {
         // start tracking task
         trackingTask = new pros::Task {[&] {
             while (true) {
+                std::vector<const MCL::Beam> beams_vec;
+                for (const auto& sensor: localization->sensors) {
+                    beams_vec.push_back({sensor.angleOffset, sensor.sensor->get_distance()});
+                }
+
                 Drivetrain::update();
+                localization->run(deltaPose, beams_vec);
                 pros::delay(50);
             }
         }};

@@ -3,6 +3,7 @@
 #include <random>
 #include <vector>
 #include <span>
+#include "pros/distance.hpp"
 #include "danielib/pose.hpp"
 #include "danielib/utils.hpp"
 
@@ -13,6 +14,13 @@ const float gaussianStDev = 1;
 const float gaussianFactor = 1;
 const float thetaNoise = toRadians(2);
 const float xyNoise = 0.1;
+
+class BeamSensor {
+    public:
+        BeamSensor(float angleOffset, pros::Distance* sensor);
+        float angleOffset;
+        pros::Distance* sensor;
+};
 
 class Beam {
     public:
@@ -43,8 +51,9 @@ class Particle {
 
 class Localization {
     public:
-        Localization();
+        Localization(std::initializer_list<const BeamSensor> sensors);
 
+        std::vector<const BeamSensor> sensors;
         std::vector<Particle> particles;
         Pose averagePose = {0, 0, 0};
 

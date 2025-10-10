@@ -13,6 +13,11 @@ std::random_device rd;
 std::mt19937 rng(rd());
 std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
+BeamSensor::BeamSensor(float angleOffset, pros::Distance* sensor) :
+    angleOffset(angleOffset),
+    sensor(sensor)
+{}
+
 Beam::Beam(float angleOffset, float distance) :
     angleOffset(angleOffset),
     distance(distance)
@@ -69,7 +74,8 @@ void Particle::updateWeight(std::span<const Beam> beams) {
     this->weight = sum;
 }
 
-Localization::Localization() :
+Localization::Localization(std::initializer_list<const BeamSensor> sensors) :
+    sensors(sensors),
     particles(numParticles, {0, 0, 0}),
     averagePose(0, 0, 0)
 {}
