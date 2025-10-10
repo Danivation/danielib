@@ -95,7 +95,7 @@ void Drivetrain::startTrackingWithLocalization() {
                 }
 
                 Drivetrain::update();
-                localization->run(deltaPose, beams_vec);
+                Drivetrain::setPose(localization->run(deltaPose, beams_vec));
                 pros::delay(50);
             }
         }};

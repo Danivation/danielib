@@ -36,8 +36,8 @@ void screen_print() {
 
         //printf("serial line \n");
 
-        // printf("{\"particles\": [[1, 1, 1, 1]], \"pose\": [%f, %f, %f]}\n", 
-        //     chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
+        printf("{\"particles\": [], \"pose\": [%f, %f, %f]}\n", 
+            chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
 
         pros::delay(100);
     }
@@ -48,10 +48,7 @@ void initialize() {
     pros::Task screen_task(screen_print);
 
     chassis.calibrate();
-    chassis.startTracking();
-
-    //pros::delay(100);
-    //chassis.moveToPose(-24, 48, 0, 5000, 0.35, 3, 127);
+    chassis.startTrackingWithLocalization();
 }
 
 void competition_initialize() {
