@@ -7,10 +7,7 @@ void Drivetrain::update() {
     // deltas are changes since last update
     float deltaVertical = odomSensors->verticalTracker->getPosition() - prevVertical;
     float deltaHorizontal = odomSensors->horizontalTracker->getPosition() - prevHorizontal;
-    float deltaTheta = toRadians(odomSensors->imu->getRotation()) - prevTheta;
-
-    // TODO: add some logic to check if the pose was updated manually (changed with setPose) so it doesnt freak out because of the big deltas
-    // the x and y shouldnt freak out cause its just adding to the pose but theta might
+    float deltaTheta = angleError(toRadians(odomSensors->imu->getRotation()), prevTheta, true);
 
     // find how much robot has traveled since last update
     float localX;
@@ -29,22 +26,8 @@ void Drivetrain::update() {
     // convert cartesian coordinates (local) to polar coordinates
     float avgTheta = prevTheta + (deltaTheta / 2);
 
-    // fixed math, this method works but is slower
-    /*
-    float polarRadius = hypotf(localX, localY);
-    float localPolarAngle = atan2f(localX, localY);
-
-    // rotate polar coordinates according to the robot's local frame
-    float globalPolarAngle = localPolarAngle + avgTheta;
-
-    // convert polar coordinates back into cartesian coordinates (global)
-    float deltaX = polarRadius * cosf(globalPolarAngle);
-    float deltaY = polarRadius * sinf(globalPolarAngle);
-
-    // update global positions
-    currentPose.x += deltaX;
-    currentPose.y += deltaY;
-    */
+    // mcl stuff
+    prevPose = currentPose;
 
     // cooler math that works better (update global positions)
     currentPose.x += localY * sinf(avgTheta);
@@ -52,6 +35,9 @@ void Drivetrain::update() {
     currentPose.x += localX * -cosf(avgTheta);
     currentPose.y += localX * sinf(avgTheta);
     currentPose.theta = odomSensors->imu->getRotation();
+
+    // update delta pose for mcl
+    deltaPose = {currentPose.x - prevPose.x, currentPose.y - prevPose.y, deltaTheta};
 
     // update previous values
     prevVertical = odomSensors->verticalTracker->getPosition();
@@ -91,6 +77,20 @@ void Drivetrain::startTracking() {
             while (true) {
                 Drivetrain::update();
                 pros::delay(10);
+            }
+        }};
+    }
+}
+
+void Drivetrain::startTrackingWithLocalization() {
+    if (trackingTask == nullptr) {
+        // reset pose to zero
+        setPose(0, 0, 0);
+        // start tracking task
+        trackingTask = new pros::Task {[&] {
+            while (true) {
+                Drivetrain::update();
+                pros::delay(50);
             }
         }};
     }

@@ -10,6 +10,9 @@ pros::Imu imu(13);
 pros::MotorGroup left_mg({17, 18, -19});
 pros::MotorGroup right_mg({-14, -15, 16});
 
+pros::Distance left_distance(10);
+pros::Distance right_distance(5);
+
 danielib::TrackerWheel vertical_tracker(&vertical_rotation, 2.75, -1);
 danielib::TrackerWheel horizontal_tracker(&horizontal_rotation, 2.75, -7.75);
 danielib::Inertial inertial(&imu);
@@ -32,8 +35,8 @@ void screen_print() {
 
         //printf("serial line \n");
 
-        printf("{\"particles\": [[1, 1, 1, 1]], \"pose\": [%f, %f, %f]}\n", 
-            chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
+        // printf("{\"particles\": [[1, 1, 1, 1]], \"pose\": [%f, %f, %f]}\n", 
+        //     chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
 
         pros::delay(100);
     }

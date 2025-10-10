@@ -56,6 +56,7 @@ inline constexpr float sanitizeAngle(float angle, bool radians = false) {
     else return std::fmod(std::fmod(angle, 360) + 360, 360);
 }   
 
+// calculates the difference between two angles or the angle between them, bounded to (-180,180] or (-pi,pi]
 inline float angleError(float target, float position, bool radians = false) {
     // bound angles from 0 to 2pi or 0 to 360
     target = sanitizeAngle(target, radians);
@@ -88,6 +89,10 @@ inline float getCurvature(danielib::Pose pose, danielib::Pose other) {
     return side * ((2 * x) / (d * d));
 }
 
-inline danielib::Pose fixRadians(danielib::Pose pose) {
-    return danielib::Pose(pose.x, pose.y, M_PI_2 - pose.theta);
+inline danielib::Pose fixRadians(danielib::Pose& pose) {
+    return {pose.x, pose.y, M_PI_2 - pose.theta};
+}
+
+inline float fixRadians(float angle) {
+    return M_PI_2 - angle;
 }

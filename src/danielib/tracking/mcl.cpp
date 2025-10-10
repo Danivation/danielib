@@ -41,7 +41,8 @@ void Particle::updateDeltaNoise(const Pose& delta) {
 
 float Particle::expectedDistance(const Beam& beam) {
     // this is like the one function where i have to do raidan stuff and /0 checks
-    float beamAngle = toRadians(this->theta + beam.angleOffset);
+    // fix radians so sin and cos work right
+    float beamAngle = fixRadians(toRadians(this->theta + beam.angleOffset));
 
     // use inches for field units, the field is about 140 inches across
     return std::min({
@@ -60,9 +61,10 @@ float Particle::gaussian(float x) {
 // and maybe average these weights instead of summing
 // and maybe make sure theyre positive
 void Particle::updateWeight(std::span<const Beam> beams) {
-    float sum = 0;
+    float sum = 1.0f;
     for (const Beam& beam : beams) {
-        sum += gaussian(expectedDistance(beam) - beam.distance);
+        if (beam.distance >= 5000) break;       // exit if beam records nothing or is invalid
+        sum *= gaussian(expectedDistance(beam) - beam.distance);
     }
     this->weight = sum;
 }

@@ -16,6 +16,7 @@ class Drivetrain {
         Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, float trackWidth, float wheelSize, float wheelRPM, PID* linearPID, PID* angularPID);
 
         void startTracking();
+        void startTrackingWithLocalization();
         void stopTracking();
         bool isTracking();
 
@@ -87,10 +88,14 @@ class Drivetrain {
 
         pros::Task* trackingTask = nullptr;
         Pose currentPose = {0, 0, 0};
+        void update();
 
         float prevVertical = 0;
         float prevHorizontal = 0;
         float prevTheta = 0;
-        void update();
+
+        // needed for mcl, change in pose since last odom update
+        Pose prevPose = {0, 0, 0};
+        Pose deltaPose = {0, 0, 0};
 };
 } // namespace danielib
