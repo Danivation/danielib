@@ -90,9 +90,9 @@ inline float getCurvature(danielib::Pose pose, danielib::Pose other) {
 }
 
 inline danielib::Pose fixRadians(danielib::Pose& pose) {
-    return {pose.x, pose.y, M_PI_2 - pose.theta};
+    return {pose.x, pose.y, static_cast<float>(M_PI_2) - pose.theta};
 }
 
 inline float fixRadians(float angle) {
-    return M_PI_2 - angle;
+    return static_cast<float>(M_PI_2) - angle;
 }

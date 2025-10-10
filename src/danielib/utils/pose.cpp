@@ -41,6 +41,6 @@ danielib::Pose danielib::Pose::rotate(const float angle) const {
 }
 
 // converts a pose in inches to a pose in some variation of meters (by default, 0.01 meters or 1 cm)
-danielib::Pose danielib::Pose::metric(const float meterScale = 0.01) const {
+danielib::Pose danielib::Pose::metric(const float meterScale) const {
     return danielib::Pose(this->x * (0.0254 / meterScale), this->y * (0.0254 / meterScale), this->theta);
 }

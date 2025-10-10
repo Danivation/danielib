@@ -23,14 +23,14 @@ Beam::Beam(float angleOffset, float distance) :
     distance(distance)
 {}
 
-Particle::Particle(const Pose& pose, float weight = -1) :
+Particle::Particle(const Pose& pose, float weight) :
     x(pose.x),
     y(pose.y),
     theta(pose.theta),
     weight(weight)
 {}
 
-Particle::Particle(float x, float y, float theta, float weight = -1) :
+Particle::Particle(float x, float y, float theta, float weight) :
     x(x),
     y(y),
     theta(theta),
@@ -74,7 +74,7 @@ void Particle::updateWeight(std::span<const Beam> beams) {
     this->weight = sum;
 }
 
-Localization::Localization(std::initializer_list<const BeamSensor> sensors) :
+Localization::Localization(std::vector<BeamSensor> sensors) :
     sensors(sensors),
     particles(numParticles, {0, 0, 0}),
     averagePose(0, 0, 0)

@@ -21,7 +21,7 @@ Sensors::Sensors(TrackerWheel* verticalTracker, TrackerWheel* horizontalTracker,
     imu(imu)
 {}
 
-Drivetrain::Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, MCL::Localization* localization, float trackWidth, float wheelSize, float wheelRPM, PID* linearPID, PID* angularPID) :
+Drivetrain::Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, danielib::Localization* localization, float trackWidth, float wheelSize, float wheelRPM, PID* linearPID, PID* angularPID) :
     leftMotors(leftMotors),
     rightMotors(rightMotors),
     odomSensors(odomSensors),

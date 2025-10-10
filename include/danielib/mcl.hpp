@@ -7,7 +7,8 @@
 #include "danielib/pose.hpp"
 #include "danielib/utils.hpp"
 
-namespace danielib::MCL {
+namespace danielib {
+inline namespace MCL {
 // tunable parameters
 const float numParticles = 100;
 const float gaussianStDev = 1;
@@ -51,9 +52,9 @@ class Particle {
 
 class Localization {
     public:
-        Localization(std::initializer_list<const BeamSensor> sensors);
+        Localization(std::vector<BeamSensor> sensors);
 
-        std::vector<const BeamSensor> sensors;
+        std::vector<BeamSensor> sensors;
         std::vector<Particle> particles;
         Pose averagePose = {0, 0, 0};
 
@@ -64,4 +65,5 @@ class Localization {
         // resamples particles (resamples using beams)
         void resample(std::span<const Beam> beams);
 };
+}
 }
