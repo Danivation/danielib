@@ -20,6 +20,16 @@ inline float toDegrees(float angle) {
     return angle * (180.0f / M_PI);
 }
 
+// converts a number in inches to a number in some variation of meters (by default, 0.001 meters or 1 mm)
+inline float toMetric(float input, float meterScale = 0.001) {
+    return input * (0.0254 / meterScale);
+}
+
+// converts a number in a metric unit (by default, 0.001 meters or 1 mm) to a number in inches
+inline float toInches(float input, float meterScale = 0.001) {
+    return input / (0.0254 / meterScale);
+}
+
 // reduce angle to range [0, 360)
 inline float reduce_to_0_360(float angle) {
     angle = fmodf(angle, 360.0f);

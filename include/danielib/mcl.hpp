@@ -37,7 +37,7 @@ class Particle {
         float expectedDistance(const Beam& beam);
         // gaussian distribution
         float gaussian(float x);
-        // updates the weight of a point
+        // updates the weight of a particle
         void updateWeight(std::span<const Beam> beams);
 };
 
@@ -49,10 +49,10 @@ class Localization {
         Pose averagePose = {0, 0, 0};
 
         // runs the localization loop
-        Pose run(Pose delta, std::span<Beam> beams);
+        Pose run(const Pose& delta, std::span<const Beam> beams);
         // updates particles (applies delta noise)
-        void update(Pose delta);
+        void update(const Pose& delta);
         // resamples particles (resamples using beams)
-        void resample(std::span<Beam> beams);
+        void resample(std::span<const Beam> beams);
 };
 }
