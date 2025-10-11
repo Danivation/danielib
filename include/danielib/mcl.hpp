@@ -10,11 +10,6 @@
 namespace danielib {
 inline namespace MCL {
 // tunable parameters
-const float numParticles = 50;
-const float gaussianStDev = 1;
-const float gaussianFactor = 1;
-const float thetaNoise = toRadians(0);
-const float xyNoise = 0.5;
 
 class BeamSensor {
     public:

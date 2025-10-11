@@ -13,6 +13,12 @@ std::random_device rd;
 std::mt19937 rng(rd());
 std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
+const float numParticles = 500;
+const float gaussianStDev = 0.8;
+const float gaussianFactor = 0.6;
+const float thetaNoise = toRadians(0.3);
+const float xyNoise = 2;
+
 BeamSensor::BeamSensor(pros::Distance* sensor, float xOffset, float yOffset, float angleOffset) :
     xOffset(xOffset),
     yOffset(yOffset),
@@ -81,7 +87,7 @@ void Particle::updateWeight(std::span<const Beam> beams) {
     float sum = 1.0f;
     for (const Beam& beam : beams) {
         if (beam.distance >= 2200) continue;       // skip if beam records nothing or is invalid
-        sum += fabs(gaussian(expectedDistance(beam) - toInches(beam.distance)));
+        sum *= fabs(gaussian(expectedDistance(beam) - toInches(beam.distance)));
     }
     this->weight = sum;
 }
@@ -116,7 +122,7 @@ Pose Localization::run(const Pose& delta, std::span<const Beam> beams) {
     for (auto& beam : beams) {
         float beamDistance = beam.distance;
         if (beamDistance >= 2200) beamDistance = 0;
-        printf("[%.1f, %.1f, %f, %f]", beam.xOffset, beam.yOffset, toDegrees(averagePose.theta) - beam.angleOffset, toInches(beamDistance));
+        printf("[%.1f, %.1f, %.1f, %.3f]", beam.xOffset, beam.yOffset, beam.angleOffset, /* toInches */(Particle(averagePose).expectedDistance(beam)));
 
         if (&beam != &beams.back()) {
             printf(",");
