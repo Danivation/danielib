@@ -92,7 +92,7 @@ void Drivetrain::startTrackingWithLocalization() {
             while (true) {
                 std::vector<MCL::Beam> beams_vec;
                 for (const auto& sensor: localization->sensors) {
-                    beams_vec.push_back({sensor.angleOffset, sensor.sensor->get_distance()});
+                    beams_vec.push_back({sensor.angleOffset, static_cast<float>(sensor.sensor->get_distance()), sensor.xOffset, sensor.yOffset});
                 }
 
                 Drivetrain::update();

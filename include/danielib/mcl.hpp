@@ -13,21 +13,25 @@ inline namespace MCL {
 const float numParticles = 50;
 const float gaussianStDev = 1;
 const float gaussianFactor = 1;
-const float thetaNoise = toRadians(2);
-const float xyNoise = 0.1;
+const float thetaNoise = toRadians(0);
+const float xyNoise = 0.5;
 
 class BeamSensor {
     public:
-        BeamSensor(float angleOffset, pros::Distance* sensor);
+        BeamSensor(pros::Distance* sensor, float xOffset, float yOffset, float angleOffset);
+        float xOffset;
+        float yOffset;
         float angleOffset;
         pros::Distance* sensor;
 };
 
 class Beam {
     public:
-        Beam(float angleOffset, float distance);
-        float angleOffset;
+        Beam(float angleOffset, float distance, float xOffset = 0, float yOffset = 0);
         float distance;
+        float angleOffset;
+        float xOffset = 0;
+        float yOffset = 0;
 };
 
 class Particle {

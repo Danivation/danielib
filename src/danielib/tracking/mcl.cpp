@@ -13,14 +13,18 @@ std::random_device rd;
 std::mt19937 rng(rd());
 std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-BeamSensor::BeamSensor(float angleOffset, pros::Distance* sensor) :
+BeamSensor::BeamSensor(pros::Distance* sensor, float xOffset, float yOffset, float angleOffset) :
+    xOffset(xOffset),
+    yOffset(yOffset),
     angleOffset(angleOffset),
     sensor(sensor)
 {}
 
-Beam::Beam(float angleOffset, float distance) :
+Beam::Beam(float angleOffset, float distance, float xOffset, float yOffset) :
     angleOffset(angleOffset),
-    distance(distance)
+    distance(distance),
+    xOffset(xOffset),
+    yOffset(yOffset)
 {}
 
 Particle::Particle(const Pose& pose, float weight) :
@@ -45,17 +49,25 @@ void Particle::updateDeltaNoise(const Pose& delta) {
 }
 
 float Particle::expectedDistance(const Beam& beam) {
-    // this is like the one function where i have to do raidan stuff and /0 checks
     // fix radians so sin and cos work right
+    // this is really particle not robot but oh well
+    float robotAngle = fixRadians(toRadians(this->theta));
+    float sinRobotAngle = sinf(robotAngle);
+    float cosRobotAngle = cosf(robotAngle);
+
+    // calculate beam angle and position using offset
     float beamAngle = fixRadians(toRadians(this->theta + beam.angleOffset));
+    float beamX = this->x + beam.yOffset * cosRobotAngle + beam.xOffset * sinRobotAngle;
+    float beamY = this->y + beam.yOffset * sinRobotAngle - beam.xOffset * cosRobotAngle;
+    float sinBeamAngle = sinf(beamAngle);
+    float cosBeamAngle = cosf(beamAngle);
 
     // use inches for field units, the field is about 140 inches across
-    return std::min({
-        fabs((this->x - 70) / cosf(beamAngle)),
-        fabs((this->x + 70) / cosf(beamAngle)),
-        fabs((this->y - 70) / sinf(beamAngle)),
-        fabs((this->y + 70) / sinf(beamAngle))
-    });
+    float x1 = (beamX - 70) / cosBeamAngle;
+    float x2 = (beamX + 70) / cosBeamAngle;
+    float y1 = (beamY - 70) / sinBeamAngle;
+    float y2 = (beamY + 70) / sinBeamAngle;
+    return fabs(std::max(std::min(x1, x2), std::min(y1, y2)));
 }
 
 float Particle::gaussian(float x) {
@@ -63,13 +75,13 @@ float Particle::gaussian(float x) {
 }
 
 // add some check to make sure that beams of distances that are too long dont get included
-// and maybe average these weights instead of summing
+// and maybe average the weights instead of summing
 // and maybe make sure theyre positive
 void Particle::updateWeight(std::span<const Beam> beams) {
     float sum = 1.0f;
     for (const Beam& beam : beams) {
-        if (beam.distance >= 5000) continue;       // skip if beam records nothing or is invalid
-        sum *= gaussian(expectedDistance(beam) - beam.distance);
+        if (beam.distance >= 2200) continue;       // skip if beam records nothing or is invalid
+        sum += fabs(gaussian(expectedDistance(beam) - toInches(beam.distance)));
     }
     this->weight = sum;
 }
@@ -91,15 +103,27 @@ Pose Localization::run(const Pose& delta, std::span<const Beam> beams) {
 
     printf("{\"particles\": [");
 
-    for (const auto& particle : particles) {
-        printf("[%.4f, %.4f, %.2f, %.2f]", particle.x, particle.y, particle.theta, particle.weight);
+    for (auto& particle : particles) {
+        printf("[%.3f, %.3f, %.3f, %.5f]", particle.x, particle.y, particle.theta, particle.weight);
 
         if (&particle != &particles.back()) {
             printf(",");
         }
     }
 
-    printf("], \"pose\": [%f, %f, %f]}\n", averagePose.x, averagePose.y, averagePose.theta);
+    printf("], \"beams\": [");
+
+    for (auto& beam : beams) {
+        float beamDistance = beam.distance;
+        if (beamDistance >= 2200) beamDistance = 0;
+        printf("[%.1f, %.1f, %f, %f]", beam.xOffset, beam.yOffset, toDegrees(averagePose.theta) - beam.angleOffset, toInches(beamDistance));
+
+        if (&beam != &beams.back()) {
+            printf(",");
+        }
+    }
+
+    printf("], \"pose\": [%f, %f, %f]}\n", averagePose.x, averagePose.y, toDegrees(averagePose.theta));
 
     return this->averagePose;
 }

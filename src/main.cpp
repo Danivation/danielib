@@ -18,7 +18,7 @@ danielib::TrackerWheel horizontal_tracker(&horizontal_rotation, 2.75, -7.75);
 danielib::Inertial inertial(&imu);
 
 danielib::Sensors odom(&vertical_tracker, &horizontal_tracker, &inertial);
-danielib::MCL::Localization mcl({{-90, &left_distance}, {90, &right_distance}});
+danielib::MCL::Localization mcl({{&left_distance, -5.5, 0, -90}, {&right_distance, 5.5, 0, 90}});
 
 danielib::PID linearPID(7.5, 0.1, 20, 1, 0.5, 100);
 danielib::PID angularPID(2.3, 0.2, 13.7, 3, 1, 100);
