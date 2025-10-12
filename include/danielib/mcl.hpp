@@ -11,22 +11,16 @@ namespace danielib {
 inline namespace MCL {
 // tunable parameters
 
-class BeamSensor {
-    public:
-        BeamSensor(pros::Distance& sensor, float xOffset, float yOffset, float angleOffset);
-        float xOffset;
-        float yOffset;
-        float angleOffset;
-        pros::Distance& sensor;
-};
-
 class Beam {
     public:
-        Beam(float angleOffset, float distance, float xOffset = 0, float yOffset = 0);
-        float distance;
+        Beam(float angleOffset, float xOffset, float yOffset, pros::Distance& sensor);
         float angleOffset;
-        float xOffset = 0;
-        float yOffset = 0;
+        float xOffset;
+        float yOffset;
+        pros::Distance& sensor;
+        int distance = 0;
+
+        void update();
 };
 
 class Particle {
@@ -51,9 +45,9 @@ class Particle {
 
 class Localization {
     public:
-        Localization(std::vector<BeamSensor> sensors);
+        Localization(std::vector<Beam> sensors);
 
-        std::vector<BeamSensor> sensors;
+        std::vector<Beam> beams;
         std::vector<Particle> particles;
         Pose averagePose = {0, 0, 0};
 

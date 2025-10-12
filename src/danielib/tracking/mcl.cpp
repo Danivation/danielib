@@ -19,19 +19,17 @@ const float gaussianFactor = 0.6;
 const float thetaNoise = toRadians(0.3);
 const float xyNoise = 2;
 
-BeamSensor::BeamSensor(pros::Distance& sensor, float xOffset, float yOffset, float angleOffset) :
+Beam::Beam(float angleOffset, float xOffset, float yOffset, pros::Distance& sensor) :
+    angleOffset(angleOffset),
     xOffset(xOffset),
     yOffset(yOffset),
-    angleOffset(angleOffset),
     sensor(sensor)
 {}
 
-Beam::Beam(float angleOffset, float distance, float xOffset, float yOffset) :
-    angleOffset(angleOffset),
-    distance(distance),
-    xOffset(xOffset),
-    yOffset(yOffset)
-{}
+void Beam::update() {
+    this->distance = sensor.get_distance();
+    if (this->distance >= 2200) this->distance = 0;
+}
 
 Particle::Particle(const Pose& pose, float weight) :
     x(pose.x),
@@ -80,20 +78,16 @@ float Particle::gaussian(float x) {
     return (gaussianFactor * expf(-0.5 * powf((x / gaussianStDev), 2)) / (gaussianStDev * sqrtf(2 * M_PI)));
 }
 
-// add some check to make sure that beams of distances that are too long dont get included
-// and maybe average the weights instead of summing
-// and maybe make sure theyre positive
 void Particle::updateWeight(std::span<const Beam> beams) {
     float sum = 1.0f;
     for (const Beam& beam : beams) {
-        if (beam.distance >= 2200) continue;       // skip if beam records nothing or is invalid
         sum *= fabs(gaussian(expectedDistance(beam) - toInches(beam.distance)));
     }
     this->weight = sum;
 }
 
-Localization::Localization(std::vector<BeamSensor> sensors) :
-    sensors(sensors),
+Localization::Localization(std::vector<Beam> sensors) :
+    beams(sensors),
     particles(numParticles, {0, 0, 0}),
     averagePose(0, 0, 0)
 {}
@@ -107,29 +101,29 @@ Pose Localization::run(const Pose& delta, std::span<const Beam> beams) {
     this->update(delta);
     this->resample(beams);
 
-    printf("{\"particles\": [");
+    printf("{\"particles\":[");
 
     for (auto& particle : particles) {
-        printf("[%.3f, %.3f, %.3f, %.5f]", particle.x, particle.y, particle.theta, particle.weight);
+        printf("[%.3f,%.3f,%.3f,%.5f]", particle.x, particle.y, particle.theta, particle.weight);
 
         if (&particle != &particles.back()) {
             printf(",");
         }
     }
 
-    printf("], \"beams\": [");
+    printf("],\"beams\":[");
 
     for (auto& beam : beams) {
         float beamDistance = beam.distance;
         if (beamDistance >= 2200) beamDistance = 0;
-        printf("[%.1f, %.1f, %.1f, %.3f]", beam.xOffset, beam.yOffset, beam.angleOffset, /* toInches */(Particle(averagePose).expectedDistance(beam)));
+        printf("[%.1f,%.1f,%.1f,%.3f]", beam.xOffset, beam.yOffset, beam.angleOffset, Particle(averagePose).expectedDistance(beam) /* beamDistance */);
 
         if (&beam != &beams.back()) {
             printf(",");
         }
     }
 
-    printf("], \"pose\": [%f, %f, %f]}\n", averagePose.x, averagePose.y, toDegrees(averagePose.theta));
+    printf("],\"pose\":[%.2f,%.2f,%.2f]}\n", averagePose.x, averagePose.y, toDegrees(averagePose.theta));
 
     return this->averagePose;
 }

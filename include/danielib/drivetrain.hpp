@@ -17,7 +17,8 @@ class Drivetrain {
         Drivetrain(pros::MotorGroup& leftMotors, pros::MotorGroup& rightMotors, Sensors& odomSensors, danielib::Localization& localization, float trackWidth, float wheelSize, float wheelRPM, PID& linearPID, PID& angularPID);
 
         void startTracking();
-        void startTrackingWithLocalization();
+        void startLocalization(float x, float y, float theta);
+        void stopLocalization();
         void stopTracking();
         bool isTracking();
 
@@ -89,6 +90,7 @@ class Drivetrain {
         const float wheelRPM;
 
         pros::Task* trackingTask = nullptr;
+        int trackingType = 0;
         Pose currentPose = {0, 0, 0};
         void update();
 

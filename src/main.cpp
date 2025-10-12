@@ -36,15 +36,6 @@ void screen_print() {
 
         pros::lcd::print(4, "Distances: %d (left), %d (right)", left_distance.get_distance(), right_distance.get_distance());
 
-        //printf("serial line \n");
-
-        // printf("{\"particles\": [");
-
-        // for ()
-
-        // printf("], \"pose\": [%f, %f, %f]}\n", 
-        //     chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
-
         pros::delay(100);
     }
 }
@@ -54,7 +45,8 @@ void initialize() {
     pros::Task screen_task(screen_print);
 
     chassis.calibrate();
-    chassis.startTrackingWithLocalization();
+    chassis.startTracking();
+    chassis.startLocalization(-24, -48, 0);
 }
 
 void competition_initialize() {

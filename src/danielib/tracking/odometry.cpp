@@ -19,8 +19,8 @@ void Drivetrain::update() {
         localY = deltaVertical;
     } else {
         // convert wheel movement to local x and y deltas
-        localX = 2*sinf(deltaTheta/2) * ((deltaHorizontal/deltaTheta) + odomSensors.horizontalTracker.getOffset());
-        localY = 2*sinf(deltaTheta/2) * ((deltaVertical/deltaTheta) + odomSensors.verticalTracker.getOffset());
+        localX = 2 * sinf(deltaTheta / 2) * ((deltaHorizontal / deltaTheta) + odomSensors.horizontalTracker.getOffset());
+        localY = 2 * sinf(deltaTheta / 2) * ((deltaVertical / deltaTheta) + odomSensors.verticalTracker.getOffset());
     }
 
     // convert cartesian coordinates (local) to polar coordinates
@@ -69,10 +69,13 @@ Pose Drivetrain::getPose(bool inRadians) {
 }
 
 void Drivetrain::startTracking() {
-    if (trackingTask == nullptr) {
+    if (trackingType != 1) { 
+        trackingType = 1;   // odom tracking only
         // reset pose to zero
         setPose(0, 0, 0);
-        // start tracking task
+        
+        // make sure nothing was already running, then start the tracking task
+        stopTracking();
         trackingTask = new pros::Task {[&] {
             while (true) {
                 Drivetrain::update();
@@ -82,46 +85,42 @@ void Drivetrain::startTracking() {
     }
 }
 
-void Drivetrain::startTrackingWithLocalization() {
-    if (trackingTask == nullptr) {
-        // reset pose to zero
-        setPose(-24, -48, 0);
-        localization.setPose({-24, -48, 0});
-        // start tracking task
+void Drivetrain::startLocalization(float x, float y, float theta) {
+    if (trackingType != 2) {
+        trackingType = 2;   // mcl tracking
+        setPose(x, y, theta);
+        localization.setPose({x, y, theta});
+
+        // make sure nothing was already running, then start the tracking task
+        stopTracking();
         trackingTask = new pros::Task {[&] {
             while (true) {
-                std::vector<MCL::Beam> beams_vec;
-                for (const auto& sensor: localization.sensors) {
-                    beams_vec.push_back({sensor.angleOffset, static_cast<float>(sensor.sensor.get_distance()), sensor.xOffset, sensor.yOffset});
+                for (auto& beam: localization.beams) {
+                    beam.update();
                 }
 
-                Drivetrain::update();   // odom update
-                Pose locPose = localization.run(deltaPose, beams_vec);
-                Drivetrain::setPose(locPose.x, locPose.y, currentPose.theta);
-                pros::delay(100);
+                Drivetrain::update();   // update odom
+                Drivetrain::setPose(localization.run(deltaPose, localization.beams));   // update mcl
+                pros::delay(50);
             }
         }};
     }
 }
 
-void Drivetrain::startLocalization(float x, float y, float theta) {
-    currentPose = Pose(x, y, theta);
-    odomSensors.imu.setRotation(theta);
-}
-
-void Drivetrain::startLocalization(Pose pose) {
-    currentPose = pose;
-    odomSensors.imu.setRotation(pose.theta);
+void Drivetrain::stopLocalization() {
+    if (trackingType == 2) {
+        trackingType = 1;
+        stopTracking();
+        startTracking();
+    }
 }
 
 void Drivetrain::stopTracking() {
     if (trackingTask != nullptr) {
-        // remove task from the rtos scheduler
-        trackingTask->remove();
-        // frees up memory allocated by the task
-        delete trackingTask;
-        // resets the pointer to nullptr to signify no task running
-        trackingTask = nullptr;
+        trackingType = 0;   // no tracking
+        trackingTask->remove(); // removes task from the rtos scheduler
+        delete trackingTask;    // frees up memory allocated by the task
+        trackingTask = nullptr; // resets the pointer to nullptr to signify no task running
     }
 }
 
