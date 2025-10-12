@@ -10,12 +10,12 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
     if (!isTracking()) return;
     const int startTime = pros::millis();
-    ExitCondition linearExit(linearPID->exitRange, linearPID->exitTime);
-    ExitCondition angularExit(angularPID->exitRange, angularPID->exitTime);
+    ExitCondition linearExit(linearPID.exitRange, linearPID.exitTime);
+    ExitCondition angularExit(angularPID.exitRange, angularPID.exitTime);
 
-    linearPID->reset();
+    linearPID.reset();
     linearExit.reset();
-    angularPID->reset();
+    angularPID.reset();
     angularExit.reset();
 
     // deal with everything in radians internally
@@ -67,8 +67,8 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         angularExit.update(toDegrees(angularError));
 
         // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
-        float linearOut = linearPID->update(linearError);
-        float angularOut = -angularPID->update(toDegrees(angularError));
+        float linearOut = linearPID.update(linearError);
+        float angularOut = -angularPID.update(toDegrees(angularError));
         if (close) angularOut = 0;
 
         // clamp to max speed
@@ -98,8 +98,8 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         }
 
         // move motors
-        leftMotors->move(leftPower);
-        rightMotors->move(rightPower);
+        leftMotors.move(leftPower);
+        rightMotors.move(rightPower);
 
         // log info to terminal
         loopCounter++;
@@ -116,6 +116,6 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     }
 
     // stop motors
-    leftMotors->move(0);
-    rightMotors->move(0);
+    leftMotors.move(0);
+    rightMotors.move(0);
 }
