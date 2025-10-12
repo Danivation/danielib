@@ -13,11 +13,11 @@ inline namespace MCL {
 
 class BeamSensor {
     public:
-        BeamSensor(pros::Distance* sensor, float xOffset, float yOffset, float angleOffset);
+        BeamSensor(pros::Distance& sensor, float xOffset, float yOffset, float angleOffset);
         float xOffset;
         float yOffset;
         float angleOffset;
-        pros::Distance* sensor;
+        pros::Distance& sensor;
 };
 
 class Beam {

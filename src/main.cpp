@@ -13,17 +13,17 @@ pros::MotorGroup right_mg({-14, -15, 16});
 pros::Distance left_distance(10);
 pros::Distance right_distance(5);
 
-danielib::TrackerWheel vertical_tracker(&vertical_rotation, 2.75, -1);
-danielib::TrackerWheel horizontal_tracker(&horizontal_rotation, 2.75, -7.75);
-danielib::Inertial inertial(&imu);
+danielib::TrackerWheel vertical_tracker(vertical_rotation, 2.75, -1);
+danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2.75, -7.75);
+danielib::Inertial inertial(imu);
 
-danielib::Sensors odom(&vertical_tracker, &horizontal_tracker, &inertial);
-danielib::MCL::Localization mcl({{&left_distance, -5.5, 0, -90}, {&right_distance, 3.5, -11, 180}});
+danielib::Sensors odom(vertical_tracker, horizontal_tracker, inertial);
+danielib::MCL::Localization mcl({{left_distance, -5.5, 0, -90}, {right_distance, 3.5, -11, 180}});
 
 danielib::PID linearPID(7.5, 0.1, 20, 1, 0.5, 100);
 danielib::PID angularPID(2.3, 0.2, 13.7, 3, 1, 100);
 
-danielib::Drivetrain chassis(&left_mg, &right_mg, &odom, &mcl, 11.5, 3.25, 450, &linearPID, &angularPID);
+danielib::Drivetrain chassis(left_mg, right_mg, odom, mcl, 11.5, 3.25, 450, linearPID, angularPID);
 
 void screen_print() {
     //pros::lcd::initialize();

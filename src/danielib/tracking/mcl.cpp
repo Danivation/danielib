@@ -19,7 +19,7 @@ const float gaussianFactor = 0.6;
 const float thetaNoise = toRadians(0.3);
 const float xyNoise = 2;
 
-BeamSensor::BeamSensor(pros::Distance* sensor, float xOffset, float yOffset, float angleOffset) :
+BeamSensor::BeamSensor(pros::Distance& sensor, float xOffset, float yOffset, float angleOffset) :
     xOffset(xOffset),
     yOffset(yOffset),
     angleOffset(angleOffset),

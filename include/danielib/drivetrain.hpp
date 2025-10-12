@@ -14,7 +14,7 @@ namespace danielib {
  */
 class Drivetrain {
     public:
-        Drivetrain(pros::MotorGroup* leftMotors, pros::MotorGroup* rightMotors, Sensors* odomSensors, danielib::Localization* localization, float trackWidth, float wheelSize, float wheelRPM, PID* linearPID, PID* angularPID);
+        Drivetrain(pros::MotorGroup& leftMotors, pros::MotorGroup& rightMotors, Sensors& odomSensors, danielib::Localization& localization, float trackWidth, float wheelSize, float wheelRPM, PID& linearPID, PID& angularPID);
 
         void startTracking();
         void startTrackingWithLocalization();
@@ -78,12 +78,12 @@ class Drivetrain {
         void followPath();
         void followPoints();
     private:
-        PID* linearPID;
-        PID* angularPID;
-        pros::MotorGroup* leftMotors;
-        pros::MotorGroup* rightMotors;
-        Sensors* odomSensors;
-        danielib::Localization* localization;
+        PID& linearPID;
+        PID& angularPID;
+        pros::MotorGroup& leftMotors;
+        pros::MotorGroup& rightMotors;
+        Sensors& odomSensors;
+        danielib::Localization& localization;
         const float trackWidth;
         const float wheelSize;
         const float wheelRPM;
