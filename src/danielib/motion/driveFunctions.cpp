@@ -3,27 +3,27 @@
 void danielib::Drivetrain::driveForDistance(float distance, int timeout) {
     if (!isTracking()) return;
     const int startTime = pros::millis();
-    ExitCondition linearExit(linearPID->exitRange, linearPID->exitTime);
+    ExitCondition linearExit(linearPID.exitRange, linearPID.exitTime);
 
     float power = 0;
-    float currentDistance = odomSensors->verticalTracker->getPosition();
+    float currentDistance = odomSensors.verticalTracker.getPosition();
     float error = 0;
 
-    linearPID->reset();
+    linearPID.reset();
     linearExit.reset();
     while (pros::millis() < startTime + timeout && !linearExit.isDone()) {
-        currentDistance = odomSensors->verticalTracker->getPosition();
+        currentDistance = odomSensors.verticalTracker.getPosition();
         error = distance - currentDistance;
-        power = linearPID->update(error);
+        power = linearPID.update(error);
         linearExit.update(error);
 
-        leftMotors->move(power);
-        rightMotors->move(power);
+        leftMotors.move(power);
+        rightMotors.move(power);
 
         pros::delay(10);
     }
 
     // stop motors
-    leftMotors->move(0);
-    rightMotors->move(0);
+    leftMotors.move(0);
+    rightMotors.move(0);
 }
