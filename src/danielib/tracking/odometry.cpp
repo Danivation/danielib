@@ -1,4 +1,8 @@
 #include "danielib/danielib.hpp"
+#include "danielib/drivetrain.hpp"
+#include "danielib/exit.hpp"
+#include "danielib/utils.hpp"
+#include "danielib/pid.hpp"
 #include <cmath>
 
 using namespace danielib;

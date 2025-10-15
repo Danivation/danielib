@@ -1,4 +1,5 @@
 #include "danielib/danielib.hpp"
+#include "danielib/utils.hpp"
 #include <random>
 #include <cmath>
 #include <algorithm>

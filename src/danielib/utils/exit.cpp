@@ -1,4 +1,5 @@
 #include "danielib/danielib.hpp"
+#include "danielib/exit.hpp"
 #include <cmath>
 
 namespace danielib {

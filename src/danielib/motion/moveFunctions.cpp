@@ -1,4 +1,7 @@
-#include "danielib/danielib.hpp"
+#include "danielib/drivetrain.hpp"
+#include "danielib/exit.hpp"
+#include "danielib/utils.hpp"
+#include "danielib/pid.hpp"
 
 void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, float leadDist, float driftFactor, float maxSpeed) {
     const float earlyExitRange = 0; // change this later to add support for motion chaining and stuff, and make the closeness distance also adjust with it
