@@ -1,6 +1,6 @@
 #include "danielib/danielib.hpp"
 
-void danielib::Drivetrain::turnToHeading(float heading, int timeout) {
+void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSpeed) {
     if (!isTracking()) return;
     const int startTime = pros::millis();
     ExitCondition angularExit(angularPID.exitRange, angularPID.exitTime);
@@ -17,6 +17,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout) {
         power = angularPID.update(error);
         angularExit.update(error);
 
+        power = std::clamp(power, -maxSpeed, maxSpeed);
         leftMotors.move(power);
         rightMotors.move(-power);
 

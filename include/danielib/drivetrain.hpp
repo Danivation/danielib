@@ -34,7 +34,7 @@ class Drivetrain {
          * @param distance target distance in inches
          * @param timeout timeout in ms
          */
-        void driveForDistance(float distance, int timeout = infinityf());
+        void driveForDistance(float distance, int timeout = infinityf(), float maxSpeed = 127);
         /**
          * @brief Turns to face a given target point, then drives straight to it
          * @note doesn't exist yet
@@ -50,7 +50,7 @@ class Drivetrain {
          * @param heading target heading in degrees
          * @param timeout timeout in ms
          */
-        void turnToHeading(float heading, int timeout = infinityf());
+        void turnToHeading(float heading, int timeout = infinityf(), float maxSpeed = 127);
         /**
          * @brief Turns to face a given target point
          * @note doesn't exist yet

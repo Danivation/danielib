@@ -1,6 +1,6 @@
 #include "danielib/danielib.hpp"
 
-void danielib::Drivetrain::driveForDistance(float distance, int timeout) {
+void danielib::Drivetrain::driveForDistance(float distance, int timeout, float maxSpeed) {
     if (!isTracking()) return;
     const int startTime = pros::millis();
     ExitCondition linearExit(linearPID.exitRange, linearPID.exitTime);
@@ -17,6 +17,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout) {
         power = linearPID.update(error);
         linearExit.update(error);
 
+        power = std::clamp(power, -maxSpeed, maxSpeed);
         leftMotors.move(power);
         rightMotors.move(power);
 
