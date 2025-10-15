@@ -22,7 +22,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     angularExit.reset();
 
     // deal with everything in radians internally
-    Pose targetPose(x, y, toRadians(heading));
+    Pose targetPose(x, y, d_toRadians(heading));
 
     bool close = false;
     bool prevSameSide = false;
@@ -60,18 +60,18 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
         // if close, target heading is the heading of the target point
         // if not close, target heading is the heading to face the carrot point
-        float angularError = close ? angleError(robotPose.theta, targetPose.theta, true) :
-                                     angleError(robotPose.theta, robotPose.angle(carrotPose), true);
-        //float angularError = angleError(robotPose.theta, carrotPose.theta, true);
+        float angularError = close ? d_angleError(robotPose.theta, targetPose.theta, true) :
+                                     d_angleError(robotPose.theta, robotPose.angle(carrotPose), true);
+        //float angularError = d_angleError(robotPose.theta, carrotPose.theta, true);
         float linearError = robotPose.distance(carrotPose) * cos(angularError);
 
         // update exit conditions
         linearExit.update(robotPose.distance(targetPose));
-        angularExit.update(toDegrees(angularError));
+        angularExit.update(d_toDegrees(angularError));
 
         // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
         float linearOut = linearPID.update(linearError);
-        float angularOut = -angularPID.update(toDegrees(angularError));
+        float angularOut = -angularPID.update(d_toDegrees(angularError));
         if (close) angularOut = 0;
 
         // clamp to max speed
@@ -79,11 +79,11 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
         // constrain outputs to avoid slipping
-        linearOut = slew(linearOut, prevLinearOut, linearMaxSlew);
-        angularOut = slew(angularOut, prevAngularOut, angularMaxSlew);
+        linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
+        angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
         // todo: fix radian increasing ccw inconsistency
-        float radius = 1 / fabs(getCurvature(fixRadians(robotPose), fixRadians(carrotPose)));
+        float radius = 1 / fabs(d_getCurvature(d_fixRadians(robotPose), d_fixRadians(carrotPose)));
         float maxSlipSpeed(sqrt(driftFactor * radius * 9.8));
         linearOut = std::clamp(linearOut, -maxSlipSpeed, maxSlipSpeed);
 
@@ -108,10 +108,10 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         loopCounter++;
         if (loopCounter % 3 == 1) {
             printf(/* "R: (%.2f, %.2f, %.2f), T: (%.2f, %.2f, %.2f), C: (%.2f, %.2f, %.2f), */ "LE: %.2f,  AE: %.2f,  LO: %.2f,  AO: %.2f\n", 
-/*                 robotPose.x, robotPose.y, toDegrees(robotPose.theta),
-                targetPose.x, targetPose.y, toDegrees(targetPose.theta),
-                carrotPose.x, carrotPose.y, toDegrees(carrotPose.theta), */
-                linearError, toDegrees(angularError), linearOut, angularOut
+/*                 robotPose.x, robotPose.y, d_toDegrees(robotPose.theta),
+                targetPose.x, targetPose.y, d_toDegrees(targetPose.theta),
+                carrotPose.x, carrotPose.y, d_toDegrees(carrotPose.theta), */
+                linearError, d_toDegrees(angularError), linearOut, angularOut
             );
         }
 

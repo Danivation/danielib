@@ -3,7 +3,7 @@
 #include "danielib/pose.hpp"
 
 // returns the sign of the input as -1, 0, or 1
-template <typename T> constexpr auto sgn(const T& lhs) {
+template <typename T> constexpr auto d_sgn(const T& lhs) {
     auto q = lhs;
     if (q > 0) return T(1);
     if (q < 0) return T(-1);
@@ -11,63 +11,63 @@ template <typename T> constexpr auto sgn(const T& lhs) {
 }
 
 // degrees to radians
-inline float toRadians(float angle) {
+inline float d_toRadians(float angle) {
     return angle * (M_PI / 180.0f);
 }
 
 // radians to degrees
-inline float toDegrees(float angle) {
+inline float d_toDegrees(float angle) {
     return angle * (180.0f / M_PI);
 }
 
 // converts a number in inches to a number in some variation of meters (by default, 0.001 meters or 1 mm)
-inline float toMetric(float input, float meterScale = 0.001) {
+inline float d_toMetric(float input, float meterScale = 0.001) {
     return input * (0.0254 / meterScale);
 }
 
 // converts a number in a metric unit (by default, 0.001 meters or 1 mm) to a number in inches
-inline float toInches(float input, float meterScale = 0.001) {
+inline float d_toInches(float input, float meterScale = 0.001) {
     return input / (0.0254 / meterScale);
 }
 
 // reduce angle to range [0, 360)
-inline float reduce_to_0_360(float angle) {
+inline float d_reduce_to_0_360(float angle) {
     angle = fmodf(angle, 360.0f);
     if (angle < 0) angle += 360.0f;
     return angle;
 }
 
 // reduce angle to range [-180, 180)
-inline float reduce_to_180_180(float angle) {
+inline float d_reduce_to_180_180(float angle) {
     angle = fmodf(angle + 180.0f, 360.0f);
     if (angle < 0) angle += 360.0f;
     return angle - 180.0f;
 }
 
 // reduce radians to range [0, 2pi)
-inline float reduce_radians(float angle) {
+inline float d_reduce_radians(float angle) {
     angle = fmodf(angle, M_PI * 2.0f);
     if (angle < 0) angle += M_PI * 2.0f;
     return angle;
 }
 
-inline constexpr float sanitizeAngle(float angle, bool radians = false) {
+inline constexpr float d_sanitizeAngle(float angle, bool radians = false) {
     if (radians) return std::fmod(std::fmod(angle, 2 * M_PI) + 2 * M_PI, 2 * M_PI);
     else return std::fmod(std::fmod(angle, 360) + 360, 360);
 }   
 
 // calculates the difference between two angles or the angle between them, bounded to (-180,180] or (-pi,pi]
-inline float angleError(float target, float position, bool radians = false) {
+inline float d_angleError(float target, float position, bool radians = false) {
     // bound angles from 0 to 2pi or 0 to 360
-    target = sanitizeAngle(target, radians);
-    position = sanitizeAngle(position, radians);
+    target = d_sanitizeAngle(target, radians);
+    position = d_sanitizeAngle(position, radians);
     const float max = radians ? 2 * M_PI : 360;
     const float rawError = target - position;
 
     return std::remainder(rawError, max);
 }
 
-inline float slew(float target, float current, float maxChange) {
+inline float d_slew(float target, float current, float maxChange) {
     float change = target - current;
     if (maxChange == 0) return target;
     if (change > maxChange) change = maxChange;
@@ -76,9 +76,9 @@ inline float slew(float target, float current, float maxChange) {
 }
 
 // get curvature between two poses by finding a circle using their headings, theta must be in radians and increase ccw
-inline float getCurvature(danielib::Pose pose, danielib::Pose other) {
+inline float d_getCurvature(danielib::Pose pose, danielib::Pose other) {
     // calculate whether the pose is on the left or right side of the circle
-    float side = sgn(std::sin(pose.theta) * (other.x - pose.x) - std::cos(pose.theta) * (other.y - pose.y));
+    float side = d_sgn(std::sin(pose.theta) * (other.x - pose.x) - std::cos(pose.theta) * (other.y - pose.y));
     // calculate center point and radius
     float a = -std::tan(pose.theta);
     float c = std::tan(pose.theta) * pose.x - pose.y;
@@ -89,10 +89,10 @@ inline float getCurvature(danielib::Pose pose, danielib::Pose other) {
     return side * ((2 * x) / (d * d));
 }
 
-inline danielib::Pose fixRadians(danielib::Pose& pose) {
+inline danielib::Pose d_fixRadians(danielib::Pose& pose) {
     return {pose.x, pose.y, static_cast<float>(M_PI_2) - pose.theta};
 }
 
-inline float fixRadians(float angle) {
+inline float d_fixRadians(float angle) {
     return static_cast<float>(M_PI_2) - angle;
 }

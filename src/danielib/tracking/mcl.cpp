@@ -17,7 +17,7 @@ std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 const float numParticles = 500;
 const float gaussianStDev = 0.8;
 const float gaussianFactor = 0.6;
-const float thetaNoise = toRadians(0.3);
+const float thetaNoise = d_toRadians(0.3);
 const float xyNoise = 2;
 
 Beam::Beam(float angleOffset, float xOffset, float yOffset, pros::Distance& sensor) :
@@ -56,12 +56,12 @@ void Particle::updateDeltaNoise(const Pose& delta) {
 float Particle::expectedDistance(const Beam& beam) {
     // fix radians so sin and cos work right
     // this is really particle not robot but oh well
-    float robotAngle = fixRadians(toRadians(this->theta));
+    float robotAngle = d_fixRadians(d_toRadians(this->theta));
     float sinRobotAngle = sinf(robotAngle);
     float cosRobotAngle = cosf(robotAngle);
 
     // calculate beam angle and position using offset
-    float beamAngle = fixRadians(toRadians(this->theta + beam.angleOffset));
+    float beamAngle = d_fixRadians(d_toRadians(this->theta + beam.angleOffset));
     float beamX = this->x + beam.yOffset * cosRobotAngle + beam.xOffset * sinRobotAngle;
     float beamY = this->y + beam.yOffset * sinRobotAngle - beam.xOffset * cosRobotAngle;
     float sinBeamAngle = sinf(beamAngle);
@@ -82,7 +82,7 @@ float Particle::gaussian(float x) {
 void Particle::updateWeight(std::span<const Beam> beams) {
     float sum = 1.0f;
     for (const Beam& beam : beams) {
-        sum *= fabs(gaussian(expectedDistance(beam) - toInches(beam.distance)));
+        sum *= fabs(gaussian(expectedDistance(beam) - d_toInches(beam.distance)));
     }
     this->weight = sum;
 }
@@ -124,7 +124,7 @@ Pose Localization::run(const Pose& delta, std::span<const Beam> beams) {
         }
     }
 
-    printf("],\"pose\":[%.2f,%.2f,%.2f]}\n", averagePose.x, averagePose.y, toDegrees(averagePose.theta));
+    printf("],\"pose\":[%.2f,%.2f,%.2f]}\n", averagePose.x, averagePose.y, d_toDegrees(averagePose.theta));
 
     return this->averagePose;
 }

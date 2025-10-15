@@ -16,7 +16,7 @@ float PID::update(const float error) {
     integral += error;
 
     // if the error switches signs, reset the integral
-    if (sgn(error) != sgn(prevError)) {
+    if (d_sgn(error) != d_sgn(prevError)) {
         integral = 0;
     }
     // if the error is outside of the windup range, do not increase the integral

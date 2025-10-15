@@ -32,7 +32,7 @@ void screen_print() {
         // odom position
         pros::lcd::print(0, "X: %f", chassis.getPose().x);
         pros::lcd::print(1, "Y: %f", chassis.getPose().y);
-        pros::lcd::print(2, "Theta: %.2f", reduce_to_0_360(chassis.getPose().theta));
+        pros::lcd::print(2, "Theta: %.2f", d_reduce_to_0_360(chassis.getPose().theta));
 
         pros::lcd::print(4, "Distances: %d (left), %d (right)", left_distance.get_distance(), right_distance.get_distance());
 

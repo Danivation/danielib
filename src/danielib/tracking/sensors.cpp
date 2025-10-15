@@ -29,7 +29,7 @@ float Inertial::getRotation() {
 }
 
 float Inertial::getHeading() {
-    return reduce_to_0_360(this->getRotation());
+    return d_reduce_to_0_360(this->getRotation());
 }
 
 void Inertial::setRotation(float angle) {
