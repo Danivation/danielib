@@ -28,3 +28,9 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
     leftMotors.move(0);
     rightMotors.move(0);
 }
+
+void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, float maxSpeed) {
+    if (!isTracking()) return;
+    float angle = currentPose.angle({x, y, currentPose.theta});
+    turnToHeading(angle, timeout, maxSpeed);
+}

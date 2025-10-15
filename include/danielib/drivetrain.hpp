@@ -36,8 +36,7 @@ class Drivetrain {
          */
         void driveForDistance(float distance, int timeout = infinityf(), float maxSpeed = 127);
         /**
-         * @brief Turns to face a given target point, then drives straight to it
-         * @note doesn't exist yet
+         * @brief DNE - Turns to face a given target point, then drives straight to it
          * 
          * @param x x coordinate in inches
          * @param y y coordinate in inches
@@ -53,15 +52,14 @@ class Drivetrain {
         void turnToHeading(float heading, int timeout = infinityf(), float maxSpeed = 127);
         /**
          * @brief Turns to face a given target point
-         * @note doesn't exist yet
          * 
          * @param x x coordinate in inches
          * @param y y coordinate in inches
          * @param timeout timeout in ms
          */
-        void turnToPoint(float x, float y, int timeout = infinityf());
+        void turnToPoint(float x, float y, int timeout = infinityf(), float maxSpeed = 127);
         /**
-         * @brief this doesnt actually exist yet
+         * @brief DNE
          */
         void moveToPoint();
         /**
@@ -76,7 +74,13 @@ class Drivetrain {
          * @param maxSpeed max speed the drivetrain can move out of 127
          */
         void moveToPose(float x, float y, float heading, int timeout = infinityf(), float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 127);
+        /**
+         * @brief DNE
+         */
         void followPath();
+        /**
+         * @brief DNE
+         */
         void followPoints();
     private:
         PID& linearPID;
