@@ -9,13 +9,14 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
     ExitCondition linearExit(linearPID.exitRange, linearPID.exitTime);
 
     float power = 0;
-    float currentDistance = odomSensors.verticalTracker.getPosition();
+    float currentDistance;
+    float startPosition = odomSensors.verticalTracker.getPosition();
     float error = 0;
 
     linearPID.reset();
     linearExit.reset();
     while (pros::millis() < startTime + timeout && !linearExit.isDone()) {
-        currentDistance = odomSensors.verticalTracker.getPosition();
+        currentDistance = odomSensors.verticalTracker.getPosition() - startPosition;
         error = distance - currentDistance;
         power = linearPID.update(error);
         linearExit.update(error);

@@ -34,6 +34,6 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
 
 void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, float maxSpeed) {
     if (!isTracking()) return;
-    float angle = currentPose.angle({x, y, currentPose.theta});
+    float angle = d_toDegrees(currentPose.angle({x, y, currentPose.theta}));
     turnToHeading(angle, timeout, maxSpeed);
 }

@@ -46,7 +46,9 @@ void initialize() {
 
     chassis.calibrate();
     chassis.startTracking();
-    chassis.startLocalization(-24, -48, 0);
+    //chassis.startLocalization(-24, -48, 0);
+
+    chassis.driveForDistance(-48, 2000);
 }
 
 void competition_initialize() {
