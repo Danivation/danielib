@@ -1,6 +1,12 @@
 #include "main.h"
 #include "danielib/danielib.hpp"
 
+/**
+ * TODO:
+ * (1) add timer to all movements and add an async parameter so things can run without blocking, add waitUntilDone()
+ * (2) make all movements obey a global stop, add something like stopAllMovements()
+**/
+
 pros::Controller master(CONTROLLER_MASTER);
 
 pros::Rotation vertical_rotation(-20);

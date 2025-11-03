@@ -28,7 +28,7 @@ IS_LIBRARY:=1
 
 # name and version of library (if IS_LIBRARY is 1)
 LIBNAME:=danielib
-VERSION:=2.1.0
+VERSION:=3.0.0
 
 # files to always include in the hot package, or to leave out of the library/cold package
 EXCLUDE_SRC_FROM_LIB += $(SRCDIR)/main.cpp
