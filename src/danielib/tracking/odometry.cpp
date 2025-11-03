@@ -11,7 +11,7 @@ void Drivetrain::update() {
     // deltas are changes since last update
     float deltaVertical = odomSensors.verticalTracker.getPosition() - prevVertical;
     float deltaHorizontal = odomSensors.horizontalTracker.getPosition() - prevHorizontal;
-    float deltaTheta = d_angleError(d_toRadians(odomSensors.imu.getRotation()), prevTheta, true);
+    float deltaTheta = newPose ? 0 : d_angleError(d_toRadians(odomSensors.imu.getRotation()), prevTheta, true);
 
     // find how much robot has traveled since last update
     float localX;
@@ -30,10 +30,7 @@ void Drivetrain::update() {
     // convert cartesian coordinates (local) to polar coordinates
     float avgTheta = prevTheta + (deltaTheta / 2);
 
-    // mcl stuff
-    prevPose = currentPose;
-
-    // cooler math that works better (update global positions)
+    // update global positions (cooler math that works better)
     currentPose.x += localY * sinf(avgTheta);
     currentPose.y += localY * cosf(avgTheta);
     currentPose.x += localX * -cosf(avgTheta);
@@ -44,9 +41,11 @@ void Drivetrain::update() {
     deltaPose = {currentPose.x - prevPose.x, currentPose.y - prevPose.y, deltaTheta};
 
     // update previous values
+    prevPose = currentPose;
     prevVertical = odomSensors.verticalTracker.getPosition();
     prevHorizontal = odomSensors.horizontalTracker.getPosition();
     prevTheta = d_toRadians(odomSensors.imu.getRotation());
+    newPose = false;
 }
 
 void Drivetrain::calibrate() {
@@ -58,13 +57,15 @@ void Drivetrain::calibrate() {
 }
 
 void Drivetrain::setPose(float x, float y, float theta) {
-    currentPose = Pose(x, y, theta);
     odomSensors.imu.setRotation(theta);
+    currentPose = Pose(x, y, theta);
+    newPose = true;
 }
 
 void Drivetrain::setPose(Pose pose) {
-    currentPose = pose;
     odomSensors.imu.setRotation(pose.theta);
+    currentPose = pose;
+    newPose = true;
 }
 
 Pose Drivetrain::getPose(bool inRadians) {

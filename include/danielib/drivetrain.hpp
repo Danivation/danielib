@@ -98,6 +98,8 @@ class Drivetrain {
         Pose currentPose = {0, 0, 0};
         void update();
 
+        bool newPose = false;
+
         float prevVertical = 0;
         float prevHorizontal = 0;
         float prevTheta = 0;
