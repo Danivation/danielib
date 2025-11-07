@@ -73,7 +73,7 @@ class Drivetrain {
          * @param driftFactor limits the speed the drivetrain can move to avoid slipping, higher number leads to faster movements but more slippage
          * @param maxSpeed max speed the drivetrain can move out of 127
          */
-        void moveToPose(float x, float y, float heading, int timeout = infinityf(), float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 127);
+        void moveToPose(float x, float y, float heading, int timeout = infinityf(), bool reverse = false, float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 127);
         /**
          * @brief DNE
          */

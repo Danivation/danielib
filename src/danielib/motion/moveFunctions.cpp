@@ -3,7 +3,7 @@
 #include "danielib/utils.hpp"
 #include "danielib/pid.hpp"
 
-void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, float leadDist, float driftFactor, float maxSpeed) {
+void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, bool reverse, float leadDist, float driftFactor, float maxSpeed) {
     const float earlyExitRange = 0; // change this later to add support for motion chaining and stuff, and make the closeness distance also adjust with it
     const float closeDist = 5;  // distance for it to be considered close
 
@@ -23,6 +23,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
     // deal with everything in radians internally
     Pose targetPose(x, y, d_toRadians(heading));
+    if (reverse) targetPose.theta = fmod(targetPose.theta + M_PI, 2 * M_PI);
 
     bool close = false;
     bool prevSameSide = false;
@@ -30,7 +31,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     float prevAngularOut = 0;
 
     // counter so that the terminal doesnt get overloaded with data
-    int loopCounter = 0;
+    //int loopCounter = 0;
 
     //while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
     while (pros::millis() < startTime + timeout) {
@@ -60,8 +61,8 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
         // if close, target heading is the heading of the target point
         // if not close, target heading is the heading to face the carrot point
-        float angularError = close ? d_angleError(robotPose.theta, targetPose.theta, true) :
-                                     d_angleError(robotPose.theta, robotPose.angle(carrotPose), true);
+        float angularError = close ? d_angleError(!reverse ? robotPose.theta : robotPose.theta + M_PI, targetPose.theta, true) :
+                                     d_angleError(!reverse ? robotPose.theta : robotPose.theta + M_PI, robotPose.angle(carrotPose), true);
         //float angularError = d_angleError(robotPose.theta, carrotPose.theta, true);
         float linearError = robotPose.distance(carrotPose) * cos(angularError);
 
@@ -71,6 +72,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 
         // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
         float linearOut = linearPID.update(linearError);
+        if (reverse) linearOut = -linearOut;
         float angularOut = -angularPID.update(d_toDegrees(angularError));
         if (close) angularOut = 0;
 
@@ -82,7 +84,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
         angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
-        // todo: fix radian increasing ccw inconsistency
+        // todo: fix radian increasing ccw inconsistency, right now it works but its a temporary fix
         float radius = 1 / fabs(d_getCurvature(d_fixRadians(robotPose), d_fixRadians(carrotPose)));
         float maxSlipSpeed(sqrt(driftFactor * radius * 9.8));
         linearOut = std::clamp(linearOut, -maxSlipSpeed, maxSlipSpeed);
@@ -105,15 +107,15 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         rightMotors.move(rightPower);
 
         // log info to terminal
-        loopCounter++;
-        if (loopCounter % 3 == 1) {
-            printf(/* "R: (%.2f, %.2f, %.2f), T: (%.2f, %.2f, %.2f), C: (%.2f, %.2f, %.2f), */ "LE: %.2f,  AE: %.2f,  LO: %.2f,  AO: %.2f\n", 
-/*                 robotPose.x, robotPose.y, d_toDegrees(robotPose.theta),
-                targetPose.x, targetPose.y, d_toDegrees(targetPose.theta),
-                carrotPose.x, carrotPose.y, d_toDegrees(carrotPose.theta), */
-                linearError, d_toDegrees(angularError), linearOut, angularOut
-            );
-        }
+//         loopCounter++;
+//         if (loopCounter % 3 == 1) {
+//             printf(/* "R: (%.2f, %.2f, %.2f), T: (%.2f, %.2f, %.2f), C: (%.2f, %.2f, %.2f), */ "LE: %.2f,  AE: %.2f,  LO: %.2f,  AO: %.2f\n", 
+// /*                 robotPose.x, robotPose.y, d_toDegrees(robotPose.theta),
+//                 targetPose.x, targetPose.y, d_toDegrees(targetPose.theta),
+//                 carrotPose.x, carrotPose.y, d_toDegrees(carrotPose.theta), */
+//                 linearError, d_toDegrees(angularError), linearOut, angularOut
+//             );
+//         }
 
         pros::delay(10);
     }
