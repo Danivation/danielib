@@ -14,7 +14,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
 
     angularPID.reset();
     angularExit.reset();
-    while (pros::millis() < startTime + timeout && !angularExit.isDone()) {
+    while (pros::millis() < startTime + timeout && !angularExit.isDone() && movementsEnabled) {
         currentHeading = odomSensors.imu.getHeading();
         error = d_reduce_to_180_180(heading - currentHeading);
         power = angularPID.update(error);

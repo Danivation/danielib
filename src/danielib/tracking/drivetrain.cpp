@@ -32,4 +32,8 @@ Drivetrain::Drivetrain(pros::MotorGroup& leftMotors, pros::MotorGroup& rightMoto
     linearPID(linearPID),
     angularPID(angularPID)
 {}
+
+void danielib::Drivetrain::stopAllMovements() {
+    movementsEnabled = false;
+}
 } // namespace danielib

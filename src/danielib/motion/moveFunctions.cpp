@@ -34,7 +34,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     //int loopCounter = 0;
 
     //while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
-    while (pros::millis() < startTime + timeout) {
+    while (pros::millis() < startTime + timeout && movementsEnabled) {
         Pose robotPose = getPose(true);
 
         // disable turning if robot is close to target

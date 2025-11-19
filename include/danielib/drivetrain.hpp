@@ -22,6 +22,8 @@ class Drivetrain {
         void stopTracking();
         bool isTracking();
 
+        void stopAllMovements();
+
         void calibrate();
 
         void setPose(float x, float y, float theta);
@@ -83,6 +85,8 @@ class Drivetrain {
          */
         void followPoints();
     private:
+        bool movementsEnabled = true;
+
         PID& linearPID;
         PID& angularPID;
         pros::MotorGroup& leftMotors;
