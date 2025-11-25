@@ -5,6 +5,13 @@
 
 void danielib::Drivetrain::driveForDistance(float distance, int timeout, float maxSpeed) {
     if (!isTracking()) return;
+    if (runAsync) {
+        runAsync = false;
+        pros::Task task([&]() { driveForDistance(distance, timeout, maxSpeed); });
+        pros::delay(10);  // give the task some time to start
+        return;
+    }
+
     const int startTime = pros::millis();
     ExitCondition linearExit(linearPID.exitRange, linearPID.exitTime);
 

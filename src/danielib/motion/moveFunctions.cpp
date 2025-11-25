@@ -4,6 +4,14 @@
 #include "danielib/pid.hpp"
 
 void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, bool reverse, float leadDist, float driftFactor, float maxSpeed) {
+    if (!isTracking()) return;
+    if (runAsync) {
+        runAsync = false;
+        pros::Task task([&]() { moveToPose(x, y, timeout, reverse, leadDist, driftFactor, maxSpeed); });
+        pros::delay(10);  // give the task some time to start
+        return;
+    }
+
     const float earlyExitRange = 0; // change this later to add support for motion chaining and stuff, and make the closeness distance also adjust with it
     const float closeDist = 5;  // distance for it to be considered close
 
@@ -11,7 +19,6 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     float linearMaxSlew = 20;
     float angularMaxSlew = 5;
 
-    if (!isTracking()) return;
     const int startTime = pros::millis();
     ExitCondition linearExit(linearPID.exitRange, linearPID.exitTime);
     ExitCondition angularExit(angularPID.exitRange, angularPID.exitTime);
@@ -29,9 +36,6 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     bool prevSameSide = false;
     float prevLinearOut = 0;
     float prevAngularOut = 0;
-
-    // counter so that the terminal doesnt get overloaded with data
-    //int loopCounter = 0;
 
     //while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
     while (pros::millis() < startTime + timeout && movementsEnabled) {
@@ -106,16 +110,48 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         leftMotors.move(leftPower);
         rightMotors.move(rightPower);
 
-        // log info to terminal
-//         loopCounter++;
-//         if (loopCounter % 3 == 1) {
-//             printf(/* "R: (%.2f, %.2f, %.2f), T: (%.2f, %.2f, %.2f), C: (%.2f, %.2f, %.2f), */ "LE: %.2f,  AE: %.2f,  LO: %.2f,  AO: %.2f\n", 
-// /*                 robotPose.x, robotPose.y, d_toDegrees(robotPose.theta),
-//                 targetPose.x, targetPose.y, d_toDegrees(targetPose.theta),
-//                 carrotPose.x, carrotPose.y, d_toDegrees(carrotPose.theta), */
-//                 linearError, d_toDegrees(angularError), linearOut, angularOut
-//             );
-//         }
+        pros::delay(10);
+    }
+
+    // stop motors
+    leftMotors.move(0);
+    rightMotors.move(0);
+}
+
+void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool reverse, float maxSpeed) {
+    if (!isTracking()) return;
+    if (runAsync) {
+        runAsync = false;
+        pros::Task task([&]() { moveToPoint(x, y, timeout, reverse, maxSpeed); });
+        pros::delay(10);  // give the task some time to start
+        return;
+    }
+
+    const int startTime = pros::millis();
+    ExitCondition linearExit(linearPID.exitRange, linearPID.exitTime);
+    ExitCondition angularExit(angularPID.exitRange, angularPID.exitTime);
+
+    linearPID.reset();
+    linearExit.reset();
+    angularPID.reset();
+    angularExit.reset();
+
+    // last pose
+    Pose lastPose = getPose(true);
+
+    // deal with everything in radians internally
+    Pose targetPose(x, y, 0);
+    targetPose.theta = lastPose.angle(targetPose);
+    if (reverse) targetPose.theta = fmod(targetPose.theta + M_PI, 2 * M_PI);
+
+    float prevLinearOut = 0;
+    float prevAngularOut = 0;
+
+    while (pros::millis() < startTime + timeout && movementsEnabled) {
+
+        // move motors
+        // leftMotors.move(leftPower);
+        // rightMotors.move(rightPower);
 
         pros::delay(10);
     }

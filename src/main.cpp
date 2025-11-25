@@ -3,8 +3,11 @@
 
 /**
  * TODO:
- * (1) add timer to all movements and add an async parameter so things can run without blocking, add waitUntilDone()
- * (2) make all movements obey a global stop, add something like stopAllMovements()
+ * (1) move to point (not pose)
+ * (2) add some sort of Timer class to all movements rather than timeouts
+ * (3) new PIDs for heading correction, and a new movement for that
+ * (4) improve exit parameters
+ * (5) something like a Motion class to assume all motions
 **/
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
@@ -59,7 +62,7 @@ void initialize() {
     chassis.setPose(0, 0, 0);
     //chassis.startLocalization(-24, -48, 0);
 
-    chassis.moveToPose(24, -24, 270, 1000, true);
+    //chassis.async().moveToPose(24, -24, 270, 1000, true);
 }
 
 void competition_initialize() {

@@ -5,6 +5,13 @@
 
 void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSpeed) {
     if (!isTracking()) return;
+    if (runAsync) {
+        runAsync = false;
+        pros::Task task([&]() { turnToHeading(heading, timeout, maxSpeed); });
+        pros::delay(10);  // give the task some time to start
+        return;
+    }
+
     const int startTime = pros::millis();
     ExitCondition angularExit(angularPID.exitRange, angularPID.exitTime);
 
@@ -34,6 +41,13 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
 
 void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, float maxSpeed) {
     if (!isTracking()) return;
+    if (runAsync) {
+        runAsync = false;
+        pros::Task task([&]() { turnToPoint(x, y, timeout, maxSpeed); });
+        pros::delay(10);  // give the task some time to start
+        return;
+    }
+
     float angle = d_toDegrees(currentPose.angle({x, y, currentPose.theta}));
     turnToHeading(angle, timeout, maxSpeed);
 }
