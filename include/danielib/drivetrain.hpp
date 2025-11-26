@@ -14,7 +14,19 @@ namespace danielib {
  */
 class Drivetrain {
     public:
-        Drivetrain(pros::MotorGroup& leftMotors, pros::MotorGroup& rightMotors, Sensors& odomSensors, danielib::Localization& localization, float trackWidth, float wheelSize, float wheelRPM, PID& linearPID, PID& angularPID);
+        Drivetrain(
+            pros::MotorGroup& leftMotors, 
+            pros::MotorGroup& rightMotors, 
+            Sensors& odomSensors, 
+            danielib::Localization& localization, 
+            float trackWidth, 
+            float wheelSize, 
+            float wheelRPM, 
+            PID& linearPID, 
+            PID& angularPID, 
+            PID& mtpLinearPID, 
+            PID& mtpAngularPID
+        );
 
         void startTracking();
         void stopTracking();
@@ -105,6 +117,8 @@ class Drivetrain {
 
         PID& linearPID;
         PID& angularPID;
+        PID& mtpLinearPID;
+        PID& mtpAngularPID;
         pros::MotorGroup& leftMotors;
         pros::MotorGroup& rightMotors;
         Sensors& odomSensors;

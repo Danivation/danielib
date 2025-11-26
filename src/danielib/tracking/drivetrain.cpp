@@ -21,7 +21,19 @@ Sensors::Sensors(TrackerWheel& verticalTracker, TrackerWheel& horizontalTracker,
     imu(imu)
 {}
 
-Drivetrain::Drivetrain(pros::MotorGroup& leftMotors, pros::MotorGroup& rightMotors, Sensors& odomSensors, danielib::Localization& localization, float trackWidth, float wheelSize, float wheelRPM, PID& linearPID, PID& angularPID) :
+Drivetrain::Drivetrain(
+    pros::MotorGroup& leftMotors, 
+    pros::MotorGroup& rightMotors, 
+    Sensors& odomSensors, 
+    danielib::Localization& localization, 
+    float trackWidth, 
+    float wheelSize, 
+    float wheelRPM, 
+    PID& linearPID, 
+    PID& angularPID, 
+    PID& mtpLinearPID, 
+    PID& mtpAngularPID
+) :
     leftMotors(leftMotors),
     rightMotors(rightMotors),
     odomSensors(odomSensors),
@@ -30,7 +42,9 @@ Drivetrain::Drivetrain(pros::MotorGroup& leftMotors, pros::MotorGroup& rightMoto
     wheelSize(wheelSize),
     wheelRPM(wheelRPM),
     linearPID(linearPID),
-    angularPID(angularPID)
+    angularPID(angularPID),
+    mtpLinearPID(mtpLinearPID),
+    mtpAngularPID(mtpAngularPID)
 {}
 
 void danielib::Drivetrain::stopAllMovements() {
