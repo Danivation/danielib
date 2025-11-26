@@ -83,6 +83,7 @@ void initialize() {
     pros::delay(500);
 
     chassis.moveToPoint(24, 24, 10000, false);
+    chassis.turnToHeading(90, 1000);
 
     while (true) {
         pros::delay(10);

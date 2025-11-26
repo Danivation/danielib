@@ -93,8 +93,8 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         // todo: fix radian increasing ccw inconsistency, right now it works but its a temporary fix
         float radius = 1 / fabs(d_getCurvature(d_fixRadians(robotPose), d_fixRadians(carrotPose)));
         float maxSlipSpeed(sqrt(driftFactor * radius * 9.8));
-        // TODO: figure out if putting this before the desaturation is messing it up
-        //linearOut = std::clamp(linearOut, -maxSlipSpeed, maxSlipSpeed);
+        // only clamps to constrain slipping, not to clamp to maxSpeed
+        linearOut = std::clamp(linearOut, -maxSlipSpeed, maxSlipSpeed);
 
         // update previous values
         prevLinearOut = linearOut;
