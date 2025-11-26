@@ -57,7 +57,7 @@ void Drivetrain::calibrate() {
 }
 
 void Drivetrain::setPose(float x, float y, float theta) {
-    odomSensors.imu.setRotation(theta);
+    if (theta != infinityf()) odomSensors.imu.setRotation(theta);
     currentPose = Pose(x, y, theta);
     newPose = true;
 }

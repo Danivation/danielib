@@ -36,7 +36,7 @@ class Drivetrain {
         bool isTracking();
 
         void calibrate();
-        void setPose(float x, float y, float theta);
+        void setPose(float x, float y, float theta = infinityf());
         void setPose(Pose pose);
         Pose getPose(bool inRadians = false);
 
