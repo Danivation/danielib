@@ -12,6 +12,8 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
         return;
     }
 
+    maxSpeed *= 1.27;
+
     const int startTime = pros::millis();
     ExitCondition angularExit(angularPID.exitRange, angularPID.exitTime);
 
@@ -35,8 +37,8 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
     }
 
     // stop motors
-    leftMotors.move(0);
-    rightMotors.move(0);
+    leftMotors.brake();
+    rightMotors.brake();
 }
 
 void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, float maxSpeed) {

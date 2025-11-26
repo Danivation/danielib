@@ -12,6 +12,8 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         return;
     }
 
+    maxSpeed *= 1.27;
+
     const float earlyExitRange = 0; // change this later to add support for motion chaining and stuff
     const float closeDist = 5;  // distance for it to be considered close
 

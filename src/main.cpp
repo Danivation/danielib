@@ -39,7 +39,7 @@ danielib::PID linearPID(7.5, 0.1, 22.5, 1, 0.5, 100);
 danielib::PID angularPID(2.3, 0.2, 13.7, 3, 1, 100);
 
 danielib::PID mtpLinearPID(7.5, 0.1, 22.5, 1, 0.5, 100);
-danielib::PID mtpAngularPID(3.1, 0.2, 13.7, 3, 1, 100);
+danielib::PID mtpAngularPID(3.13, 0.2, 13.7, 3, 1, 100);
 
 // add pids for odom angular control specifically, and for heading hold during drives
 
@@ -82,7 +82,7 @@ void initialize() {
     chassis.setPose(0, 0, 0);
     pros::delay(500);
 
-    chassis.moveToPoint(24, 24, 1000, false, 100);
+    chassis.moveToPoint(24, 24, 10000, false);
 
     while (true) {
         pros::delay(10);

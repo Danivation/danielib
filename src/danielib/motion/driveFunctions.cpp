@@ -12,6 +12,8 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         return;
     }
 
+    maxSpeed *= 1.27;
+
     const int startTime = pros::millis();
     ExitCondition linearExit(linearPID.exitRange, linearPID.exitTime);
 
@@ -36,6 +38,6 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
     }
 
     // stop motors
-    leftMotors.move(0);
-    rightMotors.move(0);
+    leftMotors.brake();
+    rightMotors.brake();
 }

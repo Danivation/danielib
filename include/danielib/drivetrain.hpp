@@ -56,9 +56,9 @@ class Drivetrain {
          * 
          * @param distance target distance in inches
          * @param timeout timeout in ms
-         * @param maxSpeed max speed the drivetrain can move out of 127
+         * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void driveForDistance(float distance, int timeout = infinityf(), float maxSpeed = 127);
+        void driveForDistance(float distance, int timeout = infinityf(), float maxSpeed = 100);
         /**
          * @brief DNE - Turns to face a given target point, then drives straight to it
          */
@@ -68,27 +68,27 @@ class Drivetrain {
          * 
          * @param heading target heading in degrees
          * @param timeout timeout in ms
-         * @param maxSpeed max speed the drivetrain can move out of 127
+         * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void turnToHeading(float heading, int timeout = infinityf(), float maxSpeed = 127);
+        void turnToHeading(float heading, int timeout = infinityf(), float maxSpeed = 100);
         /**
          * @brief Turns to face a given target point
          * 
          * @param x x coordinate in inches
          * @param y y coordinate in inches
          * @param timeout timeout in ms
-         * @param maxSpeed max speed the drivetrain can move out of 127
+         * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void turnToPoint(float x, float y, int timeout = infinityf(), float maxSpeed = 127);
+        void turnToPoint(float x, float y, int timeout = infinityf(), float maxSpeed = 100);
         /**
          * @brief Moves to a given target point (not heading) using PIDs
          * 
          * @param x x coordinate in inches
          * @param y y coordinate in inches
          * @param timeout timeout in ms
-         * @param maxSpeed max speed the drivetrain can move out of 127
+         * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void moveToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 127);
+        void moveToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 100);
         /**
          * @brief Moves to a given target pose using a boomerang controller
          * 
@@ -98,11 +98,11 @@ class Drivetrain {
          * @param timeout timeout in ms
          * @param leadDist boomerang carrot point multiplier, higher number leads to curvier turns
          * @param driftFactor limits the speed the drivetrain can move to avoid slipping, higher number leads to faster movements but more slippage
-         * @param maxSpeed max speed the drivetrain can move out of 127
+         * @param maxSpeed max speed the drivetrain can move out of 100
          * 
          * @note This does not obey exit conditions, only timeouts
          */
-        void moveToPose(float x, float y, float heading, int timeout = infinityf(), bool reverse = false, float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 127);
+        void moveToPose(float x, float y, float heading, int timeout = infinityf(), bool reverse = false, float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 100);
         /**
          * @brief DNE
          */
