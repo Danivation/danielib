@@ -50,4 +50,8 @@ Drivetrain::Drivetrain(
 void danielib::Drivetrain::stopAllMovements() {
     movementsEnabled = false;
 }
+
+void danielib::Drivetrain::stopMovement() {
+    currentMovementEnabled = false;
+}
 } // namespace danielib

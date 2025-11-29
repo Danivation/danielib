@@ -12,6 +12,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         return;
     }
 
+    currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
     const int startTime = pros::millis();
@@ -24,7 +25,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
 
     linearPID.reset();
     linearExit.reset();
-    while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled) {
+    while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
         currentDistance = odomSensors.verticalTracker.getPosition() - startPosition;
         error = distance - currentDistance;
         power = linearPID.update(error);

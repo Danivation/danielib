@@ -12,6 +12,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         return;
     }
 
+    currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
     const float earlyExitRange = 0; // change this later to add support for motion chaining and stuff
@@ -40,7 +41,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     float prevAngularOut = 0;
 
     //while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
-    while (pros::millis() < startTime + timeout && movementsEnabled) {
+    while (pros::millis() < startTime + timeout && movementsEnabled && currentMovementEnabled) {
         Pose robotPose = getPose(true);
 
         // disable turning if robot is close to target
@@ -130,9 +131,11 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         pros::delay(10);  // give the task some time to start
         return;
     }
+    
+    currentMovementEnabled = true;
 
     const float earlyExitRange = 0; // change this later to add support for motion chaining and stuff
-    const float closeDist = 5;  // distance for it to be considered close
+    const float closeDist = 4;  // distance for it to be considered close
 
     // tunable parameters and stuff
     float linearMaxSlew = 25;
@@ -160,7 +163,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     float prevAngularOut = 0;
 
     //while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
-    while (pros::millis() < startTime + timeout && movementsEnabled) {
+    while (pros::millis() < startTime + timeout && movementsEnabled && currentMovementEnabled) {
         Pose robotPose = getPose(true);
 
         // disable turning if robot is close to target

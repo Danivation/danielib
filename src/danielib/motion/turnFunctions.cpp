@@ -12,6 +12,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
         return;
     }
 
+    currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
     const int startTime = pros::millis();
@@ -23,7 +24,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
 
     angularPID.reset();
     angularExit.reset();
-    while (pros::millis() < startTime + timeout && !angularExit.isDone() && movementsEnabled) {
+    while (pros::millis() < startTime + timeout && !angularExit.isDone() && movementsEnabled && currentMovementEnabled) {
         currentHeading = odomSensors.imu.getHeading();
         error = d_reduce_to_180_180(heading - currentHeading);
         power = angularPID.update(error);
@@ -49,6 +50,8 @@ void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, float maxS
         pros::delay(10);  // give the task some time to start
         return;
     }
+
+    currentMovementEnabled = true;
 
     float angle = d_toDegrees(currentPose.angle({x, y, currentPose.theta}));
     turnToHeading(angle, timeout, maxSpeed);

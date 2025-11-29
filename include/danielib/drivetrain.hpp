@@ -33,6 +33,7 @@ class Drivetrain {
         void startLocalization(float x, float y, float theta);
         void stopLocalization();
         void stopAllMovements();
+        void stopMovement();
         bool isTracking();
 
         void calibrate();
@@ -113,6 +114,7 @@ class Drivetrain {
         //void followPoints();
     private:
         bool movementsEnabled = true;
+        bool currentMovementEnabled = true;
         bool runAsync = false;
 
         PID& linearPID;
