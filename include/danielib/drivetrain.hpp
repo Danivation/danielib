@@ -18,7 +18,6 @@ class Drivetrain {
             pros::MotorGroup& leftMotors, 
             pros::MotorGroup& rightMotors, 
             Sensors& odomSensors, 
-            danielib::Localization& localization, 
             float trackWidth, 
             float wheelSize, 
             float wheelRPM, 
@@ -39,10 +38,21 @@ class Drivetrain {
         void calibrate();
         void setPose(float x, float y, float theta = infinityf());
         void setPose(Pose pose);
+
+        /**
+         * @brief Resets the pose based on distance sensors
+         * 
+         * @param beams distance sensor beams to consider when resetting pose
+         */
+        void distanceResetPose(std::span<Beam> beams);
+
+        /**
+         * @brief Returns the current pose of the drivetrain
+         */
         Pose getPose(bool inRadians = false);
 
         /**
-         * @brief Makes the following motion chained to this run in async mode
+         * @brief Makes the following motion chained to this run in async mode (not block execution of other things)
          * 
          * Example:
          * @code `chassis.async().moveToPose(x, y, theta);`
@@ -52,6 +62,8 @@ class Drivetrain {
             return *this;
         }
 
+
+
         /**
          * @brief Drives straight for a given distance
          * 
@@ -60,10 +72,7 @@ class Drivetrain {
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
         void driveForDistance(float distance, int timeout = infinityf(), float maxSpeed = 100);
-        /**
-         * @brief DNE - Turns to face a given target point, then drives straight to it
-         */
-        //void driveToPoint(float x, float y, int timeout = infinityf());
+
         /**
          * @brief Turns to a given target heading
          * 
@@ -72,6 +81,7 @@ class Drivetrain {
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
         void turnToHeading(float heading, int timeout = infinityf(), float maxSpeed = 100);
+
         /**
          * @brief Turns to face a given target point
          * 
@@ -81,6 +91,7 @@ class Drivetrain {
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
         void turnToPoint(float x, float y, int timeout = infinityf(), float maxSpeed = 100);
+
         /**
          * @brief Moves to a given target point (not heading) using PIDs
          * 
@@ -90,6 +101,7 @@ class Drivetrain {
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
         void moveToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 100);
+
         /**
          * @brief Moves to a given target pose using a boomerang controller
          * 
@@ -104,14 +116,7 @@ class Drivetrain {
          * @note This does not obey exit conditions, only timeouts
          */
         void moveToPose(float x, float y, float heading, int timeout = infinityf(), bool reverse = false, float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 100);
-        /**
-         * @brief DNE
-         */
-        //void followPath();
-        /**
-         * @brief DNE
-         */
-        //void followPoints();
+
     private:
         bool movementsEnabled = true;
         bool currentMovementEnabled = true;
@@ -124,7 +129,6 @@ class Drivetrain {
         pros::MotorGroup& leftMotors;
         pros::MotorGroup& rightMotors;
         Sensors& odomSensors;
-        danielib::Localization& localization;
         const float trackWidth;
         const float wheelSize;
         const float wheelRPM;

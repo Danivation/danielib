@@ -3,12 +3,14 @@
 
 /**
  * TODO:
- * (1) move to point (not pose)
- * (2) make both mtp algorithms use exit conditions
- * (3) add some sort of Timer class to all movements rather than timeouts
- * (4) new PIDs for heading correction, and a new movement for that
- * (5) improve exit conditions
- * (6) something like a Motion class to assume all motions
+ * (!) distance resets
+ * (*) move mcl distance sensors into the Sensors class to unify things
+ * 
+ * (*) make both mtp algorithms use exit conditions
+ * (*) add some sort of Timer class to all movements rather than timeouts
+ * (*) new PIDs for heading correction, and a new movement for that
+ * (*) improve exit conditions
+ * (*) something like a Motion class to assume all motions
 **/
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
@@ -27,23 +29,28 @@ pros::adi::Pneumatics descore_left('C', false);  // unused, both buttons trigger
 
 pros::Optical optical_middle(22);   // unused
 
+pros::Distance distance_left(11);
+pros::Distance distance_right(12);
+pros::Distance distance_front(13);
+
 danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0);
 danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2, 1.8);
-//danielib::Inertial inertial(imu_1, 1.0033);   // old imu
 danielib::Inertial inertial(imu_1, 1.0029);     // new imu
 
-danielib::Sensors odom(vertical_tracker, horizontal_tracker, inertial);
-danielib::MCL::Localization mcl({});
+danielib::MCL::Beam left_beam(-90, 0, 0, distance_left);
+danielib::MCL::Beam right_beam(90, 0, 0, distance_right);
+danielib::MCL::Beam front_beam(0, 0, 0, distance_front);
+
+danielib::Localization mcl({left_beam, right_beam, front_beam});
+
+danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
 danielib::PID linearPID(7.5, 0.1, 22.5, 1, 0.5, 100);
 danielib::PID angularPID(2.3, 0.2, 13.7, 3, 1, 100);
-
 danielib::PID mtpLinearPID(7.5, 0.1, 22.5, 1, 0.5, 100);
 danielib::PID mtpAngularPID(3.13, 0.2, 13.7, 3, 1, 100);
 
-// add pids for odom angular control specifically, and for heading hold during drives
-
-danielib::Drivetrain chassis(left_mg, right_mg, odom, mcl, 11.5, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID);
+danielib::Drivetrain chassis(left_mg, right_mg, sensors, 11.5, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID);
 
 void screen_print() {
     while (true) {

@@ -15,17 +15,17 @@ Inertial::Inertial(pros::Imu& sensor1, float scale1, pros::Imu* sensor2, float s
     scale2(scale2)
 {}
 
-Sensors::Sensors(TrackerWheel& verticalTracker, TrackerWheel& horizontalTracker, Inertial& imu) :
+Sensors::Sensors(TrackerWheel& verticalTracker, TrackerWheel& horizontalTracker, Inertial& imu, Localization& localization) :
     verticalTracker(verticalTracker),
     horizontalTracker(horizontalTracker),
-    imu(imu)
+    imu(imu),
+    localization(localization)
 {}
 
 Drivetrain::Drivetrain(
     pros::MotorGroup& leftMotors, 
     pros::MotorGroup& rightMotors, 
     Sensors& odomSensors, 
-    danielib::Localization& localization, 
     float trackWidth, 
     float wheelSize, 
     float wheelRPM, 
@@ -37,7 +37,6 @@ Drivetrain::Drivetrain(
     leftMotors(leftMotors),
     rightMotors(rightMotors),
     odomSensors(odomSensors),
-    localization(localization),
     trackWidth(trackWidth),
     wheelSize(wheelSize),
     wheelRPM(wheelRPM),

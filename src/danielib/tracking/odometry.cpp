@@ -68,6 +68,79 @@ void Drivetrain::setPose(Pose pose) {
     newPose = true;
 }
 
+void Drivetrain::distanceResetPose(std::span<Beam> beams) {
+    float sumX = 0;
+    float sumY = 0;
+    int countX = 0;
+    int countY = 0;
+
+    // loop through all beams
+    for (auto& beam : beams) {
+        // update beam distance (updates the actual beam object)
+        beam.update();
+
+        // skip bad readings
+        float wallDistance = d_toInches(beam.distance);
+        if (wallDistance <= 0) continue;
+
+        // find global beam angle and position
+        float robotAngle = d_fixRadians(d_toRadians(currentPose.theta));
+        float sinRobotAngle = sinf(robotAngle);
+        float cosRobotAngle = cosf(robotAngle);
+
+        // calculate beam angle and position using offset
+        float beamAngle = d_fixRadians(d_toRadians(currentPose.theta + beam.angleOffset));
+        float beamX = currentPose.x + beam.yOffset * cosRobotAngle + beam.xOffset * sinRobotAngle;
+        float beamY = currentPose.y + beam.yOffset * sinRobotAngle - beam.xOffset * cosRobotAngle;
+
+        // calculate x and y positions of the wall based on beam distance
+        // this is basically where it thinks the wall is based on that beam
+        // (wallX, wallY) is the point on the wall that the beam is hitting
+        float wallX = beamX + wallDistance * cosf(beamAngle);
+        float wallY = beamY + wallDistance * sinf(beamAngle);
+
+        // we need to filter this data to only use x and y positions that are actually on a wall
+        // a beam facing one wall will not tell you anything useful about the other wall
+
+        // Normalize angle to [0, 2π)
+        float normalizedAngle = d_reduce_radians(beamAngle);
+
+        float tolerance = d_toRadians(10);
+
+        // Check if beam is aligned with east/west walls (pointing near 0° or 180°)
+        bool pointingEast = (normalizedAngle < tolerance) || (normalizedAngle > 2 * M_PI - tolerance);
+        bool pointingWest = (normalizedAngle > M_PI - tolerance) && (normalizedAngle < M_PI + tolerance);
+        
+        if (pointingEast || pointingWest) {
+            // Beam hits east or west wall - wallHitX tells us the wall's X position
+            // We know which wall based on angle
+            float wallX = pointingEast ? 70 : -70;
+            float robotX = wallX - wallDistance * cosf(beamAngle);
+            sumX += robotX;
+            countX++;
+        }
+
+        // Check if beam is aligned with north/south walls (pointing near 90° or 270°)
+        bool pointingNorth = (normalizedAngle > M_PI_2 - tolerance) && (normalizedAngle < M_PI_2 + tolerance);
+        bool pointingSouth = (normalizedAngle > 3 * M_PI_2 - tolerance) && (normalizedAngle < 3 * M_PI_2 + tolerance);
+        
+        if (pointingNorth || pointingSouth) {
+            // Beam hits north or south wall - wallHitY tells us the wall's Y position
+            float wallY = pointingNorth ? 70 : -70;
+            float robotY = wallY - wallDistance * sinf(beamAngle);
+            sumY += robotY;
+            countY++;
+        }
+    }
+
+    // sets x and y based on averages of valid readings independently, keeps old value if no valid readings
+    // if only x readings are valid, only x is changed (same for y)
+    setPose(
+        (countX > 0) ? (sumX / countX) : currentPose.x,
+        (countY > 0) ? (sumY / countY) : currentPose.y
+    );
+}
+
 Pose Drivetrain::getPose(bool inRadians) {
     if (inRadians) return Pose(currentPose.x, currentPose.y, d_toRadians(currentPose.theta));
     return currentPose;
@@ -94,18 +167,19 @@ void Drivetrain::startLocalization(float x, float y, float theta) {
     if (trackingType != 2) {
         trackingType = 2;   // mcl tracking
         setPose(x, y, theta);
-        localization.setPose({x, y, theta});
+        odomSensors.localization.setPose({x, y, theta});
 
         // make sure nothing was already running, then start the tracking task
         stopTracking();
         trackingTask = new pros::Task {[&] {
             while (true) {
-                for (auto& beam: localization.beams) {
+                // iterates through beams and updates their distances
+                for (auto& beam: odomSensors.localization.beams) {
                     beam.update();
                 }
 
                 Drivetrain::update();   // update odom
-                Drivetrain::setPose(localization.run(deltaPose, localization.beams));   // update mcl
+                Drivetrain::setPose(odomSensors.localization.run(deltaPose, odomSensors.localization.beams));   // update mcl
                 pros::delay(50);
             }
         }};

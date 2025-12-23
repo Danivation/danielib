@@ -1,6 +1,7 @@
 #pragma once
 #include "pros/rotation.hpp"
 #include "pros/imu.hpp"
+#include "danielib/mcl.hpp"
 
 namespace danielib {
 class TrackerWheel {
@@ -10,7 +11,7 @@ class TrackerWheel {
         void reset();
         float getPosition();
         float getOffset();
-    //protected:
+
         pros::Rotation& sensor;
         const float wheelDiameter;
         const float offset;
@@ -25,7 +26,7 @@ class Inertial {
         float getHeading();
         void setRotation(float angle);
         void setHeading(float angle);
-    //protected:
+
         pros::Imu& sensor1;
         const float scale1;
         pros::Imu* sensor2;
@@ -37,18 +38,12 @@ class Inertial {
  */
 class Sensors {
     public:
-        Sensors(TrackerWheel& verticalTracker, TrackerWheel& horizontalTracker, Inertial& imu);
+        Sensors(TrackerWheel& verticalTracker, TrackerWheel& horizontalTracker, Inertial& imu, Localization& localization);
+
         TrackerWheel& verticalTracker;
         TrackerWheel& horizontalTracker;
         Inertial& imu;
+        Localization& localization;
 };
 
-/* class Controllers {
-    public:
-        Controllers(std::initializer_list<PID> ints) :
-            ints(ints)
-        {}
-        std::initializer_list<PID> ints;
-        
-}; */
 } // namespace danielib

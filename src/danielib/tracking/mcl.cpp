@@ -102,6 +102,8 @@ Pose Localization::run(const Pose& delta, std::span<const Beam> beams) {
     this->update(delta);
     this->resample(beams);
 
+    // print debug info
+
     printf("{\"particles\":[");
 
     for (auto& particle : particles) {

@@ -14,9 +14,9 @@ inline namespace MCL {
 class Beam {
     public:
         Beam(float angleOffset, float xOffset, float yOffset, pros::Distance& sensor);
-        float angleOffset;
-        float xOffset;
-        float yOffset;
+        float angleOffset;  // degrees offset from 0 that the beam is facing
+        float xOffset;      // x position offset from tracking center of the distance sensor
+        float yOffset;      // y position offset from tracking center of the distance sensor
         pros::Distance& sensor;
         int distance = 0;
 
