@@ -40,7 +40,6 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     float prevLinearOut = 0;
     float prevAngularOut = 0;
 
-    //while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
     while (pros::millis() < startTime + timeout && movementsEnabled && currentMovementEnabled) {
         Pose robotPose = getPose(true);
 
@@ -162,8 +161,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     float prevLinearOut = 0;
     float prevAngularOut = 0;
 
-    //while (pros::millis() < startTime + timeout && (!linearExit.isDone() || !angularExit.isDone())) {
-    while (pros::millis() < startTime + timeout && movementsEnabled && currentMovementEnabled) {
+    while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
         Pose robotPose = getPose(true);
 
         // disable turning if robot is close to target
