@@ -44,7 +44,7 @@ class Drivetrain {
          * 
          * @param beams distance sensor beams to consider when resetting pose
          */
-        void distanceResetPose(std::span<Beam> beams);
+        void distanceResetPose(std::initializer_list<Beam*> beams);
 
         /**
          * @brief Returns the current pose of the drivetrain

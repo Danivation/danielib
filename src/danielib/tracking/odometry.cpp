@@ -68,14 +68,18 @@ void Drivetrain::setPose(Pose pose) {
     newPose = true;
 }
 
-void Drivetrain::distanceResetPose(std::span<Beam> beams) {
+void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
     float sumX = 0;
     float sumY = 0;
     int countX = 0;
     int countY = 0;
 
     // loop through all beams
-    for (auto& beam : beams) {
+    for (Beam* beamPtr : beams) {
+        if (!beamPtr) continue;  // skip null pointers
+        
+        Beam& beam = *beamPtr;
+        
         // update beam distance (updates the actual beam object)
         beam.update();
 
@@ -110,24 +114,37 @@ void Drivetrain::distanceResetPose(std::span<Beam> beams) {
         // Check if beam is aligned with east/west walls (pointing near 0° or 180°)
         bool pointingEast = (normalizedAngle < tolerance) || (normalizedAngle > 2 * M_PI - tolerance);
         bool pointingWest = (normalizedAngle > M_PI - tolerance) && (normalizedAngle < M_PI + tolerance);
-        
-        if (pointingEast || pointingWest) {
-            // Beam hits east or west wall - wallHitX tells us the wall's X position
-            // We know which wall based on angle
-            float wallX = pointingEast ? 70 : -70;
-            float robotX = wallX - wallDistance * cosf(beamAngle);
-            sumX += robotX;
-            countX++;
-        }
 
         // Check if beam is aligned with north/south walls (pointing near 90° or 270°)
         bool pointingNorth = (normalizedAngle > M_PI_2 - tolerance) && (normalizedAngle < M_PI_2 + tolerance);
         bool pointingSouth = (normalizedAngle > 3 * M_PI_2 - tolerance) && (normalizedAngle < 3 * M_PI_2 + tolerance);
         
+        if (pointingEast || pointingWest) {
+            // Known wall position
+            float knownWallX = pointingEast ? 70 : -70;
+            
+            // Calculate where the beam sensor must be
+            float beamX = knownWallX - wallDistance * cosf(beamAngle);
+            
+            // Now calculate robot center from beam position
+            // Reverse the offset transformation
+            float robotX = beamX - (beam.yOffset * cosRobotAngle + beam.xOffset * sinRobotAngle);
+            
+            sumX += robotX;
+            countX++;
+        }
+
         if (pointingNorth || pointingSouth) {
-            // Beam hits north or south wall - wallHitY tells us the wall's Y position
-            float wallY = pointingNorth ? 70 : -70;
-            float robotY = wallY - wallDistance * sinf(beamAngle);
+            // Known wall position
+            float knownWallY = pointingNorth ? 70 : -70;
+            
+            // Calculate where the beam sensor must be
+            float beamY = knownWallY - wallDistance * sinf(beamAngle);
+            
+            // Now calculate robot center from beam position
+            // Reverse the offset transformation
+            float robotY = beamY - (beam.yOffset * sinRobotAngle - beam.xOffset * cosRobotAngle);
+            
             sumY += robotY;
             countY++;
         }
