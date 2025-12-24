@@ -121,7 +121,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
         
         if (pointingEast || pointingWest) {
             // Known wall position
-            float knownWallX = pointingEast ? 70 : -70;
+            float knownWallX = pointingEast ? 70.5 : -70.5;
             
             // Calculate where the beam sensor must be
             float beamX = knownWallX - wallDistance * cosf(beamAngle);
@@ -136,7 +136,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
 
         if (pointingNorth || pointingSouth) {
             // Known wall position
-            float knownWallY = pointingNorth ? 70 : -70;
+            float knownWallY = pointingNorth ? 70.5 : -70.5;
             
             // Calculate where the beam sensor must be
             float beamY = knownWallY - wallDistance * sinf(beamAngle);
