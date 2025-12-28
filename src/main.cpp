@@ -13,44 +13,66 @@
  * (*) something like a Motion class to assume all motions
 **/
 
+
+/* ---------------------------------------------------------------------------------------------- */
+/*                                          DEVICE PORTS                                          */
+/* ---------------------------------------------------------------------------------------------- */
+
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-pros::MotorGroup left_mg({-14, 15, 16}, pros::MotorGearset::blue);
-pros::MotorGroup right_mg({17, -18, -19}, pros::MotorGearset::blue);
+pros::MotorGroup left_mg({1, -2, 3}, pros::MotorGearset::blue);
+pros::MotorGroup right_mg({-8, 9, -10}, pros::MotorGearset::blue);
 pros::Imu imu_1(4);
-pros::Rotation vertical_rotation(6);
-pros::Rotation horizontal_rotation(5);
-pros::Optical optical_top(9);
-pros::Motor intake(10);
-pros::Motor hood(-2);
-pros::adi::Pneumatics lift('B', true, true);
-pros::adi::Pneumatics loader('H', false, false);
-pros::adi::Pneumatics descore_right('A', false);
-pros::adi::Pneumatics descore_left('C', false);  // unused, both buttons trigger descore right
+pros::Motor intake(5);
+pros::Motor hood(-6);
+pros::Rotation horizontal_rotation(7);
+pros::Rotation vertical_rotation(11);
 
-pros::Optical optical_middle(22);   // unused
+pros::Distance distance_left(12);
+pros::Distance distance_right(17);
+pros::Distance distance_front(20);
 
-pros::Distance distance_left(11);
-pros::Distance distance_right(12);
-pros::Distance distance_front(13);
+pros::adi::Pneumatics double_park('A', false);
+pros::adi::Pneumatics descore_mid('B', false);
+pros::adi::Pneumatics trapdoor('D', true, true);
+pros::adi::Pneumatics wing('E', false);
+pros::adi::Pneumatics loader('F', false);
+
+pros::Optical optical_top(22);  // unused
+
+
+/* ---------------------------------------------------------------------------------------------- */
+/*                                         DANIELIB CONFIG                                        */
+/* ---------------------------------------------------------------------------------------------- */
 
 danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0);
-danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2, 1.8);
-danielib::Inertial inertial(imu_1, 1.0029);     // new imu
+danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2, 0.84);
+danielib::Inertial inertial(imu_1, 1.004);     // new imu
 
-danielib::MCL::Beam left_beam(-90, 0, 0, distance_left);
-danielib::MCL::Beam right_beam(90, 0, 0, distance_right);
-danielib::MCL::Beam front_beam(0, 0, 0, distance_front);
+danielib::Beam left_beam(-90, -5, -3.4, distance_left);
+danielib::Beam right_beam(90, 5, -3.4, distance_right);
+danielib::Beam front_beam(0, 5.1, -3.2, distance_front);
 
 danielib::Localization mcl({left_beam, right_beam, front_beam});
-
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
 danielib::PID linearPID(7.5, 0.1, 22.5, 1, 0.5, 100);
 danielib::PID angularPID(2.3, 0.2, 13.7, 3, 1, 100);
-danielib::PID mtpLinearPID(7.5, 0.1, 22.5, 1, 0.5, 100);
-danielib::PID mtpAngularPID(3.13, 0.2, 13.7, 3, 1, 100);
+danielib::PID mtpLinearPID(7.2, 0.05, 25, 0, 0.75, 300);
+danielib::PID mtpAngularPID(3.13, 0.2, 13.7, 0, 1, 100);
 
 danielib::Drivetrain chassis(left_mg, right_mg, sensors, 11.5, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID);
+
+
+
+
+// convert vex field tiles to inches
+constexpr double operator"" _tiles(long double value) {
+    return value * 23.622;
+}
+constexpr double operator"" _tiles(unsigned long long value) {
+    return static_cast<double>(value) * 23.622;
+}
+
 
 void screen_print() {
     while (true) {
@@ -86,11 +108,8 @@ void initialize() {
 
     chassis.calibrate();
     chassis.startTracking();
-    chassis.setPose(0, 0, 0);
-    pros::delay(500);
 
-    chassis.moveToPoint(24, 24, 10000, false);
-    chassis.turnToHeading(90, 1000);
+    autonomous();
 
     while (true) {
         pros::delay(10);
@@ -106,7 +125,17 @@ void disabled() {
 }
 
 void autonomous() {
+    chassis.setPose(0.75, -47, 270);
 
+    // steal preload and push
+    chassis.driveForDistance(8, 400);
+
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                      RIGHT LOADER + SCORE                                      */
+    /* ---------------------------------------------------------------------------------------------- */
+
+    // move back to loader
+    chassis.moveToPoint(1.78_tiles, -1.9_tiles, 2000, true);
 }
 
 void opcontrol() {

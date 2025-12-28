@@ -103,7 +103,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         // calculate and desaturate outputs, effectively clamps to max speed
         float leftPower = linearOut + angularOut;
         float rightPower = linearOut - angularOut;
-        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower)) / maxSpeed;  // 127 = max speed
+        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower)) / maxSpeed;
         if (ratio > 1) {
             leftPower /= ratio;
             rightPower /= ratio;
@@ -121,7 +121,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     rightMotors.brake();
 }
 
-
+// move to point max speed is always 100/127
 void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool reverse, float maxSpeed) {
     if (!isTracking()) return;
     if (runAsync) {
@@ -161,11 +161,12 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     float prevLinearOut = 0;
     float prevAngularOut = 0;
 
+    // keep moving unless the timeout happens, the linear exit condition happens, or the movement is disabled
     while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
         Pose robotPose = getPose(true);
-
-        // disable turning if robot is close to target
         float distance = robotPose.distance(targetPose);
+
+        // slew speed down to 60 when close
         if (distance < closeDist /* && !close */) {
             close = true;
             maxSpeed = d_slew(fabs(prevLinearOut), 60, linearMaxSlew);
@@ -196,24 +197,22 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         float angularOut = -mtpAngularPID.update(d_toDegrees(angularError));
         if (close) angularOut = 0;
 
-        // clamp to max speed
-        linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
-        angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
-
         // slew outputs to avoid slipping, and constrain to max speed
         linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
         angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
-        // TODO: figure out if putting this before the desaturation is messing it up
+
+        // TODO: figure out if putting this before the desaturation is messing it up (it is)
         //linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
 
         // update previous values
         prevLinearOut = linearOut;
         prevAngularOut = angularOut;
 
-        // calculate and desaturate outputs, effectively clamps to max speed
+        // calculate and desaturate outputs
+        // if either output is greater than max speed, ratio both so that the higher one is equal to max speed
         float leftPower = linearOut + angularOut;
         float rightPower = linearOut - angularOut;
-        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower)) / maxSpeed;  // 127 = max speed
+        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower)) / maxSpeed;
         if (ratio > 1) {
             leftPower /= ratio;
             rightPower /= ratio;
