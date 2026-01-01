@@ -7,7 +7,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
-        pros::Task task([&]() { moveToPose(x, y, timeout, reverse, leadDist, driftFactor, maxSpeed); });
+        pros::Task task([&]() { moveToPose(x, y, heading, timeout, reverse, leadDist, driftFactor, maxSpeed); });
         pros::delay(10);  // give the task some time to start
         return;
     }
@@ -197,12 +197,13 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         float angularOut = -mtpAngularPID.update(d_toDegrees(angularError));
         if (close) angularOut = 0;
 
+        // clamp outputs to max speed (should have negative effects but oh well)
+        linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
+        angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
+
         // slew outputs to avoid slipping, and constrain to max speed
         linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
         angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
-
-        // TODO: figure out if putting this before the desaturation is messing it up (it is)
-        //linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
 
         // update previous values
         prevLinearOut = linearOut;
