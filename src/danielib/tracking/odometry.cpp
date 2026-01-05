@@ -12,6 +12,7 @@ void Drivetrain::update() {
     float deltaVertical = odomSensors.verticalTracker.getPosition() - prevVertical;
     float deltaHorizontal = odomSensors.horizontalTracker.getPosition() - prevHorizontal;
     float deltaTheta = newPose ? 0 : d_angleError(d_toRadians(odomSensors.imu.getRotation()), prevTheta, true);
+    newPose = false;
 
     // find how much robot has traveled since last update
     float localX;
@@ -45,7 +46,6 @@ void Drivetrain::update() {
     prevVertical = odomSensors.verticalTracker.getPosition();
     prevHorizontal = odomSensors.horizontalTracker.getPosition();
     prevTheta = d_toRadians(odomSensors.imu.getRotation());
-    newPose = false;
 }
 
 void Drivetrain::calibrate() {
