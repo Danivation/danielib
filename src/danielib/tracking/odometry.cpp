@@ -60,12 +60,14 @@ void Drivetrain::setPose(float x, float y, float theta) {
     if (theta != infinityf()) odomSensors.imu.setRotation(theta);
     currentPose = Pose(x, y, theta);
     newPose = true;
+    pros::delay(5);
 }
 
 void Drivetrain::setPose(Pose pose) {
     odomSensors.imu.setRotation(pose.theta);
     currentPose = pose;
     newPose = true;
+    pros::delay(5);
 }
 
 void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {

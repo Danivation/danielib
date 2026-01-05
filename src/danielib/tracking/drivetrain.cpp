@@ -48,11 +48,11 @@ Drivetrain::Drivetrain(
 
 void danielib::Drivetrain::stopAllMovements() {
     movementsEnabled = false;
-    pros::delay(10);
+    pros::delay(5);
 }
 
 void danielib::Drivetrain::stopMovement() {
     currentMovementEnabled = false;
-    pros::delay(10);
+    pros::delay(5);
 }
 } // namespace danielib
