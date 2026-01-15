@@ -14,8 +14,8 @@ std::mt19937 rng(rd());
 std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
 const float numParticles = 100;
-const float gaussianStDev = 1.1;
-const float gaussianFactor = 2.2;
+const float gaussianStDev = 1.4;
+const float gaussianFactor = 2.4;
 const float thetaNoise = toRadians(0.3);
 const float xyNoise = 1.5;
 
@@ -83,7 +83,7 @@ void Particle::updateWeight(std::span<const Beam> beams) {
     float term = 0.0f;
     for (const Beam& beam : beams) {
         term = fabs(gaussian(expectedDistance(beam) - toInches(beam.distance)));
-        if (term >= 0.000001 && beam.distance > 0 && beam.distance < 2000) {
+        if (term >= 0.00000 && beam.distance > 0 && beam.distance < 2000) {
             sum *= term;
         }
     }
@@ -121,7 +121,7 @@ Pose Localization::run(const Pose& delta, std::span<const Beam> beams, float cur
 
     for (auto& beam : beams) {
         float beamDistance = beam.distance;
-        if (beamDistance >= 2200) beamDistance = 0;
+        if (beamDistance >= 2000) beamDistance = 0;
         printf("[%.1f,%.1f,%.1f,%.1f]", beam.xOffset, beam.yOffset, beam.angleOffset, toInches(beamDistance));
 
         if (&beam != &beams.back()) {
