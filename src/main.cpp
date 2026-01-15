@@ -127,65 +127,11 @@ void disabled() {
 }
 
 void autonomous() {
-    chassis.setPose(0, 0, 0);
+    chassis.setPose(1_tiles, -2_tiles, 180);
     pros::delay(5);
 
+    chassis.startLocalization(1_tiles, -2_tiles, 180);
 
-
-
-
-
-
-
-
-    /**
-
-
-    // pros::lcd::print(1, "(%.5f)", horizontal_rotation.get_position());
-
-    // chassis.turnToHeading(90, 1000);
-    // auto pose = chassis.getPose();
-    // pros::lcd::print(0, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
-    // pros::delay(1000);
-
-    
-    // pros::lcd::print(2, "(%.5f)", horizontal_rotation.get_position());
-
-    chassis.turnToHeading(180, 1000);
-    pose = chassis.getPose();
-    pros::lcd::print(1, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
-    pros::delay(1000);
-
-    chassis.turnToHeading(270, 1000);
-    pose = chassis.getPose();
-    pros::lcd::print(2, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
-    pros::delay(1000);
-
-    chassis.turnToHeading(0, 1000);
-    pose = chassis.getPose();
-    pros::lcd::print(3, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
-    pros::delay(1000);
-
-    chassis.turnToHeading(270, 1000);
-    pose = chassis.getPose();
-    pros::lcd::print(4, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
-    pros::delay(1000);
-
-    chassis.turnToHeading(180, 1000);
-    pose = chassis.getPose();
-    pros::lcd::print(5, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
-    pros::delay(1000);
-
-    chassis.turnToHeading(90, 1000);
-    pose = chassis.getPose();
-    pros::lcd::print(6, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
-    pros::delay(1000);
-
-    chassis.turnToHeading(0, 1000);
-    pose = chassis.getPose();
-    pros::lcd::print(7, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
-
-    /**/
 }
 
 void opcontrol() {

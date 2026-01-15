@@ -199,7 +199,9 @@ void Drivetrain::startLocalization(float x, float y, float theta) {
                 }
 
                 Drivetrain::update();   // update odom
-                Drivetrain::setPose(odomSensors.localization.run(deltaPose, odomSensors.localization.beams));   // update mcl
+                auto pose = odomSensors.localization.run(deltaPose, odomSensors.localization.beams);
+                currentPose.x = pose.x;
+                currentPose.y = pose.y;
                 pros::delay(50);
             }
         }};

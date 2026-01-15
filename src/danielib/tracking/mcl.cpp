@@ -14,7 +14,7 @@ std::random_device rd;
 std::mt19937 rng(rd());
 std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-const float numParticles = 500;
+const float numParticles = 100;
 const float gaussianStDev = 0.8;
 const float gaussianFactor = 0.6;
 const float thetaNoise = d_toRadians(0.3);
