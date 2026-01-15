@@ -54,7 +54,7 @@ class Localization {
         void setPose(Pose pose);
 
         // runs the localization loop
-        Pose run(const Pose& delta, std::span<const Beam> beams);
+        Pose run(const Pose& delta, std::span<const Beam> beams, float currentTheta);
         // updates particles (applies delta noise)
         void update(const Pose& delta);
         // resamples particles (resamples using beams)

@@ -84,7 +84,7 @@ class Drivetrain {
         pros::MotorGroup& leftMotors;
         pros::MotorGroup& rightMotors;
         Sensors& odomSensors;
-        danielib::Localization& localization;
+        Localization& localization;
         const float trackWidth;
         const float wheelSize;
         const float wheelRPM;

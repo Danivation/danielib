@@ -14,8 +14,8 @@ std::mt19937 rng(rd());
 std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
 const float numParticles = 100;
-const float gaussianStDev = 0.9;
-const float gaussianFactor = 1.9;
+const float gaussianStDev = 1.1;
+const float gaussianFactor = 2.2;
 const float thetaNoise = toRadians(0.3);
 const float xyNoise = 1.5;
 
@@ -83,7 +83,7 @@ void Particle::updateWeight(std::span<const Beam> beams) {
     float term = 0.0f;
     for (const Beam& beam : beams) {
         term = fabs(gaussian(expectedDistance(beam) - toInches(beam.distance)));
-        if (term >= 0.0001 && beam.distance > 0 && beam.distance < 2100) {
+        if (term >= 0.000001 && beam.distance > 0 && beam.distance < 2000) {
             sum *= term;
         }
     }
@@ -103,7 +103,7 @@ void Localization::setPose(Pose pose) {
     averagePose = pose;
 }
 
-Pose Localization::run(const Pose& delta, std::span<const Beam> beams) {
+Pose Localization::run(const Pose& delta, std::span<const Beam> beams, float currentTheta) {
     this->update(delta);
     this->resample(beams);
 
@@ -122,14 +122,14 @@ Pose Localization::run(const Pose& delta, std::span<const Beam> beams) {
     for (auto& beam : beams) {
         float beamDistance = beam.distance;
         if (beamDistance >= 2200) beamDistance = 0;
-        printf("[%.1f,%.1f,%.1f,%.1f]", beam.xOffset, beam.yOffset, beam.angleOffset, Particle(averagePose).expectedDistance(beam) /* beamDistance */);
+        printf("[%.1f,%.1f,%.1f,%.1f]", beam.xOffset, beam.yOffset, beam.angleOffset, toInches(beamDistance));
 
         if (&beam != &beams.back()) {
             printf(",");
         }
     }
 
-    printf("],\"pose\":[%.2f,%.2f,%.2f]}\n", averagePose.x, averagePose.y, toDegrees(averagePose.theta));
+    printf("],\"pose\":[%.2f,%.2f,%.2f]}\n", averagePose.x, averagePose.y, currentTheta);
 
     return this->averagePose;
 }
