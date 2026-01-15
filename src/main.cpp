@@ -19,25 +19,26 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-pros::MotorGroup left_mg({1, -2, 3}, pros::MotorGearset::blue);
-pros::MotorGroup right_mg({-8, 9, -10}, pros::MotorGearset::blue);
-pros::Imu imu_1(4);
-pros::Motor intake(5);
-pros::Motor hood(-6);
-pros::Rotation horizontal_rotation(7);
-pros::Rotation vertical_rotation(11);
+pros::MotorGroup left_mg({2, -3, 4}, pros::MotorGears::blue);
+pros::MotorGroup right_mg({-7, 8, -9}, pros::MotorGears::blue);
+pros::Motor intake(1, pros::MotorGears::blue);
+pros::Motor hood(-10, pros::MotorGears::blue);
+pros::Imu imu_1(11);
+pros::Rotation vertical_rotation(5);
+pros::Rotation horizontal_rotation(6);
 
 pros::Distance distance_left(12);
-pros::Distance distance_right(17);
-pros::Distance distance_front(20);
+pros::Distance distance_right(20);
+pros::Distance distance_front(17);
+pros::Optical optical_top(16);
 
-pros::adi::Pneumatics double_park('A', false);
+pros::adi::Pneumatics loader('A', false);
 pros::adi::Pneumatics descore_mid('B', false);
+pros::adi::Pneumatics wing('C', false);
 pros::adi::Pneumatics trapdoor('D', true, true);
-pros::adi::Pneumatics wing('E', false);
-pros::adi::Pneumatics loader('F', false);
+pros::adi::Pneumatics double_park('E', false);
+pros::adi::Pneumatics grabber('F', false, true);
 
-pros::Optical optical_top(22);  // unused
 
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -45,20 +46,20 @@ pros::Optical optical_top(22);  // unused
 /* ---------------------------------------------------------------------------------------------- */
 
 danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0);
-danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2, 0.84);
+danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2, 1.57);
 danielib::Inertial inertial(imu_1, 1.004);     // new imu
 
-danielib::Beam left_beam(-90, -5, -3.4, distance_left);
-danielib::Beam right_beam(90, 5, -3.4, distance_right);
+danielib::Beam left_beam(-90, -4.9, -3.4, distance_left);
+danielib::Beam right_beam(90, 4.9, -3.4, distance_right);
 danielib::Beam front_beam(0, 5.1, -3.2, distance_front);
 
 danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
-danielib::PID linearPID(7.5, 0.1, 22.5, 1, 0.5, 100);
-danielib::PID angularPID(2.3, 0.2, 13.7, 3, 1, 100);
-danielib::PID mtpLinearPID(7.2, 0.05, 25, 0, 0.75, 300);
-danielib::PID mtpAngularPID(3.13, 0.2, 13.7, 0, 1, 100);
+danielib::PID linearPID(7.5, 0.1, 22.5, 1, 0.5, 200);
+danielib::PID angularPID(2.3, 0.2, 13.7, 3, 2, 100);
+danielib::PID mtpLinearPID(7.2, 0.05, 25, 0, 1, 500);
+danielib::PID mtpAngularPID(3.35, 0.2, 14);
 
 danielib::Drivetrain chassis(left_mg, right_mg, sensors, 11.5, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID);
 
@@ -80,6 +81,7 @@ void screen_print() {
         pros::lcd::print(0, "X: %.2f", pose.x);
         pros::lcd::print(1, "Y: %.2f", pose.y);
         pros::lcd::print(2, "Theta: %.2f", d_reduce_to_0_360(pose.theta));
+        //pros::lcd::print(0, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
 
         pros::delay(50);
     }
@@ -125,17 +127,65 @@ void disabled() {
 }
 
 void autonomous() {
-    chassis.setPose(0.75, -47, 270);
+    chassis.setPose(0, 0, 0);
+    pros::delay(5);
 
-    // steal preload and push
-    chassis.driveForDistance(8, 400);
 
-    /* ---------------------------------------------------------------------------------------------- */
-    /*                                      RIGHT LOADER + SCORE                                      */
-    /* ---------------------------------------------------------------------------------------------- */
 
-    // move back to loader
-    chassis.moveToPoint(1.78_tiles, -1.9_tiles, 2000, true);
+
+
+
+
+
+
+    /**
+
+
+    // pros::lcd::print(1, "(%.5f)", horizontal_rotation.get_position());
+
+    // chassis.turnToHeading(90, 1000);
+    // auto pose = chassis.getPose();
+    // pros::lcd::print(0, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
+    // pros::delay(1000);
+
+    
+    // pros::lcd::print(2, "(%.5f)", horizontal_rotation.get_position());
+
+    chassis.turnToHeading(180, 1000);
+    pose = chassis.getPose();
+    pros::lcd::print(1, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
+    pros::delay(1000);
+
+    chassis.turnToHeading(270, 1000);
+    pose = chassis.getPose();
+    pros::lcd::print(2, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
+    pros::delay(1000);
+
+    chassis.turnToHeading(0, 1000);
+    pose = chassis.getPose();
+    pros::lcd::print(3, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
+    pros::delay(1000);
+
+    chassis.turnToHeading(270, 1000);
+    pose = chassis.getPose();
+    pros::lcd::print(4, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
+    pros::delay(1000);
+
+    chassis.turnToHeading(180, 1000);
+    pose = chassis.getPose();
+    pros::lcd::print(5, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
+    pros::delay(1000);
+
+    chassis.turnToHeading(90, 1000);
+    pose = chassis.getPose();
+    pros::lcd::print(6, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
+    pros::delay(1000);
+
+    chassis.turnToHeading(0, 1000);
+    pose = chassis.getPose();
+    pros::lcd::print(7, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
+
+    /**/
 }
 
 void opcontrol() {

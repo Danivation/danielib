@@ -158,6 +158,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
         (countX > 0) ? (sumX / countX) : currentPose.x,
         (countY > 0) ? (sumY / countY) : currentPose.y
     );
+    pros::delay(5);
 }
 
 Pose Drivetrain::getPose(bool inRadians) {
