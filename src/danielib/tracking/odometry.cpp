@@ -100,8 +100,10 @@ void Drivetrain::startLocalization(float x, float y, float theta) {
                 }
 
                 Drivetrain::update();   // update odom
-                Drivetrain::setPose(localization.run(deltaPose, localization.beams));   // update mcl
-                pros::delay(50);
+                auto pose = localization.run(deltaPose, localization.beams);
+                currentPose.x = pose.x;
+                currentPose.y = pose.y;
+                pros::delay(200);
             }
         }};
     }

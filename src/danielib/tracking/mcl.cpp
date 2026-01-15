@@ -13,11 +13,11 @@ std::random_device rd;
 std::mt19937 rng(rd());
 std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-const float numParticles = 500;
-const float gaussianStDev = 0.8;
-const float gaussianFactor = 0.6;
+const float numParticles = 100;
+const float gaussianStDev = 0.9;
+const float gaussianFactor = 1.9;
 const float thetaNoise = toRadians(0.3);
-const float xyNoise = 2;
+const float xyNoise = 1.5;
 
 Beam::Beam(float angleOffset, float xOffset, float yOffset, pros::Distance& sensor) :
     angleOffset(angleOffset),
@@ -80,10 +80,16 @@ float Particle::gaussian(float x) {
 
 void Particle::updateWeight(std::span<const Beam> beams) {
     float sum = 1.0f;
+    float term = 0.0f;
     for (const Beam& beam : beams) {
-        sum *= fabs(gaussian(expectedDistance(beam) - toInches(beam.distance)));
+        term = fabs(gaussian(expectedDistance(beam) - toInches(beam.distance)));
+        if (term >= 0.0001 && beam.distance > 0 && beam.distance < 2100) {
+            sum *= term;
+        }
     }
-    this->weight = sum;
+    if (sum != 1) {
+        this->weight = sum;
+    }
 }
 
 Localization::Localization(std::vector<Beam> sensors) :
@@ -104,7 +110,7 @@ Pose Localization::run(const Pose& delta, std::span<const Beam> beams) {
     printf("{\"particles\":[");
 
     for (auto& particle : particles) {
-        printf("[%.3f,%.3f,%.3f,%.5f]", particle.x, particle.y, particle.theta, particle.weight);
+        printf("[%.2f,%.2f,%.2f,%.3f]", particle.x, particle.y, particle.theta, particle.weight);
 
         if (&particle != &particles.back()) {
             printf(",");
@@ -116,7 +122,7 @@ Pose Localization::run(const Pose& delta, std::span<const Beam> beams) {
     for (auto& beam : beams) {
         float beamDistance = beam.distance;
         if (beamDistance >= 2200) beamDistance = 0;
-        printf("[%.1f,%.1f,%.1f,%.3f]", beam.xOffset, beam.yOffset, beam.angleOffset, Particle(averagePose).expectedDistance(beam) /* beamDistance */);
+        printf("[%.1f,%.1f,%.1f,%.1f]", beam.xOffset, beam.yOffset, beam.angleOffset, Particle(averagePose).expectedDistance(beam) /* beamDistance */);
 
         if (&beam != &beams.back()) {
             printf(",");
