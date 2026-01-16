@@ -27,13 +27,18 @@ class Drivetrain {
             PID& mtpAngularPID
         );
 
+        bool isTracking();
+
         void startTracking();
         void stopTracking();
         void startLocalization(float x, float y, float theta);
         void stopLocalization();
+
         void stopAllMovements();
         void stopMovement();
-        bool isTracking();
+
+        void waitUntilDone();
+        void setSpeed();
 
         void calibrate();
         void setPose(float x, float y, float theta = infinityf());
@@ -100,7 +105,7 @@ class Drivetrain {
          * @param timeout timeout in ms
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void moveToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 100);
+        void moveToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float earlyExitRange = 0, float maxSpeed = 100);
 
         /**
          * @brief Moves to a given target pose using a boomerang controller
@@ -115,13 +120,9 @@ class Drivetrain {
          * 
          * @note This does not obey exit conditions, only timeouts
          */
-        void moveToPose(float x, float y, float heading, int timeout = infinityf(), bool reverse = false, float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 100);
+        void moveToPose(float x, float y, float heading, int timeout = infinityf(), bool reverse = false, float earlyExitRange = 0, float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 100);
 
     private:
-        bool movementsEnabled = true;
-        bool currentMovementEnabled = true;
-        bool runAsync = false;
-
         PID& linearPID;
         PID& angularPID;
         PID& mtpLinearPID;
@@ -138,8 +139,6 @@ class Drivetrain {
         Pose currentPose = {0, 0, 0};
         void update();
 
-        bool newPose = false;
-
         float prevVertical = 0;
         float prevHorizontal = 0;
         float prevTheta = 0;
@@ -147,5 +146,13 @@ class Drivetrain {
         // needed for mcl, change in pose since last odom update
         Pose prevPose = {0, 0, 0};
         Pose deltaPose = {0, 0, 0};
+        
+        // motion vars
+        bool newPose = false;
+        pros::Mutex motionMutex;
+        bool movementsEnabled = true;
+        bool currentMovementEnabled = true;
+        bool runAsync = false;
+        int currentMaxSpeed = 0;
 };
 } // namespace danielib

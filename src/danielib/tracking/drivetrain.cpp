@@ -55,4 +55,15 @@ void danielib::Drivetrain::stopMovement() {
     currentMovementEnabled = false;
     pros::delay(5);
 }
+
+void danielib::Drivetrain::waitUntilDone() {
+    // wait until mutex is takeable and immediately give it up
+    motionMutex.take();
+    motionMutex.give();
+}
+
+void danielib::Drivetrain::setSpeed() {
+    
+}
+
 } // namespace danielib

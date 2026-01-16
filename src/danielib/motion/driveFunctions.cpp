@@ -12,6 +12,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         return;
     }
 
+    motionMutex.take();
     currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
@@ -41,4 +42,5 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
     // stop motors
     leftMotors.brake();
     rightMotors.brake();
+    motionMutex.give();
 }

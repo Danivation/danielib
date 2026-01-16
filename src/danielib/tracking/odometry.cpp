@@ -52,7 +52,6 @@ void Drivetrain::calibrate() {
     odomSensors.horizontalTracker.reset();
     odomSensors.verticalTracker.reset();
     odomSensors.imu.calibrate();
-    //pros::delay(2500);
     pros::c::controller_rumble(pros::E_CONTROLLER_MASTER, ".");
 }
 
@@ -75,6 +74,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
     float sumY = 0;
     int countX = 0;
     int countY = 0;
+    pros::delay(5);
 
     // loop through all beams
     for (Beam* beamPtr : beams) {
@@ -158,7 +158,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
         (countX > 0) ? (sumX / countX) : currentPose.x,
         (countY > 0) ? (sumY / countY) : currentPose.y
     );
-    pros::delay(5);
+    pros::delay(10);
 }
 
 Pose Drivetrain::getPose(bool inRadians) {

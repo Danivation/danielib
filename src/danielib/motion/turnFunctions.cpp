@@ -12,6 +12,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
         return;
     }
 
+    motionMutex.take();
     currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
@@ -40,19 +41,11 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
     // stop motors
     leftMotors.brake();
     rightMotors.brake();
+    motionMutex.give();
 }
 
 void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, float maxSpeed) {
     if (!isTracking()) return;
-    if (runAsync) {
-        runAsync = false;
-        pros::Task task([&]() { turnToPoint(x, y, timeout, maxSpeed); });
-        pros::delay(10);  // give the task some time to start
-        return;
-    }
-
-    currentMovementEnabled = true;
-
     float angle = d_toDegrees(currentPose.angle({x, y, currentPose.theta}));
     turnToHeading(angle, timeout, maxSpeed);
 }

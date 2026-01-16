@@ -65,7 +65,6 @@ danielib::Drivetrain chassis(left_mg, right_mg, sensors, 11.5, 3.25, 450, linear
 
 
 
-
 // convert vex field tiles to inches
 constexpr double operator"" _tiles(long double value) {
     return value * 23.622;
@@ -81,7 +80,6 @@ void screen_print() {
         pros::lcd::print(0, "X: %.2f", pose.x);
         pros::lcd::print(1, "Y: %.2f", pose.y);
         pros::lcd::print(2, "Theta: %.2f", d_reduce_to_0_360(pose.theta));
-        //pros::lcd::print(0, "(%.2f, %.2f, %.2f)", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
 
         pros::delay(50);
     }
@@ -99,7 +97,7 @@ void controller_print() {
 void print_to_displays() {
     pros::Task screenTask(screen_print);
     pros::Task controllerTask(controller_print);
-}
+} 
 
 void initialize() {
     pros::lcd::initialize(); // initialze llemu
@@ -127,11 +125,7 @@ void disabled() {
 }
 
 void autonomous() {
-    chassis.setPose(1_tiles, -2_tiles, 180);
-    pros::delay(5);
-
-    chassis.startLocalization(1_tiles, -2_tiles, 180);
-
+    chassis.setPose(0, 0, 0);
 }
 
 void opcontrol() {
