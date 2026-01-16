@@ -56,8 +56,16 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         if (close) carrotPose = targetPose;
 
         // calculate if the robot is on the same side of the endpoint line as the carrot point
-        bool robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) <= (robotPose.x - targetPose.x) * cos(targetPose.theta) + earlyExitRange;
-        bool carrotSide = (carrotPose.y - targetPose.y) * -sin(targetPose.theta) <= (carrotPose.x - targetPose.x) * cos(targetPose.theta) + earlyExitRange;
+        bool robotSide, carrotSide;
+        if (reverse) {
+            // When reversing, flip the inequality and negate earlyExitRange
+            robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) >= (robotPose.x - targetPose.x) * cos(targetPose.theta) - earlyExitRange;
+            carrotSide = (carrotPose.y - targetPose.y) * -sin(targetPose.theta) >= (carrotPose.x - targetPose.x) * cos(targetPose.theta) - earlyExitRange;
+        } else {
+            // Forward movement (original)
+            robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) <= (robotPose.x - targetPose.x) * cos(targetPose.theta) + earlyExitRange;
+            carrotSide = (carrotPose.y - targetPose.y) * -sin(targetPose.theta) <= (carrotPose.x - targetPose.x) * cos(targetPose.theta) + earlyExitRange;
+        }
         bool sameSide = (robotSide == carrotSide);
         // exit if close
         if (!sameSide && prevSameSide && close) break;
@@ -179,7 +187,14 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         if (!close) targetPose.theta = lastPose.angle(targetPose);
 
         // calculate what side of the endpoint line the robot is on, or if it has passed the target
-        bool robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) <= (robotPose.x - targetPose.x) * cos(targetPose.theta) + earlyExitRange;
+        bool robotSide;
+        if (reverse) {
+            // When reversing, flip the inequality
+            robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) >= (robotPose.x - targetPose.x) * cos(targetPose.theta) - earlyExitRange;
+        } else {
+            // Forward movement (original)
+            robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) <= (robotPose.x - targetPose.x) * cos(targetPose.theta) + earlyExitRange;
+        }
         // exit if robot moves past target point
         if (robotSide != prevSide && close) break;
         prevSide = robotSide;
