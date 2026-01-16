@@ -3,7 +3,7 @@
 #include "danielib/utils.hpp"
 #include "danielib/pid.hpp"
 
-void danielib::Drivetrain::driveForDistance(float distance, int timeout, float maxSpeed) {
+void danielib::Drivetrain::driveForDistance(float distance, int timeout, float maxSpeed, float earlyExitRange) {
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
@@ -29,6 +29,10 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
     while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
         currentDistance = odomSensors.verticalTracker.getPosition() - startPosition;
         error = distance - currentDistance;
+
+        // exit if within exit range
+        if (fabs(error) < earlyExitRange) break;
+
         power = linearPID.update(error);
         linearExit.update(error);
 

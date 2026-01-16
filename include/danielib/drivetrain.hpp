@@ -76,7 +76,7 @@ class Drivetrain {
          * @param timeout timeout in ms
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void driveForDistance(float distance, int timeout = infinityf(), float maxSpeed = 100);
+        void driveForDistance(float distance, int timeout = infinityf(), float maxSpeed = 100, float earlyExitRange = 0);
 
         /**
          * @brief Turns to a given target heading
@@ -105,7 +105,7 @@ class Drivetrain {
          * @param timeout timeout in ms
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void moveToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float earlyExitRange = 0, float maxSpeed = 100);
+        void moveToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 100, float earlyExitRange = 0);
 
         /**
          * @brief Moves to a given target pose using a boomerang controller
@@ -120,7 +120,7 @@ class Drivetrain {
          * 
          * @note This does not obey exit conditions, only timeouts
          */
-        void moveToPose(float x, float y, float heading, int timeout = infinityf(), bool reverse = false, float earlyExitRange = 0, float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 100);
+        void moveToPose(float x, float y, float heading, int timeout = infinityf(), bool reverse = false, float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 100, float earlyExitRange = 0);
 
     private:
         PID& linearPID;

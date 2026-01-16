@@ -3,7 +3,7 @@
 #include "danielib/utils.hpp"
 #include "danielib/pid.hpp"
 
-void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, bool reverse, float earlyExitRange, float leadDist, float driftFactor, float maxSpeed) {
+void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, bool reverse, float leadDist, float driftFactor, float maxSpeed, float earlyExitRange) {
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
@@ -123,7 +123,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
 }
 
 // move to point max speed is always 100/127
-void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool reverse, float earlyExitRange, float maxSpeed) {
+void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool reverse, float maxSpeed, float earlyExitRange) {
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
