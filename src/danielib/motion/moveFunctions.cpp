@@ -16,7 +16,8 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
-    const float closeDist = 5;  // distance for it to be considered close
+    const float closeDist = 6;  // distance for it to be considered close
+    const float turnLockDist = 3;
 
     // tunable parameters and stuff
     float linearMaxSlew = 20;
@@ -81,7 +82,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         float linearOut = linearPID.update(linearError);
         if (reverse) linearOut = -linearOut;
         float angularOut = -angularPID.update(d_toDegrees(angularError));
-        if (close) angularOut = 0;
+        if (distance < turnLockDist) angularOut = 0;
 
         // clamp to max speed
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
@@ -169,13 +170,12 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         float distance = robotPose.distance(targetPose);
 
         // slew max speed down to 70 when close
-        if (distance < closeDist /* && !close */) {
+        if (distance < closeDist) {
             close = true;
             maxSpeed = d_slew(fabs(prevLinearOut), 70, linearMaxSlew);
-            //maxSpeed = fmax(fabs(prevLinearOut), 50);
         }
 
-        // recalculate target heading??
+        // recalculate target heading when not close
         lastPose = getPose(true);
         if (!close) targetPose.theta = lastPose.angle(targetPose);
 
@@ -204,7 +204,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
-        // slew outputs to avoid slipping, and constrain to max speed
+        // slew outputs to avoid slipping
         linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
         angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 

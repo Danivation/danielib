@@ -126,6 +126,9 @@ void disabled() {
 
 void autonomous() {
     chassis.setPose(0, 0, 0);
+
+    chassis.moveToPoint(1_tiles, 1_tiles, 50000, false, 100, 10);
+    chassis.turnToHeading(270, 500);
 }
 
 void opcontrol() {
