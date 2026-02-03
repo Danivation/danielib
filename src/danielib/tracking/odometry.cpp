@@ -99,6 +99,9 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
         float beamX = currentPose.x + beam.yOffset * cosRobotAngle + beam.xOffset * sinRobotAngle;
         float beamY = currentPose.y + beam.yOffset * sinRobotAngle - beam.xOffset * cosRobotAngle;
 
+        float sinBeamAngle = sinf(beamAngle);
+        float cosBeamAngle = cosf(beamAngle);
+
         // calculate x and y positions of the wall based on beam distance
         // this is basically where it thinks the wall is based on that beam
         // (wallX, wallY) is the point on the wall that the beam is hitting

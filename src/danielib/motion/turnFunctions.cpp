@@ -49,3 +49,49 @@ void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, float maxS
     float angle = d_toDegrees(currentPose.angle({x, y, currentPose.theta}));
     turnToHeading(angle, timeout, maxSpeed);
 }
+
+void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int timeout, float maxSpeed) {
+    if (!isTracking()) return;
+    if (runAsync) {
+        runAsync = false;
+        pros::Task task([&]() { swingToHeading(heading, side, timeout, maxSpeed); });
+        pros::delay(10);  // give the task some time to start
+        return;
+    }
+
+    motionMutex.take();
+    currentMovementEnabled = true;
+    maxSpeed *= 1.27;
+
+    const int startTime = pros::millis();
+    ExitCondition angularExit(swingAngularPID.exitRange, swingAngularPID.exitTime);
+
+    float power = 0;
+    float currentHeading = odomSensors.imu.getHeading();
+    float error = 0;
+
+    swingAngularPID.reset();
+    angularExit.reset();
+    while (pros::millis() < startTime + timeout && !angularExit.isDone() && movementsEnabled && currentMovementEnabled) {
+        currentHeading = odomSensors.imu.getHeading();
+        error = d_reduce_to_180_180(heading - currentHeading);
+        power = swingAngularPID.update(error);
+        angularExit.update(error);
+
+        power = std::clamp(power, -maxSpeed, maxSpeed);
+        if (side == SwingSide::LEFT) {
+            leftMotors.move(power);
+            rightMotors.brake();
+        } else if (side == SwingSide::RIGHT) {
+            leftMotors.brake();
+            rightMotors.move(-power);
+        }
+
+        pros::delay(10);
+    }
+
+    // stop motors
+    leftMotors.brake();
+    rightMotors.brake();
+    motionMutex.give();
+}

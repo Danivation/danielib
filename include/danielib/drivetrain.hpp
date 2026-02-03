@@ -12,6 +12,8 @@ namespace danielib {
 /**
  * @brief Creates a drivetrain object
  */
+enum class SwingSide { LEFT, RIGHT };
+
 class Drivetrain {
     public:
         Drivetrain(
@@ -24,7 +26,8 @@ class Drivetrain {
             PID& linearPID, 
             PID& angularPID, 
             PID& mtpLinearPID, 
-            PID& mtpAngularPID
+            PID& mtpAngularPID,
+            PID& swingAngularPID
         );
 
         bool isTracking();
@@ -98,6 +101,16 @@ class Drivetrain {
         void turnToPoint(float x, float y, int timeout = infinityf(), float maxSpeed = 100);
 
         /**
+         * @brief Turns to a given target heading
+         * 
+         * @param heading target heading in degrees
+         * @param side moving side
+         * @param timeout timeout in ms
+         * @param maxSpeed max speed the drivetrain can move out of 100
+         */
+        void swingToHeading(float heading, SwingSide side, int timeout = infinityf(), float maxSpeed = 100);
+
+        /**
          * @brief Moves to a given target point (not heading) using PIDs
          * 
          * @param x x coordinate in inches
@@ -127,6 +140,8 @@ class Drivetrain {
         PID& angularPID;
         PID& mtpLinearPID;
         PID& mtpAngularPID;
+        PID& swingAngularPID;
+
         pros::MotorGroup& leftMotors;
         pros::MotorGroup& rightMotors;
         Sensors& odomSensors;

@@ -32,7 +32,8 @@ Drivetrain::Drivetrain(
     PID& linearPID, 
     PID& angularPID, 
     PID& mtpLinearPID, 
-    PID& mtpAngularPID
+    PID& mtpAngularPID,
+    PID& swingAngularPID
 ) :
     leftMotors(leftMotors),
     rightMotors(rightMotors),
@@ -43,7 +44,8 @@ Drivetrain::Drivetrain(
     linearPID(linearPID),
     angularPID(angularPID),
     mtpLinearPID(mtpLinearPID),
-    mtpAngularPID(mtpAngularPID)
+    mtpAngularPID(mtpAngularPID),
+    swingAngularPID(swingAngularPID)
 {}
 
 void danielib::Drivetrain::stopAllMovements() {
