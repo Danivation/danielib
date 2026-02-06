@@ -2,10 +2,11 @@
 
 namespace danielib {
 
-TrackerWheel::TrackerWheel(pros::Rotation& sensor, float wheelDiameter, float offset) :
+TrackerWheel::TrackerWheel(pros::Rotation& sensor, float wheelDiameter, float offset, float angle) :
     sensor(sensor),
     wheelDiameter(wheelDiameter),
-    offset(offset)
+    offset(offset),
+    angle(angle)
 {}
 
 Inertial::Inertial(pros::Imu& sensor1, float scale1, pros::Imu* sensor2, float scale2) :
@@ -15,9 +16,9 @@ Inertial::Inertial(pros::Imu& sensor1, float scale1, pros::Imu* sensor2, float s
     scale2(scale2)
 {}
 
-Sensors::Sensors(TrackerWheel& verticalTracker, TrackerWheel& horizontalTracker, Inertial& imu, Localization& localization) :
-    verticalTracker(verticalTracker),
-    horizontalTracker(horizontalTracker),
+Sensors::Sensors(TrackerWheel& tracker1, TrackerWheel& tracker2, Inertial& imu, Localization& localization) :
+    tracker1(tracker1),
+    tracker2(tracker2),
     imu(imu),
     localization(localization)
 {}

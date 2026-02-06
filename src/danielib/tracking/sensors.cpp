@@ -14,6 +14,10 @@ float TrackerWheel::getOffset() {
     return offset;
 }
 
+float TrackerWheel::getAngle() {
+    return d_toRadians(angle);
+}
+
 void Inertial::calibrate() {
     sensor1.reset(false);
     if (sensor2 != nullptr) sensor2->reset(false);

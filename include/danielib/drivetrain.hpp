@@ -154,8 +154,8 @@ class Drivetrain {
         Pose currentPose = {0, 0, 0};
         void update();
 
-        float prevVertical = 0;
-        float prevHorizontal = 0;
+        float prevTracker1 = 0;
+        float prevTracker2 = 0;
         float prevTheta = 0;
 
         // needed for mcl, change in pose since last odom update
