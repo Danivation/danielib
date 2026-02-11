@@ -7,7 +7,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
-        pros::Task task([&]() { moveToPose(x, y, heading, timeout, reverse, leadDist, driftFactor, maxSpeed); });
+        pros::Task task([&]() { moveToPose(x, y, heading, timeout, reverse, leadDist, driftFactor, maxSpeed, earlyExitRange); });
         pros::delay(10);  // give the task some time to start
         return;
     }
@@ -115,7 +115,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         leftMotors.move(leftPower);
         rightMotors.move(rightPower);
 
-        pros::delay(10);
+        pros::delay(5);
     }
 
     // stop motors
@@ -129,7 +129,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
-        pros::Task task([&]() { moveToPoint(x, y, timeout, reverse, maxSpeed); });
+        pros::Task task([&]() { moveToPoint(x, y, timeout, reverse, maxSpeed, earlyExitRange); });
         pros::delay(10);  // give the task some time to start
         return;
     }
@@ -137,7 +137,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     motionMutex.take();
     currentMovementEnabled = true;
 
-    const float closeDist = 5.5;  // distance for it to be considered close
+    const float closeDist = 5;  // distance for it to be considered close
 
     // tunable parameters and stuff
     float linearMaxSlew = mtpLinearPID.slew;
@@ -172,7 +172,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         // slew max speed down to 70 when close
         if (distance < closeDist) {
             close = true;
-            if (linearMaxSlew != 0) maxSpeed = d_slew(fabs(prevLinearOut), 70, linearMaxSlew);
+            maxSpeed = d_slew(fabs(prevLinearOut), 70, 25);
         }
 
         // recalculate target heading when not close
@@ -188,10 +188,10 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
         // calculate errors
         float angularError = d_angleError(!reverse ? robotPose.theta : robotPose.theta + M_PI, targetPose.theta, true);
-        float linearError = robotPose.distance(targetPose) * cos(angularError);
+        float linearError = distance * cos(angularError);
 
         // update exit conditions
-        linearExit.update(robotPose.distance(targetPose));
+        linearExit.update(distance);
         angularExit.update(d_toDegrees(angularError));
 
         // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
@@ -226,7 +226,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         leftMotors.move(leftPower);
         rightMotors.move(rightPower);
 
-        pros::delay(10);
+        pros::delay(5);
     }
 
     // stop motors

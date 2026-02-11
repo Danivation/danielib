@@ -7,7 +7,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
-        pros::Task task([&]() { driveForDistance(distance, timeout, maxSpeed); });
+        pros::Task task([&]() { driveForDistance(distance, timeout, maxSpeed, earlyExitRange); });
         pros::delay(10);  // give the task some time to start
         return;
     }
@@ -40,7 +40,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         leftMotors.move(power);
         rightMotors.move(power);
 
-        pros::delay(10);
+        pros::delay(5);
     }
 
     // stop motors
