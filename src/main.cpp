@@ -46,8 +46,8 @@ pros::adi::Pneumatics compressor('E', false);
 /*                                         DANIELIB CONFIG                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0, 0.01);
-danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2, 1.57, 90);
+danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0);
+danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2, 1.57);
 danielib::Inertial inertial(imu_1, 1.004);     // new imu
 
 danielib::Beam left_beam(-90, -4.9, -3.4, distance_left);

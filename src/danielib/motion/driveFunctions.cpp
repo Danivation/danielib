@@ -21,13 +21,13 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
 
     float power = 0;
     float currentDistance;
-    float startPosition = odomSensors.tracker1.getPosition();
+    float startPosition = odomSensors.verticalTracker.getPosition();
     float error = 0;
 
     linearPID.reset();
     linearExit.reset();
     while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
-        currentDistance = odomSensors.tracker1.getPosition() - startPosition;
+        currentDistance = odomSensors.verticalTracker.getPosition() - startPosition;
         error = distance - currentDistance;
 
         // exit if within exit range

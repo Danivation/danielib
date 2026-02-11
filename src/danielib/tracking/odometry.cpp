@@ -9,66 +9,33 @@ using namespace danielib;
 
 void Drivetrain::update() {
     // deltas are changes since last update
-    float deltaTracker1 = odomSensors.tracker1.getPosition() - prevTracker1;
-    float deltaTracker2 = odomSensors.tracker2.getPosition() - prevTracker2;
+    float deltaVertical = odomSensors.verticalTracker.getPosition() - prevVertical;
+    float deltaHorizontal = odomSensors.horizontalTracker.getPosition() - prevHorizontal;
     float deltaTheta = newPose ? 0 : d_angleError(d_toRadians(odomSensors.imu.getRotation()), prevTheta, true);
     newPose = false;
 
-    // Get tracking wheel angles (in radians, 0 = forward/north)
-    float angle1 = odomSensors.tracker1.getAngle();  // e.g., PI/4 for northeast (45°)
-    float angle2 = odomSensors.tracker2.getAngle();  // e.g., 3*PI/4 for northwest (135°)
-
-    // Account for wheel offsets rotating around the center
-    float offset1Contribution = odomSensors.tracker1.getOffset() * deltaTheta;
-    float offset2Contribution = odomSensors.tracker2.getOffset() * deltaTheta;
-
-    // Subtract offset effects from wheel readings
-    float correctedDelta1 = deltaTracker1 - offset1Contribution;
-    float correctedDelta2 = deltaTracker2 - offset2Contribution;
-
-    // Solve the system of equations:
-    // correctedDelta1 = localX * sin(angle1) + localY * cos(angle1)
-    // correctedDelta2 = localX * sin(angle2) + localY * cos(angle2)
-
-    float sin1 = sinf(angle1);
-    float cos1 = cosf(angle1);
-    float sin2 = sinf(angle2);
-    float cos2 = cosf(angle2);
-
-    // Using Cramer's rule to solve for localX and localY
-    float determinant = sin1 * cos2 - sin2 * cos1;
+    // find how much robot has traveled since last update
     float localX;
     float localY;
 
-    // Check if wheels are parallel (determinant near zero)
-    if (fabs(determinant) < 1e-6) {
-        // Wheels are parallel - can't determine both X and Y independently
-        // Fall back to assuming motion along average wheel direction
-        localX = correctedDelta1 * sin1;  // or handle error appropriately
-        localY = correctedDelta1 * cos1;
+    // prevent divide by 0
+    if (deltaTheta == 0) {
+        localX = deltaHorizontal;
+        localY = deltaVertical;
     } else {
-        // Solve using Cramer's rule
-        float localX = (correctedDelta1 * cos2 - correctedDelta2 * cos1) / determinant;
-        float localY = (sin1 * correctedDelta2 - sin2 * correctedDelta1) / determinant;
+        // convert wheel movement to local x and y deltas
+        localX = 2 * sinf(deltaTheta / 2) * ((deltaHorizontal / deltaTheta) + odomSensors.horizontalTracker.getOffset());
+        localY = 2 * sinf(deltaTheta / 2) * ((deltaVertical / deltaTheta) + odomSensors.verticalTracker.getOffset());
     }
 
-    // Apply arc correction for curved paths
-    if (deltaTheta != 0) {
-        float halfTheta = deltaTheta / 2;
-        float sinHalfTheta = sinf(halfTheta);
-        float correctionFactor = halfTheta / sinHalfTheta;
-        
-        localX *= correctionFactor;
-        localY *= correctionFactor;
-    }
-
-    // Convert to global coordinates
+    // convert cartesian coordinates (local) to polar coordinates
     float avgTheta = prevTheta + (deltaTheta / 2);
-    float sinTheta = sinf(avgTheta);
-    float cosTheta = cosf(avgTheta);
-    
-    currentPose.x += localY * sinTheta + localX * cosTheta;
-    currentPose.y += localY * cosTheta - localX * sinTheta;
+
+    // update global positions (cooler math that works better)
+    currentPose.x += localY * sinf(avgTheta);
+    currentPose.y += localY * cosf(avgTheta);
+    currentPose.x += localX * -cosf(avgTheta);
+    currentPose.y += localX * sinf(avgTheta);
     currentPose.theta = odomSensors.imu.getRotation();
 
     // update delta pose for mcl
@@ -76,14 +43,14 @@ void Drivetrain::update() {
 
     // update previous values
     prevPose = currentPose;
-    prevTracker1 = odomSensors.tracker1.getPosition();
-    prevTracker2 = odomSensors.tracker2.getPosition();
+    prevVertical = odomSensors.verticalTracker.getPosition();
+    prevHorizontal = odomSensors.horizontalTracker.getPosition();
     prevTheta = d_toRadians(odomSensors.imu.getRotation());
 }
 
 void Drivetrain::calibrate() {
-    odomSensors.tracker2.reset();
-    odomSensors.tracker1.reset();
+    odomSensors.horizontalTracker.reset();
+    odomSensors.verticalTracker.reset();
     odomSensors.imu.calibrate();
     pros::c::controller_rumble(pros::E_CONTROLLER_MASTER, ".");
 }
@@ -131,14 +98,15 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
         float beamAngle = d_fixRadians(d_toRadians(currentPose.theta + beam.angleOffset));
         float beamX = currentPose.x + beam.yOffset * cosRobotAngle + beam.xOffset * sinRobotAngle;
         float beamY = currentPose.y + beam.yOffset * sinRobotAngle - beam.xOffset * cosRobotAngle;
+
         float sinBeamAngle = sinf(beamAngle);
         float cosBeamAngle = cosf(beamAngle);
 
         // calculate x and y positions of the wall based on beam distance
         // this is basically where it thinks the wall is based on that beam
         // (wallX, wallY) is the point on the wall that the beam is hitting
-        float wallX = beamX + wallDistance * cosBeamAngle;
-        float wallY = beamY + wallDistance * sinBeamAngle;
+        float wallX = beamX + wallDistance * cosf(beamAngle);
+        float wallY = beamY + wallDistance * sinf(beamAngle);
 
         // we need to filter this data to only use x and y positions that are actually on a wall
         // a beam facing one wall will not tell you anything useful about the other wall
@@ -161,7 +129,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
             float knownWallX = pointingEast ? 70.5 : -70.5;
             
             // Calculate where the beam sensor must be
-            float beamX = knownWallX - wallDistance * cosBeamAngle;
+            float beamX = knownWallX - wallDistance * cosf(beamAngle);
             
             // Now calculate robot center from beam position
             // Reverse the offset transformation
@@ -176,7 +144,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
             float knownWallY = pointingNorth ? 70.5 : -70.5;
             
             // Calculate where the beam sensor must be
-            float beamY = knownWallY - wallDistance * sinBeamAngle;
+            float beamY = knownWallY - wallDistance * sinf(beamAngle);
             
             // Now calculate robot center from beam position
             // Reverse the offset transformation
