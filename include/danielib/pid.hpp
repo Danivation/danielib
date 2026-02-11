@@ -14,8 +14,9 @@ class PID {
          * @param windupRange range in which the integral term has an effect
          * @param exitRange range in which the PID will exit after the specified exitTime
          * @param exitTime time that the error must be within exitRange for the PID to exit
+         * @param slew slew
          */
-        PID(float kP, float kI, float kD, float windupRange = 0, float exitRange = 0, float exitTime = 0);
+        PID(float kP, float kI, float kD, float windupRange = 0, float exitRange = 0, float exitTime = 0, float slew = 0);
 
         /**
          * @brief Updates the PID with the specified target and error parameters
@@ -32,6 +33,7 @@ class PID {
     
         const float exitRange;
         const float exitTime;
+        const float slew;
 
     private:
         const float kP;

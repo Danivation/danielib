@@ -133,15 +133,15 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         pros::delay(10);  // give the task some time to start
         return;
     }
-    
+
     motionMutex.take();
     currentMovementEnabled = true;
 
-    const float closeDist = 4;  // distance for it to be considered close
+    const float closeDist = 5.5;  // distance for it to be considered close
 
     // tunable parameters and stuff
-    float linearMaxSlew = 25;
-    float angularMaxSlew = 10;
+    float linearMaxSlew = mtpLinearPID.slew;
+    float angularMaxSlew = mtpAngularPID.slew;
 
     const int startTime = pros::millis();
     ExitCondition linearExit(mtpLinearPID.exitRange, mtpLinearPID.exitTime);
@@ -172,7 +172,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         // slew max speed down to 70 when close
         if (distance < closeDist) {
             close = true;
-            maxSpeed = d_slew(fabs(prevLinearOut), 70, linearMaxSlew);
+            if (linearMaxSlew != 0) maxSpeed = d_slew(fabs(prevLinearOut), 70, linearMaxSlew);
         }
 
         // recalculate target heading when not close
@@ -205,8 +205,8 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
         // slew outputs to avoid slipping
-        linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
-        angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
+        if (!close && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
+        if (angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
         // update previous values
         prevLinearOut = linearOut;

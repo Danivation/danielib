@@ -23,21 +23,22 @@ pros::MotorGroup left_mg({2, -3, 4}, pros::MotorGears::blue);
 pros::MotorGroup right_mg({-7, 8, -9}, pros::MotorGears::blue);
 pros::Motor intake(1, pros::MotorGears::blue);
 pros::Motor hood(-10, pros::MotorGears::blue);
-pros::Imu imu_1(11);
+
+pros::Imu imu_1(12);
+pros::Imu imu_2(15);
 pros::Rotation vertical_rotation(5);
 pros::Rotation horizontal_rotation(6);
 
-pros::Distance distance_left(12);
+pros::Optical optical_top(13);
+pros::Distance distance_left(14);
+pros::Distance distance_front(19);
 pros::Distance distance_right(20);
-pros::Distance distance_front(17);
-pros::Optical optical_top(16);
 
 pros::adi::Pneumatics loader('A', false);
 pros::adi::Pneumatics descore_mid('B', false);
 pros::adi::Pneumatics wing('C', false);
 pros::adi::Pneumatics trapdoor('D', true, true);
-pros::adi::Pneumatics double_park('E', false);
-pros::adi::Pneumatics grabber('F', false, true);
+pros::adi::Pneumatics compressor('E', false);
 
 
 
@@ -45,7 +46,7 @@ pros::adi::Pneumatics grabber('F', false, true);
 /*                                         DANIELIB CONFIG                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0, 0);
+danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0, 0.01);
 danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2, 1.57, 90);
 danielib::Inertial inertial(imu_1, 1.004);     // new imu
 
@@ -56,11 +57,11 @@ danielib::Beam front_beam(0, 5.1, -3.2, distance_front);
 danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
-danielib::PID linearPID(7.5, 0.1, 22.5, 1, 0.5, 200);
-danielib::PID angularPID(2.3, 0.2, 13.7, 3, 2, 100);
-danielib::PID swingAngularPID(3.4, 0.2, 16.5, 3, 2, 100);
-danielib::PID mtpLinearPID(7.2, 0.05, 25, 0, 1, 500);
-danielib::PID mtpAngularPID(3.35, 0.2, 14);
+danielib::PID linearPID(7.5, 0.1, 22.5, 1, 0.5, 200, 0);
+danielib::PID angularPID(2.3, 0.2, 13.7, 3, 2, 100, 0);
+danielib::PID swingAngularPID(3.4, 0.2, 16.5, 3, 2, 100, 0);
+danielib::PID mtpLinearPID(7.2, 0.05, 25, 0, 1, 500, 25);
+danielib::PID mtpAngularPID(3.35, 0.2, 14, 0, 0, 0, 10);
 
 danielib::Drivetrain chassis(left_mg, right_mg, sensors, 11.5, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
 
@@ -87,7 +88,6 @@ void screen_print() {
 }
 
 void controller_print() {
-    master.clear();
     while (true) {
         const auto pose = chassis.getPose();
         master.print(0, 0, "(%.2f, %.2f, %.2f)      ", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
@@ -102,6 +102,7 @@ void print_to_displays() {
 
 void initialize() {
     pros::lcd::initialize(); // initialze llemu
+    master.clear();
     print_to_displays();
 
     left_mg.set_brake_mode_all(pros::MotorBrake::brake);
@@ -109,6 +110,7 @@ void initialize() {
 
     chassis.calibrate();
     chassis.startTracking();
+    pros::delay(5);
 
     autonomous();
 
@@ -127,9 +129,11 @@ void disabled() {
 
 void autonomous() {
     chassis.setPose(0, 0, 0);
+    pros::delay(15);
 
-    chassis.moveToPoint(1_tiles, 1_tiles, 50000, false, 100, 10);
-    chassis.turnToHeading(270, 500);
+    //chassis.moveToPoint(0, 5, 1500, false, 100, 0);
+    //chassis.driveForDistance(24, 1500, 100, 0);
+    //wing.extend();
 }
 
 void opcontrol() {

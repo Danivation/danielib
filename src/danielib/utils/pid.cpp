@@ -3,13 +3,14 @@
 #include <cmath>
 
 namespace danielib {
-PID::PID(float kP, float kI, float kD, float windupRange, float exitRange, float exitTime) :
+PID::PID(float kP, float kI, float kD, float windupRange, float exitRange, float exitTime, float slew) :
     kP(kP),
     kI(kI),
     kD(kD),
     windupRange(windupRange),
     exitRange(exitRange),
-    exitTime(exitTime)
+    exitTime(exitTime),
+    slew(slew)
 {}
 
 float PID::update(const float error) {
