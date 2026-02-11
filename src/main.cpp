@@ -63,7 +63,7 @@ danielib::PID angularPID(2.97, 0.12, 30.8, 1, 1.9, 25);
 danielib::PID mtpLinearPID(8.17, 0.05, 54.5, 0.5, 1.5, 80);
 danielib::PID mtpAngularPID(2.45, 0, 15, 0, 0, 0);
 
-danielib::PID swingAngularPID(3.4, 0.2, 16.5, 3, 2, 100);
+danielib::PID swingAngularPID(5.88, 0.24, 61.6, 2, 1.9, 25);
 
 danielib::Drivetrain chassis(left_mg, right_mg, sensors, 11.5, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
 
@@ -132,7 +132,7 @@ void disabled() {
 void autonomous() {
     chassis.setPose(0, 0, 0);
 
-    chassis.turnToHeading(90, 2000, 100);
+    chassis.swingToHeading(90, danielib::SwingSide::LEFT, 2000, 100);
     wing.extend();
 }
 
