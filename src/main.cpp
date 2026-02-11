@@ -57,7 +57,7 @@ danielib::Beam front_beam(0, 5.1, -3.2, distance_front);
 danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
-danielib::PID linearPID(8.2, 0.1, 55, 0.5, 1.5, 80, 0);
+danielib::PID linearPID(8.2, 0.08, 58, 0.5, 1.5, 70, 0);
 danielib::PID angularPID(2.3, 0.2, 13.7, 3, 2, 70, 0);
 
 danielib::PID mtpLinearPID(8.17, 0.05, 54.5, 0.5, 1.5, 80);
@@ -131,9 +131,8 @@ void disabled() {
 
 void autonomous() {
     chassis.setPose(0, 0, 0);
-    pros::delay(15);
 
-    chassis.moveToPoint(24, 30, 2000, false, 100, 0);
+    chassis.driveForDistance(24, 2000, 100, 0);
     wing.extend();
 }
 
