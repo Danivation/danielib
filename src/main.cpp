@@ -27,7 +27,7 @@ pros::Motor top(4, pros::MotorGears::rpm_200);
 pros::Imu imu_1(2);
 pros::Imu imu_2(22);
 pros::Rotation vertical_rotation(-14);
-pros::Rotation horizontal_rotation(-10);
+pros::Rotation horizontal_rotation(10);
 
 pros::Optical optical_top(22);
 pros::Distance distance_left(9);
@@ -45,9 +45,9 @@ pros::adi::Pneumatics intake_raise('B', false);     // actual piston is reversed
 /*                                         DANIELIB CONFIG                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-danielib::TrackerWheel vertical_tracker(vertical_rotation, 2.125, 0);
-danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2.744, 1.57);
-danielib::Inertial inertial(imu_1, 1);     // G TEAM IMU
+danielib::TrackerWheel vertical_tracker(vertical_rotation, 2.125, 0.1);
+danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2.744, -1.88);
+danielib::Inertial inertial(imu_1, 1.0);     // G TEAM IMU
 
 danielib::Beam left_beam(-90, -4.9, -3.4, distance_left);
 danielib::Beam right_beam(90, 4.9, -3.4, distance_right);
@@ -56,15 +56,24 @@ danielib::Beam front_beam(0, 5.1, -3.2, distance_front);
 danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
+
+
+
 danielib::PID linearPID(8.2, 0.08, 58, 0.5, 1.5, 70);
 danielib::PID angularPID(2.97, 0.12, 30.8, 1, 1.9, 25);
+
+
+
+
+
+
 
 danielib::PID mtpLinearPID(8.17, 0.05, 54.5, 0.5, 1.5, 80);
 danielib::PID mtpAngularPID(2.45, 0, 15, 0, 0, 0);
 
 danielib::PID swingAngularPID(5.88, 0.24, 61.6, 2, 1.9, 25);
 
-danielib::Drivetrain chassis(left_mg, right_mg, sensors, 11.5, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
+danielib::Drivetrain chassis(left_mg, right_mg, sensors, 10.8, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
 
 
 
@@ -134,8 +143,8 @@ void disabled() {
 void autonomous() {
     chassis.setPose(0, 0, 0);
 
-    // chassis.swingToHeading(90, danielib::SwingSide::LEFT, 2000, 100);
-    // wing.extend();
+    chassis.turnToHeading(90, 2000, 100);
+    wing.extend();
 }
 
 void opcontrol() {
