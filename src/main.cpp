@@ -56,22 +56,13 @@ danielib::Beam front_beam(0, 5.1, -3.2, distance_front);
 danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
-
-
-
-danielib::PID linearPID(8.41, 0.09, 57.9, 0.75, 0, 0, 5);
+danielib::PID linearPID(7.97, 0.09, 50.12, 0.75, 1, 70, 2);
 danielib::PID angularPID(3.1, 0.14, 30.9, 1, 1, 50);
 
-
-
-
-
-
-
-danielib::PID mtpLinearPID(8.17, 0.05, 54.5, 0.5, 1.5, 80);
+danielib::PID mtpLinearPID(7.91, 0.07, 47.5, 0.75, 0, 0, 2);
 danielib::PID mtpAngularPID(2.45, 0, 15, 0, 0, 0);
 
-danielib::PID swingAngularPID(5.88, 0.24, 61.6, 2, 1.9, 25);
+danielib::PID swingAngularPID(6.2, 0.28, 61.8, 2, 0, 0);
 
 danielib::Drivetrain chassis(left_mg, right_mg, sensors, 10.8, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
 
