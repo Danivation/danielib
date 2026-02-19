@@ -19,36 +19,35 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-pros::MotorGroup left_mg({2, -3, 4}, pros::MotorGears::blue);
-pros::MotorGroup right_mg({-7, 8, -9}, pros::MotorGears::blue);
-pros::Motor intake(1, pros::MotorGears::blue);
-pros::Motor hood(-10, pros::MotorGears::blue);
+pros::MotorGroup left_mg({18, -16, -11}, pros::MotorGears::blue);
+pros::MotorGroup right_mg({-19, 17, 13}, pros::MotorGears::blue);
+pros::MotorGroup bottom({12, 15}, pros::MotorGears::blue);
+pros::Motor top(4, pros::MotorGears::rpm_200);
 
-pros::Imu imu_1(12);
-pros::Imu imu_2(15);
-pros::Rotation vertical_rotation(5);
-pros::Rotation horizontal_rotation(6);
+pros::Imu imu_1(2);
+pros::Imu imu_2(22);
+pros::Rotation vertical_rotation(-14);
+pros::Rotation horizontal_rotation(-10);
 
-pros::Optical optical_top(13);
-pros::Distance distance_left(14);
-pros::Distance distance_front(19);
+pros::Optical optical_top(22);
+pros::Distance distance_left(9);
+pros::Distance distance_front(3);
 pros::Distance distance_right(20);
 
-pros::adi::Pneumatics loader('A', false);
-pros::adi::Pneumatics descore_mid('B', false);
-pros::adi::Pneumatics wing('C', false);
-pros::adi::Pneumatics trapdoor('D', true, true);
-pros::adi::Pneumatics compressor('E', false);
-
+pros::adi::Pneumatics loader('H', false);
+pros::adi::Pneumatics wing('G', false);
+pros::adi::Pneumatics hood('E', false);
+pros::adi::Pneumatics mid_ramp('A', false);
+pros::adi::Pneumatics intake_raise('B', false);     // actual piston is reversed, where extending the piston is low
 
 
 /* ---------------------------------------------------------------------------------------------- */
 /*                                         DANIELIB CONFIG                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0);
-danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2, 1.57);
-danielib::Inertial inertial(imu_1, 1.004);     // new imu
+danielib::TrackerWheel vertical_tracker(vertical_rotation, 2.125, 0);
+danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2.744, 1.57);
+danielib::Inertial inertial(imu_1, 1);     // G TEAM IMU
 
 danielib::Beam left_beam(-90, -4.9, -3.4, distance_left);
 danielib::Beam right_beam(90, 4.9, -3.4, distance_right);
@@ -66,6 +65,9 @@ danielib::PID mtpAngularPID(2.45, 0, 15, 0, 0, 0);
 danielib::PID swingAngularPID(5.88, 0.24, 61.6, 2, 1.9, 25);
 
 danielib::Drivetrain chassis(left_mg, right_mg, sensors, 11.5, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
+
+
+
 
 
 
@@ -132,8 +134,8 @@ void disabled() {
 void autonomous() {
     chassis.setPose(0, 0, 0);
 
-    chassis.swingToHeading(90, danielib::SwingSide::LEFT, 2000, 100);
-    wing.extend();
+    // chassis.swingToHeading(90, danielib::SwingSide::LEFT, 2000, 100);
+    // wing.extend();
 }
 
 void opcontrol() {
