@@ -45,7 +45,7 @@ pros::adi::Pneumatics intake_raise('B', false);     // actual piston is reversed
 /*                                         DANIELIB CONFIG                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-danielib::TrackerWheel vertical_tracker(vertical_rotation, 2.125, 0.1);
+danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0.1);
 danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2.744, -1.35);
 danielib::Inertial inertial(imu_1, 1.0);     // G TEAM IMU
 
@@ -59,7 +59,7 @@ danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
 
 
-danielib::PID linearPID(8.41, 0.09, 57.9, 0.75, 0, 0);
+danielib::PID linearPID(8.41, 0.09, 57.9, 0.75, 0, 0, 5);
 danielib::PID angularPID(3.1, 0.14, 30.9, 1, 1, 50);
 
 
@@ -146,7 +146,7 @@ void disabled() {
 void autonomous() {
     chassis.setPose(0, 0, 0);
 
-    chassis.turnToHeading(90, 2000, 100);
+    chassis.driveForDistance(24, 2000, 100);
     wing.extend();
 }
 
