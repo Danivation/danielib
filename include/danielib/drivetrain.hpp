@@ -168,6 +168,7 @@ class Drivetrain {
         bool movementsEnabled = true;
         bool currentMovementEnabled = true;
         bool runAsync = false;
+        bool motionChained = false;
         int currentMaxSpeed = 0;
 };
 } // namespace danielib
