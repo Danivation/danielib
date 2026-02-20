@@ -29,7 +29,7 @@ Beam::Beam(float angleOffset, float xOffset, float yOffset, pros::Distance& sens
 
 void Beam::update() {
     this->distance = sensor.get_distance();
-    if (this->distance >= 2200) this->distance = 0;
+    if (this->distance >= 2150) this->distance = 0;
 }
 
 Particle::Particle(const Pose& pose, float weight) :
