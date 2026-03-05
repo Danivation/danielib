@@ -44,9 +44,10 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
     motionMutex.give();
 }
 
-void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, float maxSpeed) {
+void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, bool reverse, float maxSpeed) {
     if (!isTracking()) return;
     float angle = d_toDegrees(currentPose.angle({x, y, currentPose.theta}));
+    if (reverse) angle = d_reduce_to_0_360(angle + 180);
     turnToHeading(angle, timeout, maxSpeed);
 }
 

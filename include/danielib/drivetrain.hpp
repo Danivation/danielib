@@ -96,9 +96,10 @@ class Drivetrain {
          * @param x x coordinate in inches
          * @param y y coordinate in inches
          * @param timeout timeout in ms
+         * @param reverse face away from the point
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void turnToPoint(float x, float y, int timeout = infinityf(), float maxSpeed = 100);
+        void turnToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 100);
 
         /**
          * @brief Turns to a given target heading
@@ -116,7 +117,9 @@ class Drivetrain {
          * @param x x coordinate in inches
          * @param y y coordinate in inches
          * @param timeout timeout in ms
+         * @param reverse drive backwards
          * @param maxSpeed max speed the drivetrain can move out of 100
+         * @param earlyExitRange range to exit the motion early
          */
         void moveToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 100, float earlyExitRange = 0);
 
