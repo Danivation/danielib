@@ -172,5 +172,8 @@ class Drivetrain {
         bool currentMovementEnabled = true;
         bool runAsync = false;
         int currentMaxSpeed = 0;
+
+        float prevLinearOut = 0;
+        float prevAngularOut = 0;
 };
 } // namespace danielib
