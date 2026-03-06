@@ -148,7 +148,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     maxSpeed *= 1.27;
 
     const float closeDist = 5;  // distance for it to be considered close
-    const float lineDist = 6; // distance where the target is the line instead of the point
+    const float lineDist = 7; // distance where the target is the line instead of the point
 
     // tunable parameters and stuff
     float linearMaxSlew = mtpLinearPID.slew;
@@ -185,6 +185,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             // maxSpeed = d_slew(fabs(prevLinearOut), 65, 10);
         }
 
+
         // exit if motion chained
         if (fabs(distance) < fabs(earlyExitRange)) {
             motionChained = true;
@@ -197,7 +198,11 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         // calculate what side of the endpoint line the robot is on, or if it has passed the target
         double distanceToLine = -((robotPose.x - targetPose.x) * -sin(targetPose.theta) + (robotPose.y - targetPose.y) *  cos(targetPose.theta));
         bool robotSide = distanceToLine >= earlyExitRange;
-        if (distance < lineDist) distance = distanceToLine;
+
+        // slow down and set new endpoint if distance is within line dist
+        if (distance < lineDist) {
+            distance = distanceToLine;
+        }
 
         // exit if robot moves past target point
         if (robotSide != prevSide && close) break;
@@ -224,6 +229,10 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         // slew outputs to avoid slipping
         if (fabs(distance) > 8 && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
         if (fabs(distance) > 8 && angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
+
+        if (distance < lineDist && distance > closeDist) {
+            linearOut = d_slew(linearOut, prevLinearOut, 5);
+        }
 
         // update previous values
         prevLinearOut = linearOut;
