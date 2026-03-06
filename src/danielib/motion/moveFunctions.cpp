@@ -148,6 +148,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     maxSpeed *= 1.27;
 
     const float closeDist = 5;  // distance for it to be considered close
+    const float lineDist = 6; // distance where the target is the line instead of the point
 
     // tunable parameters and stuff
     float linearMaxSlew = mtpLinearPID.slew;
@@ -181,7 +182,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         // slew max speed down to 65 when close
         if (distance < closeDist) {
             close = true;
-            // maxSpeed = d_slew(fabs(prevLinearOut), 65, 6);
+            // maxSpeed = d_slew(fabs(prevLinearOut), 65, 10);
         }
 
         // exit if motion chained
@@ -194,8 +195,10 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         if (!close) targetPose.theta = robotPose.angle(targetPose);
 
         // calculate what side of the endpoint line the robot is on, or if it has passed the target
-        bool robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) <= (robotPose.x - targetPose.x) * cos(targetPose.theta);
-        
+        double distanceToLine = -((robotPose.x - targetPose.x) * -sin(targetPose.theta) + (robotPose.y - targetPose.y) *  cos(targetPose.theta));
+        bool robotSide = distanceToLine >= earlyExitRange;
+        if (distance < lineDist) distance = distanceToLine;
+
         // exit if robot moves past target point
         if (robotSide != prevSide && close) break;
         prevSide = robotSide;

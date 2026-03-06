@@ -61,15 +61,13 @@ danielib::Beam front_beam(0, -4, 4.2, distance_front);
 danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
-// danielib::PID linearPID(7.97, 0.09, 50.12, 0.75, 1, 70, 3);
 danielib::PID linearPID(7.4, 0.09, 25, 0.75, 1, 70, 6);
-danielib::PID angularPID(3.1, 0.14, 30.9, 1, 1, 60);
+danielib::PID angularPID(3.1, 0, 11, 0, 0, 0, 0);
 
-// danielib::PID mtpLinearPID(7.4, 0.09, 65, 1, 1, 200, 3);
-danielib::PID mtpLinearPID(7.3, 0, 0, 0, 0, 0, 3);
-danielib::PID mtpAngularPID(2.44, 0, 17.5, 0, 0, 0);
+danielib::PID mtpLinearPID(7.4, 0, 25, 0, 0, 0, 6);
+danielib::PID mtpAngularPID(1.8, 0, 0, 0, 0, 0, 0);
 
-danielib::PID swingAngularPID(6.2, 0.28, 61.8, 2, 0, 0);
+danielib::PID swingAngularPID(6.2, 0.28, 61.8, 2, 0, 0, 0);
 
 danielib::Drivetrain chassis(left_mg, right_mg, sensors, 10.8, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
 
@@ -144,8 +142,8 @@ void disabled() {
 void autonomous() {
     chassis.setPose(0, 0, 0);
 
-    chassis.driveForDistance(1_tiles, 1200, 100, 0);
-    // chassis.moveToPoint(0_tiles, 1_tiles, 5000, false, 100, 0);
+    // chassis.driveForDistance(1_tiles, 1500, 100, 0);
+    chassis.moveToPoint(0_tiles, 1_tiles, 1500, false, 100, 0);
 }
 
 void opcontrol() {
