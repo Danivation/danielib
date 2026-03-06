@@ -19,58 +19,65 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-pros::MotorGroup left_mg({2, -3, 4}, pros::MotorGears::blue);
-pros::MotorGroup right_mg({-7, 8, -9}, pros::MotorGears::blue);
-pros::Motor intake(1, pros::MotorGears::blue);
-pros::Motor hood(-10, pros::MotorGears::blue);
-pros::Imu imu_1(11);
-pros::Rotation vertical_rotation(5);
-pros::Rotation horizontal_rotation(6);
+pros::MotorGroup left_mg({18, -15, -12}, pros::MotorGears::blue);
+pros::MotorGroup right_mg({-19, 17, 14}, pros::MotorGears::blue);
+pros::MotorGroup bottom({16, 13}, pros::MotorGears::blue);
 
-pros::Distance distance_left(12);
+// pros::Motor bottom_full(12, pros::MotorGears::blue);
+// pros::Motor bottom_half(15, pros::MotorGears::rpm_200);
+pros::Motor top(2, pros::MotorGears::rpm_200);
+
+pros::Imu imu_1(3);
+pros::Imu imu_2(22);
+pros::Rotation vertical_rotation(-11);
+pros::Rotation horizontal_rotation(4);
+
+pros::Optical optical_top(22);
+pros::Distance distance_left(10);
+pros::Distance distance_front(1);
 pros::Distance distance_right(20);
-pros::Distance distance_front(17);
-pros::Optical optical_top(16);
 
-pros::adi::Pneumatics loader('A', false);
-pros::adi::Pneumatics descore_mid('B', false);
-pros::adi::Pneumatics wing('C', false);
-pros::adi::Pneumatics trapdoor('D', true, true);
-pros::adi::Pneumatics double_park('E', false);
-pros::adi::Pneumatics grabber('F', false, true);
-
+pros::adi::Pneumatics loader('H', false);
+pros::adi::Pneumatics wing('G', false);
+pros::adi::Pneumatics hood('F', false);
+pros::adi::Pneumatics odom_lift('E', false);
+pros::adi::Pneumatics mid_ramp('B', false);
+pros::adi::Pneumatics intake_raise('A', false);     // actual piston is reversed, where extending the piston is low
 
 
 /* ---------------------------------------------------------------------------------------------- */
 /*                                         DANIELIB CONFIG                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0);
-danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2, 1.57);
-danielib::Inertial inertial(imu_1, 1.004);     // new imu
+// + offset is right or front, - offset is left or back
+danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, -0.2);
+danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2.744, -1.2);
+danielib::Inertial inertial(imu_1, 360/(360-0.7));          // G TEAM IMU GOOD
 
-danielib::Beam left_beam(-90, -4.9, -3.4, distance_left);
-danielib::Beam right_beam(90, 4.9, -3.4, distance_right);
-danielib::Beam front_beam(0, 5.1, -3.2, distance_front);
+danielib::Beam left_beam(-90, -4.375, 2.9, distance_left);
+danielib::Beam right_beam(90, 4.375, 2.9, distance_right);
+danielib::Beam front_beam(0, -4, 4.2, distance_front);
 
 danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
-danielib::PID linearPID(7.5, 0.1, 22.5, 1, 0.5, 200);
-danielib::PID angularPID(2.3, 0.2, 13.7, 3, 2, 100);
-danielib::PID swingAngularPID(3.4, 0.2, 16.5, 3, 2, 100);
-danielib::PID mtpLinearPID(7.2, 0.05, 25, 0, 1, 500);
-danielib::PID mtpAngularPID(3.35, 0.2, 14);
+danielib::PID linearPID(7.97, 0.09, 50.12, 0.75, 1, 120, 3);
+danielib::PID angularPID(3.1, 0.14, 30.9, 1, 1, 80);
 
-danielib::Drivetrain chassis(left_mg, right_mg, sensors, 11.5, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
+danielib::PID mtpLinearPID(7.6, 0.09, 53, 1, 1, 200, 3);
+danielib::PID mtpAngularPID(2.44, 0, 17.5, 0, 0, 0);
+
+danielib::PID swingAngularPID(6.2, 0.28, 61.8, 2, 0, 0);
+
+danielib::Drivetrain chassis(left_mg, right_mg, sensors, 10.8, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
 
 
 
 // convert vex field tiles to inches
-constexpr double operator"" _tiles(long double value) {
+constexpr double operator""_tiles(long double value) {
     return value * 23.622;
 }
-constexpr double operator"" _tiles(unsigned long long value) {
+constexpr double operator""_tiles(unsigned long long value) {
     return static_cast<double>(value) * 23.622;
 }
 
