@@ -148,7 +148,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     maxSpeed *= 1.27;
 
     const float closeDist = 5;  // distance for it to be considered close
-    const float lineDist = 7; // distance where the target is the line instead of the point
+    const float lineDist = 6; // distance where the target is the line instead of the point
 
     // tunable parameters and stuff
     float linearMaxSlew = mtpLinearPID.slew;
@@ -171,6 +171,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     if (reverse) targetPose.theta = fmod(targetPose.theta + M_PI, 2 * M_PI);
 
     bool close = false;
+    bool turnLock = false;
     bool prevSide = false;
     bool motionChained = false;
 
@@ -180,11 +181,10 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         float distance = robotPose.distance(targetPose);
 
         // slew max speed down to 65 when close
-        if (distance < closeDist) {
+        if (fabs(distance) < closeDist) {
             close = true;
             // maxSpeed = d_slew(fabs(prevLinearOut), 65, 10);
         }
-
 
         // exit if motion chained
         if (fabs(distance) < fabs(earlyExitRange)) {
@@ -201,7 +201,8 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
         // slow down and set new endpoint if distance is within line dist
         if (distance < lineDist) {
-            distance = distanceToLine;
+            turnLock = true;
+            distance = fabs(distanceToLine);
         }
 
         // exit if robot moves past target point
@@ -220,7 +221,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         float linearOut = mtpLinearPID.update(linearError);
         if (reverse) linearOut = -linearOut;
         float angularOut = mtpAngularPID.update(d_toDegrees(-angularError));
-        if (close) angularOut = 0;
+        if (close || turnLock) angularOut = d_slew(0, prevAngularOut, 7);
 
         // clamp outputs to max speed (should have negative effects but oh well)
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
@@ -230,8 +231,8 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         if (fabs(distance) > 8 && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
         if (fabs(distance) > 8 && angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
-        if (distance < lineDist && distance > closeDist) {
-            linearOut = d_slew(linearOut, prevLinearOut, 5);
+        if (distance <= lineDist+0.5 && distance > closeDist) {
+            linearOut = d_slew(linearOut, prevLinearOut, 4);
         }
 
         // update previous values
@@ -248,7 +249,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             rightPower /= ratio;
         }
 
-        if (log) fprintf(log, "(%d,%.1f),", pros::millis() - startTime, linearOut);
+        if (log) fprintf(log, "(%d,%.1f),", pros::millis() - startTime, angularOut);
 
         // move motors
         leftMotors.move(leftPower);
