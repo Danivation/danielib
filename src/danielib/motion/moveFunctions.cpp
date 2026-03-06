@@ -159,11 +159,11 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     mtpAngularPID.reset();
     angularExit.reset();
 
-    Pose lastPose = getPose(true);
+    Pose robotPose = getPose(true);
 
     // deal with everything in radians internally
     Pose targetPose(x, y, 0);
-    targetPose.theta = lastPose.angle(targetPose);
+    targetPose.theta = robotPose.angle(targetPose);
     if (reverse) targetPose.theta = fmod(targetPose.theta + M_PI, 2 * M_PI);
 
     bool close = false;
@@ -172,7 +172,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
     // keep moving unless the timeout happens, the linear exit condition happens, or the movement is disabled
     while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
-        Pose robotPose = getPose(true);
+        robotPose = getPose(true);
         float distance = robotPose.distance(targetPose);
 
         // slew max speed down to 70 when close
@@ -181,18 +181,20 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             maxSpeed = d_slew(fabs(prevLinearOut), 70, 10);
         }
 
-        // recalculate target heading when not close
-        lastPose = getPose(true);
-        if (!close) targetPose.theta = lastPose.angle(targetPose);
-
-        // calculate what side of the endpoint line the robot is on, or if it has passed the target
-        bool robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) <= (robotPose.x - targetPose.x) * cos(targetPose.theta) + earlyExitRange;
-        // exit if robot moves past target point
-        if (robotSide != prevSide && close) break;
+        // exit if motion chained
         if (fabs(distance) < fabs(earlyExitRange)) {
             motionChained = true;
             break;
         }
+
+        // recalculate target pose heading when not close
+        if (!close) targetPose.theta = robotPose.angle(targetPose);
+
+        // calculate what side of the endpoint line the robot is on, or if it has passed the target
+        bool robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) <= (robotPose.x - targetPose.x) * cos(targetPose.theta) + earlyExitRange;
+        
+        // exit if robot moves past target point
+        if (robotSide != prevSide && close) break;
         prevSide = robotSide;
 
         // calculate errors
@@ -206,7 +208,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
         float linearOut = mtpLinearPID.update(linearError);
         if (reverse) linearOut = -linearOut;
-        float angularOut = -mtpAngularPID.update(d_toDegrees(angularError));
+        float angularOut = mtpAngularPID.update(d_toDegrees(-angularError));
         if (close) angularOut = 0;
 
         // clamp outputs to max speed (should have negative effects but oh well)

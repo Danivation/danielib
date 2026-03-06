@@ -18,6 +18,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
 
     const int startTime = pros::millis();
     ExitCondition angularExit(angularPID.exitRange, angularPID.exitTime);
+    float angularMaxSlew = angularPID.slew;
 
     float power = 0;
     float currentHeading = odomSensors.imu.getHeading();
@@ -31,12 +32,20 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
         power = angularPID.update(error);
         angularExit.update(error);
 
+        // calculate power
         power = std::clamp(power, -maxSpeed, maxSpeed);
+        if (angularMaxSlew != 0) power = d_slew(power, prevAngularOut, angularMaxSlew);
+        prevAngularOut = power;
+
+        // move motors
         leftMotors.move(power);
         rightMotors.move(-power);
 
         pros::delay(5);
     }
+
+    prevLinearOut = 0;
+    prevAngularOut = 0;
 
     // stop motors
     leftMotors.brake();
@@ -66,6 +75,7 @@ void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int tim
 
     const int startTime = pros::millis();
     ExitCondition angularExit(swingAngularPID.exitRange, swingAngularPID.exitTime);
+    float angularMaxSlew = swingAngularPID.slew;
 
     float power = 0;
     float currentHeading = odomSensors.imu.getHeading();
@@ -79,7 +89,12 @@ void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int tim
         power = swingAngularPID.update(error);
         angularExit.update(error);
 
+        // clamp and slew output
         power = std::clamp(power, -maxSpeed, maxSpeed);
+        if (angularMaxSlew != 0) power = d_slew(power, prevAngularOut, angularMaxSlew);
+        prevAngularOut = power;
+
+        // move motors
         if (side == SwingSide::LEFT) {
             leftMotors.move(power);
             rightMotors.brake();
@@ -90,6 +105,9 @@ void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int tim
 
         pros::delay(5);
     }
+
+    prevLinearOut = 0;
+    prevAngularOut = 0;
 
     // stop motors
     leftMotors.brake();

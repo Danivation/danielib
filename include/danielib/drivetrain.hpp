@@ -2,7 +2,6 @@
 #include <cmath>
 #include "pros/motors.h"
 #include "pros/motor_group.hpp"
-#include "pros/rtos.h"
 #include "danielib/sensors.hpp"
 #include "danielib/pose.hpp"
 #include "danielib/pid.hpp"
@@ -41,7 +40,7 @@ class Drivetrain {
         void stopMovement();
 
         void waitUntilDone();
-        void setSpeed();
+        // void setSpeed();
 
         void calibrate();
         void setPose(float x, float y, float theta = infinityf());

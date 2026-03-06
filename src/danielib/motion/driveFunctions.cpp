@@ -18,7 +18,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
 
     const int startTime = pros::millis();
     ExitCondition linearExit(linearPID.exitRange, linearPID.exitTime);
-    float linearMaxSlew = mtpLinearPID.slew;
+    float linearMaxSlew = linearPID.slew;
 
     float power = 0;
     float currentDistance;
@@ -41,10 +41,12 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         power = linearPID.update(error);
         linearExit.update(error);
 
+        // calculate power
         power = std::clamp(power, -maxSpeed, maxSpeed);
-        power = d_slew(power, prevLinearOut, linearMaxSlew);
+        if (linearMaxSlew != 0) power = d_slew(power, prevLinearOut, linearMaxSlew);
         prevLinearOut = power;
 
+        // move motors
         leftMotors.move(power);
         rightMotors.move(power);
 

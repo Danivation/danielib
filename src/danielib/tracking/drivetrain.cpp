@@ -55,6 +55,8 @@ void danielib::Drivetrain::stopAllMovements() {
 
 void danielib::Drivetrain::stopMovement() {
     currentMovementEnabled = false;
+    prevLinearOut = 0;
+    prevAngularOut = 0;
     pros::delay(5);
 }
 
@@ -64,8 +66,8 @@ void danielib::Drivetrain::waitUntilDone() {
     motionMutex.give();
 }
 
-void danielib::Drivetrain::setSpeed() {
+// void danielib::Drivetrain::setSpeed() {
     
-}
+// }
 
 } // namespace danielib

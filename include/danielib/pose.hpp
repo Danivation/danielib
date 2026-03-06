@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 namespace danielib {
 /**
  * @brief A pose in 2D space
