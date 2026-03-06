@@ -117,7 +117,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         leftMotors.move(leftPower);
         rightMotors.move(rightPower);
 
-        pros::delay(5);
+        pros::delay(10);
     }
 
     if (!motionChained) {
@@ -242,7 +242,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         leftMotors.move(leftPower);
         rightMotors.move(rightPower);
 
-        pros::delay(5);
+        pros::delay(10);
     }
 
     if (!motionChained) {
@@ -250,7 +250,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         prevAngularOut = 0;
     }
     
-    if (log) fputs("\n\n", log);
+    // if (log) fputs("\n\n", log);
     if (log) fclose(log);
 
     // stop motors

@@ -41,7 +41,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
         leftMotors.move(power);
         rightMotors.move(-power);
 
-        pros::delay(5);
+        pros::delay(10);
     }
 
     prevLinearOut = 0;
@@ -103,7 +103,7 @@ void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int tim
             rightMotors.move(-power);
         }
 
-        pros::delay(5);
+        pros::delay(10);
     }
 
     prevLinearOut = 0;

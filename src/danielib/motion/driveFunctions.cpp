@@ -63,7 +63,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         prevAngularOut = 0;
     }
     
-    if (log) fputs("\n\n", log);
+    // if (log) fputs("\n\n", log);
     if (log) fclose(log);
 
     // stop motors
