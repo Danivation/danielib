@@ -131,7 +131,6 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     motionMutex.give();
 }
 
-// move to point max speed is always 100/127
 void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool reverse, float maxSpeed, float earlyExitRange) {
     if (!isTracking()) return;
     if (runAsync) {
@@ -143,6 +142,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     
     motionMutex.take();
     currentMovementEnabled = true;
+    maxSpeed *= 1.27;
 
     const float closeDist = 5;  // distance for it to be considered close
 
@@ -175,10 +175,10 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         robotPose = getPose(true);
         float distance = robotPose.distance(targetPose);
 
-        // slew max speed down to 70 when close
+        // slew max speed down to 65 when close
         if (distance < closeDist) {
             close = true;
-            maxSpeed = d_slew(fabs(prevLinearOut), 70, 10);
+            // maxSpeed = d_slew(fabs(prevLinearOut), 65, 6);
         }
 
         // exit if motion chained
