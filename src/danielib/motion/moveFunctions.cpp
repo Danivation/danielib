@@ -216,8 +216,8 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
         // slew outputs to avoid slipping
-        if (fabs(distance) > 6 && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
-        if (fabs(distance) > 6 && angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
+        if (fabs(distance) > 8 && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
+        if (fabs(distance) > 8 && angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
         // update previous values
         prevLinearOut = linearOut;
