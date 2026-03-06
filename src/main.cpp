@@ -94,7 +94,6 @@ void screen_print() {
 }
 
 void controller_print() {
-    master.clear();
     while (true) {
         const auto pose = chassis.getPose();
         master.print(0, 0, "(%.2f, %.2f, %.2f)      ", pose.x, pose.y, d_reduce_to_0_360(pose.theta));
@@ -109,13 +108,18 @@ void print_to_displays() {
 
 void initialize() {
     pros::lcd::initialize(); // initialze llemu
+    master.clear();
     print_to_displays();
 
     left_mg.set_brake_mode_all(pros::MotorBrake::brake);
     right_mg.set_brake_mode_all(pros::MotorBrake::brake);
+    imu_1.set_data_rate(5);
+    horizontal_rotation.set_data_rate(5);
+    vertical_rotation.set_data_rate(5);
 
     chassis.calibrate();
     chassis.startTracking();
+    pros::delay(5);
 
     autonomous();
 
@@ -135,8 +139,8 @@ void disabled() {
 void autonomous() {
     chassis.setPose(0, 0, 0);
 
-    chassis.moveToPoint(1_tiles, 1_tiles, 50000, false, 100, 10);
-    chassis.turnToHeading(270, 500);
+    chassis.moveToPoint(1_tiles, 1_tiles, 2000, false, 100);
+    wing.extend();
 }
 
 void opcontrol() {
