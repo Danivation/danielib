@@ -43,7 +43,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
 
         // calculate power
         power = std::clamp(power, -maxSpeed, maxSpeed);
-        if (linearMaxSlew != 0) power = d_slew(power, prevLinearOut, linearMaxSlew);
+        if (linearMaxSlew != 0 && fabs(error) > 6) power = d_slew(power, prevLinearOut, linearMaxSlew);
         prevLinearOut = power;
 
         // move motors

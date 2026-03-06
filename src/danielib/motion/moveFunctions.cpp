@@ -191,7 +191,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         if (!close) targetPose.theta = robotPose.angle(targetPose);
 
         // calculate what side of the endpoint line the robot is on, or if it has passed the target
-        bool robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) <= (robotPose.x - targetPose.x) * cos(targetPose.theta) + earlyExitRange;
+        bool robotSide = (robotPose.y - targetPose.y) * -sin(targetPose.theta) <= (robotPose.x - targetPose.x) * cos(targetPose.theta);
         
         // exit if robot moves past target point
         if (robotSide != prevSide && close) break;
@@ -216,8 +216,8 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
         // slew outputs to avoid slipping
-        if (!close && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
-        if (angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
+        if (fabs(distance) > 6 && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
+        if (fabs(distance) > 6 && angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
         // update previous values
         prevLinearOut = linearOut;
