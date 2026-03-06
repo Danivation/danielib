@@ -13,6 +13,9 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
     }
 
     motionMutex.take();
+    FILE* log = fopen("/usd/log.txt", "a");
+    // if (log) fputs("[", log);
+
     currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
@@ -46,17 +49,22 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         if (linearMaxSlew != 0 && fabs(error) > 8) power = d_slew(power, prevLinearOut, linearMaxSlew);
         prevLinearOut = power;
 
+        if (log) fprintf(log, "(%d,%.1f),", pros::millis() - startTime, power);
+
         // move motors
         leftMotors.move(power);
         rightMotors.move(power);
 
-        pros::delay(5);
+        pros::delay(10);
     }
 
     if (!motionChained) {
         prevLinearOut = 0;
         prevAngularOut = 0;
     }
+    
+    if (log) fputs("\n\n", log);
+    if (log) fclose(log);
 
     // stop motors
     leftMotors.brake();

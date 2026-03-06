@@ -139,8 +139,11 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         pros::delay(10);  // give the task some time to start
         return;
     }
-    
+
     motionMutex.take();
+    FILE* log = fopen("/usd/log.txt", "a");
+    // if (log) fputs("[", log);
+
     currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
@@ -233,6 +236,8 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             rightPower /= ratio;
         }
 
+        if (log) fprintf(log, "(%d,%.1f),", pros::millis() - startTime, linearOut);
+
         // move motors
         leftMotors.move(leftPower);
         rightMotors.move(rightPower);
@@ -244,6 +249,9 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         prevLinearOut = 0;
         prevAngularOut = 0;
     }
+    
+    if (log) fputs("\n\n", log);
+    if (log) fclose(log);
 
     // stop motors
     leftMotors.brake();

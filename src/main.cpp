@@ -62,7 +62,7 @@ danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
 // danielib::PID linearPID(7.97, 0.09, 50.12, 0.75, 1, 70, 3);
-danielib::PID linearPID(10, 0, 0, 0, 0, 0, 3);
+danielib::PID linearPID(7.4, 0, 25, 0, 0, 0, 6);
 danielib::PID angularPID(3.1, 0.14, 30.9, 1, 1, 60);
 
 // danielib::PID mtpLinearPID(7.4, 0.09, 65, 1, 1, 200, 3);
@@ -109,6 +109,9 @@ void print_to_displays() {
 } 
 
 void initialize() {
+    FILE* log = fopen("/usd/log.txt", "w");
+    if (log) fclose(log);
+
     pros::lcd::initialize(); // initialze llemu
     master.clear();
     print_to_displays();
@@ -141,7 +144,7 @@ void disabled() {
 void autonomous() {
     chassis.setPose(0, 0, 0);
 
-    chassis.driveForDistance(1_tiles, 5000, 100, 0);
+    chassis.driveForDistance(1_tiles, 1200, 100, 0);
     // chassis.moveToPoint(0_tiles, 1_tiles, 5000, false, 100, 0);
 }
 
