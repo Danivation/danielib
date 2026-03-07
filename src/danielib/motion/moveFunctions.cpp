@@ -251,7 +251,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             rightPower /= ratio;
         }
 
-        if (log) fprintf(log, "(%d,%.1f),", pros::millis() - startTime, angularOut);
+        if (log) fprintf(log, "(%d,%.1f),", pros::millis(), angularOut);
         // if (log) fprintf(log, "(%.1f,%.1f),", robotPose.x, robotPose.y);
 
         // move motors
