@@ -2,6 +2,7 @@
 #include "danielib/exit.hpp"
 #include "danielib/utils.hpp"
 #include "danielib/pid.hpp"
+#include <cmath>
 
 void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, bool reverse, float leadDist, float driftFactor, float maxSpeed, float earlyExitRange) {
     if (!isTracking()) return;
@@ -182,11 +183,11 @@ void danielib::Drivetrain::moveToPoint(
     uint32_t time = pros::millis();
 
     // compute fixed exit line direction
-    float exitHeading = atan2(target.y - robot.y, target.x - robot.x);
+    float exitHeading = std::atan2(target.y - robot.y, target.x - robot.x);
     if (reverse) exitHeading = d_sanitizeAngle(exitHeading + M_PI, true);
 
-    float nx = -sin(exitHeading);
-    float ny =  cos(exitHeading);
+    float nx = -std::cos(exitHeading);
+    float ny =  std::sin(exitHeading);
 
     // main loop
     while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
@@ -204,7 +205,7 @@ void danielib::Drivetrain::moveToPoint(
         }
 
         // motion chain
-        if (distance < fabs(earlyExitRange)) {
+        if (distance < std::abs(earlyExitRange)) {
             motionChained = true;
             break;
         }
@@ -223,7 +224,9 @@ void danielib::Drivetrain::moveToPoint(
         // float linearError =
         //       dx * cos(heading)
         //     + dy * sin(heading);
-        float linearError = distance * cos(angularError);
+        float cosAngular = std::cos(angularError);
+        float linearError = distance;
+        if (cosAngular >= 0 && cosAngular <= 1) linearError *= cosAngular;
 
         // perpendicular distance to exit line
         float distanceToLine = (robot.x - target.x) * nx + (robot.y - target.y) * ny;
@@ -231,7 +234,7 @@ void danielib::Drivetrain::moveToPoint(
         // turning lock
         if (distance < lineDist) {
             turnLock = true;
-            distance = fabs(distanceToLine);
+            distance = std::abs(distanceToLine);
         }
 
         // update exit condition
@@ -268,7 +271,7 @@ void danielib::Drivetrain::moveToPoint(
         float rightPower = linearOut - angularOut;
 
         // desaturate output
-        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower)) / maxSpeed;
+        float ratio = std::max(std::abs(leftPower), std::abs(rightPower)) / maxSpeed;
         if (ratio > 1) {
             leftPower  /= ratio;
             rightPower /= ratio;
@@ -279,7 +282,7 @@ void danielib::Drivetrain::moveToPoint(
         rightMotors.move(rightPower);
 
         // log
-        if (log) fprintf(log, "(%d,%.2f),", pros::millis(), linearError);
+        if (log) fprintf(log, "(%d,%.2f),", pros::millis() - startTime, distance);
 
         pros::Task::delay_until(&time, 10);
     }
@@ -289,8 +292,7 @@ void danielib::Drivetrain::moveToPoint(
         prevAngularOut = 0;
     }
 
-    if (log)
-        fclose(log);
+    if (log) fclose(log);
 
     leftMotors.brake();
     rightMotors.brake();

@@ -142,9 +142,7 @@ void disabled() {
 void autonomous() {
     chassis.setPose(0, 0, 0);
 
-    // chassis.driveForDistance(1_tiles, 1500, 100, 0);
-    chassis.moveToPoint(0.5_tiles, 1_tiles, 1500, false, 60, 0);
-    // chassis.moveToPoint(0.25_tiles, 2_tiles, 1500, false, 100, 0);
+    chassis.moveToPoint(0.01_tiles, 1_tiles, 1500, false, 100, 0);
 }
 
 void opcontrol() {
