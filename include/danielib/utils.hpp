@@ -32,21 +32,21 @@ inline float d_toInches(float input, float meterScale = 0.001) {
 
 // reduce angle to range [0, 360)
 inline float d_reduce_to_0_360(float angle) {
-    angle = fmodf(angle, 360.0f);
+    angle = std::fmod(angle, 360.0f);
     if (angle < 0) angle += 360.0f;
     return angle;
 }
 
 // reduce angle to range [-180, 180)
 inline float d_reduce_to_180_180(float angle) {
-    angle = fmodf(angle + 180.0f, 360.0f);
+    angle = std::fmod(angle + 180.0f, 360.0f);
     if (angle < 0) angle += 360.0f;
     return angle - 180.0f;
 }
 
 // reduce radians to range [0, 2pi)
 inline float d_reduce_radians(float angle) {
-    angle = fmodf(angle, M_PI * 2.0f);
+    angle = std::fmod(angle, M_PI * 2.0f);
     if (angle < 0) angle += M_PI * 2.0f;
     return angle;
 }
@@ -82,7 +82,7 @@ inline float d_getCurvature(danielib::Pose pose, danielib::Pose other) {
     // calculate center point and radius
     float a = -std::tan(pose.theta);
     float c = std::tan(pose.theta) * pose.x - pose.y;
-    float x = std::fabs(a * other.x + other.y + c) / std::sqrt((a * a) + 1);
+    float x = std::abs(a * other.x + other.y + c) / std::sqrt((a * a) + 1);
     float d = std::hypot(other.x - pose.x, other.y - pose.y);
 
     // return curvature

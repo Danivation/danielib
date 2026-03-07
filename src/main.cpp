@@ -23,8 +23,6 @@ pros::MotorGroup left_mg({18, -15, -12}, pros::MotorGears::blue);
 pros::MotorGroup right_mg({-19, 17, 14}, pros::MotorGears::blue);
 pros::MotorGroup bottom({16, 13}, pros::MotorGears::blue);
 
-// pros::Motor bottom_full(12, pros::MotorGears::blue);
-// pros::Motor bottom_half(15, pros::MotorGears::rpm_200);
 pros::Motor top(2, pros::MotorGears::rpm_200);
 
 pros::Imu imu_1(3);
@@ -101,8 +99,14 @@ void print_to_displays() {
     pros::Task controllerTask(controller_print);
 }
 void initialize() {
-    FILE* log = fopen("/usd/log.txt", "w");
-    if (log) fclose(log);
+    FILE* log_linearOut = fopen("/usd/log_linearOut.txt", "w");
+    FILE* log_angularOut = fopen("/usd/log_angularOut.txt", "w");
+    FILE* log_distance = fopen("/usd/log_distance.txt", "w");
+    FILE* log_pose = fopen("/usd/log_pose.txt", "w");
+    if (log_linearOut) fclose(log_linearOut);
+    if (log_angularOut) fclose(log_angularOut);
+    if (log_distance) fclose(log_distance);
+    if (log_pose) fclose(log_pose);
 
     pros::lcd::initialize(); // initialze llemu
     master.clear();
