@@ -26,6 +26,8 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
 
     angularPID.reset();
     angularExit.reset();
+
+    std::uint32_t time = pros::millis();
     while (pros::millis() < startTime + timeout && !angularExit.isDone() && movementsEnabled && currentMovementEnabled) {
         currentHeading = odomSensors.imu.getHeading();
         error = d_reduce_to_180_180(heading - currentHeading);
@@ -41,7 +43,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
         leftMotors.move(power);
         rightMotors.move(-power);
 
-        pros::delay(10);
+        pros::Task::delay_until(&time, 10);
     }
 
     prevLinearOut = 0;
@@ -83,6 +85,8 @@ void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int tim
 
     swingAngularPID.reset();
     angularExit.reset();
+
+    std::uint32_t time = pros::millis();
     while (pros::millis() < startTime + timeout && !angularExit.isDone() && movementsEnabled && currentMovementEnabled) {
         currentHeading = odomSensors.imu.getHeading();
         error = d_reduce_to_180_180(heading - currentHeading);
@@ -103,7 +107,7 @@ void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int tim
             rightMotors.move(-power);
         }
 
-        pros::delay(10);
+        pros::Task::delay_until(&time, 10);
     }
 
     prevLinearOut = 0;

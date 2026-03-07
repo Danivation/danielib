@@ -167,6 +167,7 @@ class Drivetrain {
         // motion vars
         bool newPose = false;
         pros::Mutex motionMutex;
+        pros::Mutex poseMutex;
         bool movementsEnabled = true;
         bool currentMovementEnabled = true;
         bool runAsync = false;

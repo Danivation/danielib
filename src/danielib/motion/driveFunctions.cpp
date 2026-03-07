@@ -31,6 +31,8 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
 
     linearPID.reset();
     linearExit.reset();
+
+    std::uint32_t time = pros::millis();
     while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
         currentDistance = odomSensors.verticalTracker.getPosition() - startPosition;
         error = distance - currentDistance;
@@ -55,15 +57,14 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         leftMotors.move(power);
         rightMotors.move(power);
 
-        pros::delay(10);
+        pros::Task::delay_until(&time, 10);
     }
 
     if (!motionChained) {
         prevLinearOut = 0;
         prevAngularOut = 0;
     }
-    
-    // if (log) fputs("\n\n", log);
+
     if (log) fclose(log);
 
     // stop motors

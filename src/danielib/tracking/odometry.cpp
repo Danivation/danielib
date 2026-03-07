@@ -31,6 +31,7 @@ void Drivetrain::update() {
     // convert cartesian coordinates (local) to polar coordinates
     float avgTheta = prevTheta + (deltaTheta / 2);
 
+    poseMutex.take();
     // update global positions (cooler math that works better)
     currentPose.x += localY * sinf(avgTheta);
     currentPose.y += localY * cosf(avgTheta);
@@ -46,6 +47,8 @@ void Drivetrain::update() {
     prevVertical = odomSensors.verticalTracker.getPosition();
     prevHorizontal = odomSensors.horizontalTracker.getPosition();
     prevTheta = d_toRadians(odomSensors.imu.getRotation());
+
+    poseMutex.give();
 }
 
 void Drivetrain::calibrate() {
@@ -56,17 +59,19 @@ void Drivetrain::calibrate() {
 }
 
 void Drivetrain::setPose(float x, float y, float theta) {
+    poseMutex.take();
     if (theta != infinityf()) odomSensors.imu.setRotation(theta);
     currentPose = Pose(x, y, theta);
     newPose = true;
-    pros::delay(5);
+    poseMutex.give();
 }
 
 void Drivetrain::setPose(Pose pose) {
+    poseMutex.take();
     odomSensors.imu.setRotation(pose.theta);
     currentPose = pose;
     newPose = true;
-    pros::delay(5);
+    poseMutex.give();
 }
 
 void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
@@ -161,12 +166,14 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
         (countX > 0) ? (sumX / countX) : currentPose.x,
         (countY > 0) ? (sumY / countY) : currentPose.y
     );
-    pros::delay(10);
 }
 
 Pose Drivetrain::getPose(bool inRadians) {
-    if (inRadians) return Pose(currentPose.x, currentPose.y, d_toRadians(currentPose.theta));
-    return currentPose;
+    poseMutex.take();
+    Pose pose = currentPose;
+    if (inRadians) pose.theta = d_toRadians(currentPose.theta);
+    poseMutex.give();
+    return pose;
 }
 
 void Drivetrain::startTracking() {
@@ -178,9 +185,10 @@ void Drivetrain::startTracking() {
         // make sure nothing was already running, then start the tracking task
         stopTracking();
         trackingTask = new pros::Task {[&] {
+            std::uint32_t now = pros::millis();
             while (true) {
                 Drivetrain::update();
-                pros::delay(10);
+                pros::Task::delay_until(&now, 10);
             }
         }};
     }

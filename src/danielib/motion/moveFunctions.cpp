@@ -7,7 +7,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
-        pros::Task task([&]() { moveToPose(x, y, heading, timeout, reverse, leadDist, driftFactor, maxSpeed); });
+        pros::Task task([&]() { moveToPose(x, y, heading, timeout, reverse, leadDist, driftFactor, maxSpeed, earlyExitRange); });
         pros::delay(10);  // give the task some time to start
         return;
     }
@@ -40,6 +40,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     bool prevSameSide = false;
     bool motionChained = false;
 
+    std::uint32_t time = pros::millis();
     while (pros::millis() < startTime + timeout && movementsEnabled && currentMovementEnabled) {
         Pose robotPose = getPose(true);
 
@@ -77,7 +78,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         float linearError = robotPose.distance(carrotPose) * cos(angularError);
 
         // update exit conditions
-        linearExit.update(robotPose.distance(targetPose));
+        linearExit.update(distance);
         angularExit.update(d_toDegrees(angularError));
 
         // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
@@ -117,7 +118,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
         leftMotors.move(leftPower);
         rightMotors.move(rightPower);
 
-        pros::delay(10);
+        pros::Task::delay_until(&time, 10);
     }
 
     if (!motionChained) {
@@ -175,6 +176,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     bool prevSide = false;
     bool motionChained = false;
 
+    std::uint32_t time = pros::millis();
     // keep moving unless the timeout happens, the linear exit condition happens, or the movement is disabled
     while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
         robotPose = getPose(true);
@@ -221,7 +223,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         float linearOut = mtpLinearPID.update(linearError);
         if (reverse) linearOut = -linearOut;
         float angularOut = mtpAngularPID.update(d_toDegrees(-angularError));
-        if (close || turnLock) angularOut = d_slew(0, prevAngularOut, 7);
+        if (close || turnLock) angularOut = d_slew(0, prevAngularOut, 4);
 
         // clamp outputs to max speed (should have negative effects but oh well)
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
@@ -250,12 +252,13 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         }
 
         if (log) fprintf(log, "(%d,%.1f),", pros::millis() - startTime, angularOut);
+        // if (log) fprintf(log, "(%.1f,%.1f),", robotPose.x, robotPose.y);
 
         // move motors
         leftMotors.move(leftPower);
         rightMotors.move(rightPower);
 
-        pros::delay(10);
+        pros::Task::delay_until(&time, 10);
     }
 
     if (!motionChained) {
