@@ -225,6 +225,9 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         float angularOut = mtpAngularPID.update(d_toDegrees(-angularError));
         if (close || turnLock) angularOut = d_slew(0, prevAngularOut, 4);
 
+        // angularOut += linearOut * 0.02;                         // curvature feedforward
+        // angularOut *= std::clamp(distance / 10.0f, 0.3f, 1.0f); // near-target damping
+
         // clamp outputs to max speed (should have negative effects but oh well)
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
@@ -251,7 +254,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             rightPower /= ratio;
         }
 
-        if (log) fprintf(log, "(%d,%.1f),", pros::millis(), angularOut);
+        if (log) fprintf(log, "(%d,%.1f),", pros::millis(), linearOut);
         // if (log) fprintf(log, "(%.1f,%.1f),", robotPose.x, robotPose.y);
 
         // move motors
