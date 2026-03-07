@@ -132,8 +132,17 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     motionMutex.give();
 }
 
-void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool reverse, float maxSpeed, float earlyExitRange) {
+
+void danielib::Drivetrain::moveToPoint(
+    float x,
+    float y,
+    int timeout,
+    bool reverse,
+    float maxSpeed,
+    float earlyExitRange)
+{
     if (!isTracking()) return;
+
     if (runAsync) {
         runAsync = false;
         pros::Task task([&]() { moveToPoint(x, y, timeout, reverse, maxSpeed, earlyExitRange); });
@@ -142,119 +151,143 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     }
 
     motionMutex.take();
+
     FILE* log = fopen("/usd/log.txt", "a");
-    // if (log) fputs("[", log);
 
     currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
-    const float closeDist = 5;  // distance for it to be considered close
-    const float lineDist = 6; // distance where the target is the line instead of the point
+    const float closeDist = 5;
+    const float lineDist  = 6;
+    const float curvatureGain = 0.02f;
 
-    // tunable parameters and stuff
-    float linearMaxSlew = mtpLinearPID.slew;
+    float linearMaxSlew  = mtpLinearPID.slew;
     float angularMaxSlew = mtpAngularPID.slew;
 
-    const int startTime = pros::millis();
+    const uint32_t startTime = pros::millis();
+
     ExitCondition linearExit(mtpLinearPID.exitRange, mtpLinearPID.exitTime);
-    ExitCondition angularExit(mtpAngularPID.exitRange, mtpAngularPID.exitTime);
 
     mtpLinearPID.reset();
-    linearExit.reset();
     mtpAngularPID.reset();
-    angularExit.reset();
+    linearExit.reset();
 
-    Pose robotPose = getPose(true);
+    Pose target(x, y, 0);
+    Pose robot = getPose(true);
 
-    // deal with everything in radians internally
-    Pose targetPose(x, y, 0);
-    targetPose.theta = robotPose.angle(targetPose);
-    if (reverse) targetPose.theta = fmod(targetPose.theta + M_PI, 2 * M_PI);
+    float prevLinearOut = 0;
+    float prevAngularOut = 0;
 
     bool close = false;
     bool turnLock = false;
-    bool prevSide = false;
     bool motionChained = false;
 
-    std::uint32_t time = pros::millis();
-    // keep moving unless the timeout happens, the linear exit condition happens, or the movement is disabled
-    while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
-        robotPose = getPose(true);
-        float distance = robotPose.distance(targetPose);
+    uint32_t time = pros::millis();
 
-        // slew max speed down to 65 when close
-        if (fabs(distance) < closeDist) {
+    // compute fixed exit line direction
+    float exitHeading = atan2(target.y - robot.y, target.x - robot.x);
+    if (reverse)
+        exitHeading = d_sanitizeAngle(exitHeading + M_PI, true);
+
+    float nx = -sin(exitHeading);
+    float ny =  cos(exitHeading);
+
+    while (pros::millis() < startTime + timeout &&
+           !linearExit.isDone() &&
+           movementsEnabled &&
+           currentMovementEnabled)
+    {
+        robot = getPose(true);
+
+        float dx = target.x - robot.x;
+        float dy = target.y - robot.y;
+
+        float distance = hypot(dx, dy);
+
+        if (distance < closeDist)
             close = true;
-            // maxSpeed = d_slew(fabs(prevLinearOut), 65, 10);
-        }
 
-        // exit if motion chained
-        if (fabs(distance) < fabs(earlyExitRange)) {
+        if (distance < fabs(earlyExitRange)) {
             motionChained = true;
             break;
         }
 
-        // recalculate target pose heading when not close
-        if (!close) targetPose.theta = robotPose.angle(targetPose);
+        // heading to target
+        float targetHeading = atan2(dy, dx);
 
-        // calculate what side of the endpoint line the robot is on, or if it has passed the target
-        double distanceToLine = -((robotPose.x - targetPose.x) * -sin(targetPose.theta) + (robotPose.y - targetPose.y) *  cos(targetPose.theta));
-        bool robotSide = distanceToLine >= earlyExitRange;
+        if (reverse)
+            targetHeading = d_sanitizeAngle(targetHeading + M_PI, true);
 
-        // slow down and set new endpoint if distance is within line dist
+        // angular error
+        float angularError = d_angleError(targetHeading, robot.theta, true);
+
+        // forward projection (cosine scaling)
+        float heading = robot.theta;
+        if (reverse) heading += M_PI;
+
+        float linearError =
+              dx * cos(heading)
+            + dy * sin(heading);
+
+        // perpendicular distance to exit line
+        float distanceToLine =
+            (robot.x - target.x) * nx +
+            (robot.y - target.y) * ny;
+
         if (distance < lineDist) {
             turnLock = true;
             distance = fabs(distanceToLine);
         }
 
-        // exit if robot moves past target point
-        if (robotSide != prevSide && close) break;
-        prevSide = robotSide;
-
-        // calculate errors
-        float angularError = d_angleError(!reverse ? robotPose.theta : robotPose.theta + M_PI, targetPose.theta, true);
-        float linearError = distance * cos(angularError);
-
-        // update exit conditions
         linearExit.update(distance);
-        angularExit.update(d_toDegrees(angularError));
 
-        // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
-        float linearOut = mtpLinearPID.update(linearError);
-        if (reverse) linearOut = -linearOut;
-        float angularOut = mtpAngularPID.update(d_toDegrees(-angularError));
-        if (close || turnLock) angularOut = d_slew(0, prevAngularOut, 4);
+        // PID outputs
+        float linearOut  = mtpLinearPID.update(linearError);
+        float angularOut = mtpAngularPID.update(angularError);
 
-        // clamp outputs to max speed (should have negative effects but oh well)
-        linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
+        if (reverse)
+            linearOut = -linearOut;
+
+        // curvature feedforward (smooth arcs)
+        angularOut += linearOut * curvatureGain;
+
+        // reduce turning strength near target
+        float turnScale = std::clamp(distance / 12.0f, 0.25f, 1.0f);
+        angularOut *= turnScale;
+
+        // turn lock near final line
+        if (close || turnLock)
+            angularOut = d_slew(0, prevAngularOut, 4);
+
+        // clamp outputs
+        linearOut  = std::clamp(linearOut,  -maxSpeed, maxSpeed);
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
-        // slew outputs to avoid slipping
-        if (fabs(distance) > 8 && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
-        if (fabs(distance) > 8 && angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
+        // slew limiting
+        if (distance > 8 && linearMaxSlew != 0)
+            linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
 
-        if (distance <= lineDist+0.5 && distance > closeDist) {
-            linearOut = d_slew(linearOut, prevLinearOut, 4);
-        }
+        if (distance > 8 && angularMaxSlew != 0)
+            angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
-        // update previous values
-        prevLinearOut = linearOut;
+        prevLinearOut  = linearOut;
         prevAngularOut = angularOut;
 
-        // calculate and desaturate outputs
-        // if either output is greater than max speed, ratio both so that the higher one is equal to max speed
-        float leftPower = linearOut + angularOut;
+        // differential drive mix
+        float leftPower  = linearOut + angularOut;
         float rightPower = linearOut - angularOut;
-        float ratio = std::max(std::fabs(leftPower), std::fabs(rightPower)) / maxSpeed;
+
+        float ratio =
+            std::max(std::fabs(leftPower), std::fabs(rightPower)) / maxSpeed;
+
         if (ratio > 1) {
-            leftPower /= ratio;
+            leftPower  /= ratio;
             rightPower /= ratio;
         }
 
-        if (log) fprintf(log, "(%d,%.1f),", pros::millis(), angularOut);
-        // if (log) fprintf(log, "(%.1f,%.1f),", robotPose.x, robotPose.y);
+        if (log)
+            fprintf(log, "(%d,%.2f),", pros::millis(), angularOut);
 
-        // move motors
         leftMotors.move(leftPower);
         rightMotors.move(rightPower);
 
@@ -265,12 +298,12 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         prevLinearOut = 0;
         prevAngularOut = 0;
     }
-    
-    // if (log) fputs("\n\n", log);
-    if (log) fclose(log);
 
-    // stop motors
+    if (log)
+        fclose(log);
+
     leftMotors.brake();
     rightMotors.brake();
+
     motionMutex.give();
 }

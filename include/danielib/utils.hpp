@@ -52,15 +52,17 @@ inline float d_reduce_radians(float angle) {
 }
 
 inline constexpr float d_sanitizeAngle(float angle, bool radians = false) {
-    if (radians) return std::fmod(std::fmod(angle, 2 * M_PI) + 2 * M_PI, 2 * M_PI);
-    else return std::fmod(std::fmod(angle, 360) + 360, 360);
-}   
+    if (radians)
+        return std::fmod(std::fmod(angle, 2 * M_PI) + 2 * M_PI, 2 * M_PI);
+    else
+        return std::fmod(std::fmod(angle, 360) + 360, 360);
+}
 
-// calculates the difference between two angles or the angle between them, bounded to (-180,180] or (-pi,pi]
+// difference between angles, result in (-pi,pi] or (-180,180]
 inline float d_angleError(float target, float position, bool radians = false) {
-    // bound angles from 0 to 2pi or 0 to 360
     target = d_sanitizeAngle(target, radians);
     position = d_sanitizeAngle(position, radians);
+
     const float max = radians ? 2 * M_PI : 360;
     const float rawError = target - position;
 
