@@ -64,13 +64,12 @@ danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 danielib::PID linearPID(7.4, 0.09, 25, 0.75, 1, 70, 6);
 danielib::PID angularPID(3.1, 0, 11, 0, 0, 0, 0);
 
-danielib::PID mtpLinearPID(7.1, 0, 29, 0, 1, 100, 6);
-danielib::PID mtpAngularPID(3.5, 0, 0, 0, 0, 0, 0);
+danielib::PID mtpLinearPID(7.33, 0, 29, 0, 1, 100, 6);
+danielib::PID mtpAngularPID(6, 0, 0, 0, 0, 0, 0);
 
 danielib::PID swingAngularPID(6.2, 0.28, 61.8, 2, 0, 0, 0);
 
 danielib::Drivetrain chassis(left_mg, right_mg, sensors, 10.8, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
-
 
 
 // convert vex field tiles to inches
@@ -80,8 +79,6 @@ constexpr double operator""_tiles(long double value) {
 constexpr double operator""_tiles(unsigned long long value) {
     return static_cast<double>(value) * 23.622;
 }
-
-
 void screen_print() {
     while (true) {
         const auto pose = chassis.getPose();
@@ -92,7 +89,6 @@ void screen_print() {
         pros::delay(50);
     }
 }
-
 void controller_print() {
     while (true) {
         const auto pose = chassis.getPose();
@@ -100,12 +96,10 @@ void controller_print() {
         pros::delay(300);
     }
 }
-
 void print_to_displays() {
     pros::Task screenTask(screen_print);
     pros::Task controllerTask(controller_print);
-} 
-
+}
 void initialize() {
     FILE* log = fopen("/usd/log.txt", "w");
     if (log) fclose(log);
@@ -130,11 +124,9 @@ void initialize() {
         pros::delay(10);
     }
 }
-
 void competition_initialize() {
 
 }
-
 void disabled() {
 
 }
@@ -143,8 +135,8 @@ void autonomous() {
     chassis.setPose(0, 0, 0);
 
     // chassis.driveForDistance(1_tiles, 1500, 100, 0);
-    chassis.moveToPoint(0.25_tiles, 1_tiles, 1500, false, 100, 6);
-    chassis.moveToPoint(0.25_tiles, 2_tiles, 1500, false, 100, 0);
+    chassis.moveToPoint(0.5_tiles, 1_tiles, 1500, false, 100, 6);
+    // chassis.moveToPoint(0.25_tiles, 2_tiles, 1500, false, 100, 0);
 }
 
 void opcontrol() {
