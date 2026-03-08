@@ -255,7 +255,8 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         if (usingLine) angularError = 0;
 
         // calculate linear error and cosine scale
-        float linearError = distance * std::cos(angularError);
+        // float linearError = distance * std::cos(angularError);
+        float linearError = distance;
         linearExit.update(distance);
 
         // calculate linear output
@@ -273,6 +274,9 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         // slew outputs to avoid slipping
         if (linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
         if (angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
+
+        // cosine scale AFTER slew
+        linearOut *= std::pow(std::cos(angularError), 1.8);
 
         // update previous values
         prevLinearOut = linearOut;
