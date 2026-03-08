@@ -58,13 +58,8 @@ inline constexpr float d_sanitizeAngle(float angle, bool radians = false) {
 
 // calculates the difference between two angles or the angle between them, bounded to (-180,180] or (-pi,pi]
 inline float d_angleError(float target, float position, bool radians = false) {
-    // bound angles from 0 to 2pi or 0 to 360
-    target = d_sanitizeAngle(target, radians);
-    position = d_sanitizeAngle(position, radians);
-    const float max = radians ? 2 * M_PI : 360;
-    const float rawError = target - position;
-
-    return std::remainder(rawError, max);
+    const float max = radians ? 2 * M_PI : 360.0f;
+    return std::remainder(target - position, max);
 }
 
 inline float d_slew(float target, float current, float maxChange) {

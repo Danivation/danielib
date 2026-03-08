@@ -150,64 +150,81 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
-    const float closeDist = 6;  // distance for it to be considered close
-    const float lineDist = 6; // distance where the target is the line instead of the point
-
     // tunable parameters and stuff
+    const float closeDist = 6;  // distance for it to be considered close
+    const float lineDist = 6;   // distance where the target is the line instead of the point
     float linearMaxSlew = mtpLinearPID.slew;
     float angularMaxSlew = mtpAngularPID.slew;
 
-    const int startTime = pros::millis();
+    // pids and exit conditions
     ExitCondition linearExit(mtpLinearPID.exitRange, mtpLinearPID.exitTime);
-    ExitCondition angularExit(mtpAngularPID.exitRange, mtpAngularPID.exitTime);
-
     mtpLinearPID.reset();
-    linearExit.reset();
     mtpAngularPID.reset();
-    angularExit.reset();
+    linearExit.reset();
 
+    // poses in radians
     Pose robotPose = getPose(true);
-
-    // deal with everything in radians internally
     Pose targetPose(x, y, 0);
-    targetPose.theta = robotPose.angle(targetPose);
-    if (reverse) targetPose.theta = std::fmod(targetPose.theta + M_PI, 2 * M_PI);
 
+    // loop variables
     bool close = false;
-    bool turnLock = false;
+    bool usingLine = false;
     bool prevSide = false;
     bool motionChained = false;
 
+    // line calculation variables
+    float lineAngle = 0;
+    float lineNx = 0;
+    float lineNy = 0;
+
+    // timers
+    const int startTime = pros::millis();
     std::uint32_t time = pros::millis();
-    // keep moving unless the timeout happens, the linear exit condition happens, or the movement is disabled
+
+    // main loop
     while (pros::millis() < startTime + timeout && !linearExit.isDone() && movementsEnabled && currentMovementEnabled) {
+        // get pose and distance to target
         robotPose = getPose(true);
         float distance = robotPose.distance(targetPose);
 
-        // slew max speed down to 65 when close
-        if (std::abs(distance) < closeDist) {
-            close = true;
-            // maxSpeed = d_slew(fabs(prevLinearOut), 65, 10);
-        }
-
-        // exit if motion chained
-        if (std::abs(distance) < std::abs(earlyExitRange)) {
+        // exit if within motion chaining range
+        if (std::abs(distance) < earlyExitRange) {
             motionChained = true;
             break;
         }
 
-        // recalculate target pose heading when not close
-        if (!close && !lineCaptured) {
+        // set close when within close circle
+        if (std::abs(distance) < closeDist) {
+            close = true;
+        }
+
+        // if not close, recalculate target pose angle (used for angular PID target)
+        if (!close) {
             targetPose.theta = robotPose.angle(targetPose);
         }
 
-        // calculate what side of the endpoint line the robot is on, or if it has passed the target
-        double distanceToLine = -((robotPose.x - targetPose.x) * -std::sin(targetPose.theta) + (robotPose.y - targetPose.y) *  std::cos(targetPose.theta));
+        // once inside line dist circle
+        if (std::abs(distance) < lineDist) {
+            if (!usingLine) {
+                usingLine = true;
+
+                // lock line angle
+                lineAngle = targetPose.theta;
+                lineNx = -std::sin(lineAngle);
+                lineNy =  std::cos(lineAngle);
+            }
+        }
+
+        // distance deltas
+        float dx = robotPose.x - targetPose.x;
+        float dy = robotPose.y - targetPose.y;
+
+        // distance to the closest point on the line
+        float distanceToLine = dx * lineNx + dy * lineNy;
         bool robotSide = distanceToLine >= earlyExitRange;
 
         // slow down and set new endpoint if distance is within line dist
-        if (distance < lineDist) {
-            turnLock = true;
+        if (usingLine) {
             distance = std::abs(distanceToLine);
         }
 
@@ -216,18 +233,19 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         prevSide = robotSide;
 
         // calculate errors
-        float angularError = d_angleError(!reverse ? robotPose.theta : robotPose.theta + M_PI, targetPose.theta, true);
+        float driveHeading = robotPose.theta;
+        if (reverse) driveHeading += M_PI;
+        float angularError = d_angleError(targetPose.theta, driveHeading, true);
         float linearError = distance * std::cos(angularError);
 
         // update exit conditions
         linearExit.update(distance);
-        angularExit.update(d_toDegrees(angularError));
 
         // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
         float linearOut = mtpLinearPID.update(linearError);
         if (reverse) linearOut = -linearOut;
         float angularOut = mtpAngularPID.update(d_toDegrees(-angularError));
-        if (close || turnLock) angularOut = d_slew(0, prevAngularOut, 4);
+        if (close || usingLine) angularOut = d_slew(0, prevAngularOut, 4);
 
         // clamp outputs to max speed (should have negative effects but oh well)
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
