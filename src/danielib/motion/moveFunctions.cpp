@@ -219,29 +219,35 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         float dx = robotPose.x - targetPose.x;
         float dy = robotPose.y - targetPose.y;
 
-        // distance to the closest point on the line
-        float distanceToLine = dx * lineNx + dy * lineNy;
-        bool robotSide = distanceToLine >= earlyExitRange;
+        // robot heading vector
+        float cosH = std::cos(robotPose.theta);
+        float sinH = std::sin(robotPose.theta);
 
-        // slow down and set new endpoint if distance is within line dist
-        if (usingLine) {
-            distance = std::abs(distanceToLine);
+        // denominator (detect parallel case)
+        float denom = cosH * lineNx + sinH * lineNy;
+        float distanceToLine = 0;
+
+        // get distance to line from the robot's current heading
+        if (std::abs(denom) > 1e-4) {
+            distanceToLine = -(dx * lineNx + dy * lineNy) / denom;
+        } else {
+            // heading parallel to line → fall back to perpendicular distance
+            distanceToLine = dx * lineNx + dy * lineNy;
         }
 
-        // exit if robot moves past target point
-        if (robotSide != prevSide && close) break;
-        prevSide = robotSide;
+        // if within line distance, use the line distance for pids
+        if (usingLine) {
+            distance = distanceToLine;
+        }
 
         // calculate errors
         float driveHeading = robotPose.theta;
         if (reverse) driveHeading += M_PI;
         float angularError = d_angleError(targetPose.theta, driveHeading, true);
         float linearError = distance * std::cos(angularError);
-
-        // update exit conditions
         linearExit.update(distance);
 
-        // calculate outputs (angular is negative because radians increase ccw, todo: fix inconsistency)
+        // calculate outputs
         float linearOut = mtpLinearPID.update(linearError);
         if (reverse) linearOut = -linearOut;
         float angularOut = mtpAngularPID.update(d_toDegrees(-angularError));
