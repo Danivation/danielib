@@ -176,6 +176,11 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     float lineAngle = 0;
     float lineNx = 0;
     float lineNy = 0;
+    
+    // linear end variables
+    float linePosition = 0;
+    float currentDistance = 0;
+    float distanceToLine = 0;
 
     // timers
     const int startTime = pros::millis();
@@ -203,47 +208,51 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             targetPose.theta = robotPose.angle(targetPose);
         }
 
-        // once inside line dist circle
+        // run once, when passing into line dist circle
         if (std::abs(distance) < lineDist) {
             if (!usingLine) {
                 usingLine = true;
 
                 // lock line angle
-                lineAngle = targetPose.theta;
-                lineNx = -std::sin(lineAngle);
-                lineNy =  std::cos(lineAngle);
+                lineAngle = d_fixRadians(targetPose.theta);
+                lineNx = std::cos(lineAngle);
+                lineNy = std::sin(lineAngle);
+
+                // distance deltas
+                float dx = robotPose.x - targetPose.x;
+                float dy = robotPose.y - targetPose.y;
+
+                // robot heading vector
+                float cosH = std::cos(d_fixRadians(robotPose.theta));
+                float sinH = std::sin(d_fixRadians(robotPose.theta));
+
+                // denominator (detect parallel case)
+                float denom = cosH * lineNx + sinH * lineNy;
+
+                // get distance to line from the robot's current heading
+                if (std::abs(denom) > 1e-4) {
+                    distanceToLine = -(dx * lineNx + dy * lineNy) / denom;
+                } else {
+                    // heading parallel to line, fall back to perpendicular distance
+                    distanceToLine = dx * lineNx + dy * lineNy;
+                }
+                linePosition = odomSensors.verticalTracker.getPosition();
             }
+            usingLine = true;
         }
 
-        // calculate line distance
         if (usingLine) {
-            // distance deltas
-            float dx = robotPose.x - targetPose.x;
-            float dy = robotPose.y - targetPose.y;
-
-            // robot heading vector
-            float cosH = std::cos(robotPose.theta);
-            float sinH = std::sin(robotPose.theta);
-
-            // denominator (detect parallel case)
-            float denom = cosH * lineNx + sinH * lineNy;
-            float distanceToLine = 0;
-
-            // get distance to line from the robot's current heading
-            if (std::abs(denom) > 1e-4) {
-                distanceToLine = -(dx * lineNx + dy * lineNy) / denom;
-            } else {
-                // heading parallel to line, fall back to perpendicular distance
-                distanceToLine = dx * lineNx + dy * lineNy;
-            }
-            distance = distanceToLine;
+            // once inside of line distance, turn into a linear pid
+            currentDistance = odomSensors.verticalTracker.getPosition() - linePosition;
+            distance = distanceToLine - currentDistance;
         }
 
-        // calculate angular error (negative because of radian increase direction)
+        // calculate angular error
         float driveHeading = robotPose.theta;
         if (reverse) driveHeading += M_PI;
         driveHeading = std::remainder(driveHeading, 2*M_PI);
         float angularError = d_angleError(targetPose.theta, driveHeading, true);
+        if (usingLine) angularError = 0;
 
         // calculate linear error and cosine scale
         float linearError = distance * std::cos(angularError);
@@ -285,9 +294,9 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         }
 
         // log data
-        if (log_linearOut) fprintf(log_linearOut, "(%d,%.1f),", pros::millis() - startTime, robotPose.theta);
-        if (log_angularOut) fprintf(log_angularOut, "(%d,%.1f),", pros::millis() - startTime, angularError);
-        if (log_distance) fprintf(log_distance, "(%d,%.1f),", pros::millis() - startTime, targetPose.theta);
+        if (log_linearOut) fprintf(log_linearOut, "(%d,%.1f),", pros::millis() - startTime, linearOut);
+        if (log_angularOut) fprintf(log_angularOut, "(%d,%.1f),", pros::millis() - startTime, angularOut);
+        if (log_distance) fprintf(log_distance, "(%d,%.1f),", pros::millis() - startTime, distance);
         if (log_pose) fprintf(log_pose, "(%.1f,%.1f),", robotPose.x, robotPose.y);
 
         // move motors and delay

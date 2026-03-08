@@ -138,7 +138,8 @@ void disabled() {
 void autonomous() {
     chassis.setPose(0, 0, 0);
 
-    chassis.moveToPoint(1_tiles, 2_tiles, 2000, false, 40, 0);
+    chassis.moveToPoint(1_tiles, 2_tiles, 5000, false, 50, 0);
+    // chassis.moveToPoint(0, 10, 5000, false, 50, 0);
 }
 
 void opcontrol() {
