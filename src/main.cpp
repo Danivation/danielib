@@ -62,7 +62,7 @@ danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 danielib::PID linearPID(7.4, 0.09, 25, 0.75, 1, 70, 6);
 danielib::PID angularPID(2.4, 0.1, 16.1, 1, 2, 110, 0);
 
-danielib::PID mtpLinearPID(7.35, 0, 28.5, 0, 1, 100, 6);
+danielib::PID mtpLinearPID(7.35, 0, 28.5, 0, 1.5, 90, 6);
 danielib::PID mtpAngularPID(2.46, 0, 13.9, 0, 0, 0, 0);
 
 danielib::PID swingAngularPID(6.2, 0.28, 61.8, 2, 0, 0, 0);
@@ -156,7 +156,8 @@ void autonomous() {
     // pros::Task log(logger);
     chassis.setPose(0, 0, 0);
 
-    chassis.moveToPoint(1_tiles, 2_tiles, 5000, false, 100, 0);
+    chassis.moveToPoint(0, 1.5_tiles, 1500, false, 100, 7);
+    chassis.moveToPoint(-1_tiles, 2.5_tiles, 1500, false, 70);
 }
 
 void opcontrol() {
