@@ -200,7 +200,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
         // if not close, recalculate target pose angle (used for angular PID target)
         if (!close) {
-            targetPose.theta = robotPose.angle(targetPose);
+            targetPose.theta = d_fixRadians(robotPose.angle(targetPose));
         }
 
         // once inside line dist circle
@@ -240,29 +240,35 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             distance = distanceToLine;
         }
 
-        // calculate errors
+        // calculate angular error (negative because of radian increase direction)
         float driveHeading = robotPose.theta;
         if (reverse) driveHeading += M_PI;
+        driveHeading = std::remainder(driveHeading, 2*M_PI);
         float angularError = d_angleError(targetPose.theta, driveHeading, true);
+
+        // calculate linear error and cosine scale
         float linearError = distance * std::cos(angularError);
         linearExit.update(distance);
 
-        // calculate outputs
+        // calculate linear output
         float linearOut = mtpLinearPID.update(linearError);
         if (reverse) linearOut = -linearOut;
-        float angularOut = mtpAngularPID.update(d_toDegrees(-angularError));
-        if (close || usingLine) angularOut = d_slew(0, prevAngularOut, 4);
 
-        // clamp outputs to max speed (should have negative effects but oh well)
+        // calculate angular output and set to 0 if close
+        float angularOut = mtpAngularPID.update(d_toDegrees(angularError));
+        if (usingLine) angularOut = d_slew(0, prevAngularOut, 6);
+
+        // clamp outputs to max speed
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
         // slew outputs to avoid slipping
-        if (std::abs(distance) > 8 && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
-        if (std::abs(distance) > 8 && angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
+        if (!usingLine && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
+        if (!usingLine && angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
+        // weird slew?
         if (distance <= lineDist+0.5 && distance > closeDist) {
-            linearOut = d_slew(linearOut, prevLinearOut, 4);
+            linearOut = d_slew(linearOut, prevLinearOut, 6);
         }
 
         // update previous values
@@ -279,15 +285,15 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             rightPower /= ratio;
         }
 
+        // log data
         if (log_linearOut) fprintf(log_linearOut, "(%d,%.1f),", pros::millis() - startTime, linearOut);
-        if (log_angularOut) fprintf(log_angularOut, "(%d,%.1f),", pros::millis() - startTime, angularOut);
+        if (log_angularOut) fprintf(log_angularOut, "(%d,%.1f),", pros::millis() - startTime, angularError);
         if (log_distance) fprintf(log_distance, "(%d,%.1f),", pros::millis() - startTime, distance);
         if (log_pose) fprintf(log_pose, "(%.1f,%.1f),", robotPose.x, robotPose.y);
 
-        // move motors
+        // move motors and delay
         leftMotors.move(leftPower);
         rightMotors.move(rightPower);
-
         pros::Task::delay_until(&time, 10);
     }
 

@@ -11,13 +11,13 @@ template <typename T> constexpr auto d_sgn(const T& lhs) {
 }
 
 // degrees to radians
-inline float d_toRadians(float angle) {
-    return angle * (M_PI / 180.0f);
+inline float d_toRadians(float deg) {
+    return deg * M_PI / 180.0f;
 }
 
 // radians to degrees
-inline float d_toDegrees(float angle) {
-    return angle * (180.0f / M_PI);
+inline float d_toDegrees(float rad) {
+    return rad * 180.0f / M_PI;
 }
 
 // converts a number in inches to a number in some variation of meters (by default, 0.001 meters or 1 mm)
