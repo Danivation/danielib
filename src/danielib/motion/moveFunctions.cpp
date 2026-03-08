@@ -265,7 +265,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
         // calculate angular output and set to 0 if close
         float angularOut = mtpAngularPID.update(d_toDegrees(angularError));
-        if (usingLine) angularOut = d_slew(0, prevAngularOut, 2.5);
+        if (usingLine) angularOut = d_slew(0, prevAngularOut, 1.3);
 
         // clamp outputs to max speed
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
@@ -276,7 +276,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         if (angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
         // cosine scale AFTER slew
-        linearOut *= std::pow(std::cos(angularError), 1.8);
+        linearOut *= std::pow(std::cos(angularError), 2.1);
 
         // update previous values
         prevLinearOut = linearOut;

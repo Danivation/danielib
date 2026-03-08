@@ -13,6 +13,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
     }
 
     motionMutex.take();
+    FILE* log_pose = fopen("/usd/log_pose.txt", "a");
     currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
@@ -38,6 +39,8 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
         power = std::clamp(power, -maxSpeed, maxSpeed);
         if (angularMaxSlew != 0) power = d_slew(power, prevAngularOut, angularMaxSlew);
         prevAngularOut = power;
+        
+        if (log_pose) fprintf(log_pose, "(%.1f,%.1f),", getPose().x, getPose().y);
 
         // move motors
         leftMotors.move(power);
@@ -48,6 +51,8 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
 
     prevLinearOut = 0;
     prevAngularOut = 0;
+    
+    if (log_pose) fclose(log_pose);
 
     // stop motors
     leftMotors.brake();
