@@ -48,8 +48,8 @@ pros::adi::Pneumatics intake_raise('A', false);     // actual piston is reversed
 /* ---------------------------------------------------------------------------------------------- */
 
 // + offset is right or front, - offset is left or back
-danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, -0.2);
-danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2.744, -1.2);
+danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0.28);
+danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2.744, -1.3);
 danielib::Inertial inertial(imu_1, 360/(360-0.7));          // G TEAM IMU GOOD
 
 danielib::Beam left_beam(-90, -4.375, 2.9, distance_left);
@@ -60,7 +60,7 @@ danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
 danielib::PID linearPID(7.4, 0.09, 25, 0.75, 1, 70, 6);
-danielib::PID angularPID(2.4, 0.1, 16.1, 1, 2, 100, 0);
+danielib::PID angularPID(2.4, 0.1, 16.1, 1, 2, 110, 0);
 
 danielib::PID mtpLinearPID(7.36, 0, 27.5, 0, 1, 100, 6);
 danielib::PID mtpAngularPID(2.6, 0, 11.2, 0, 0, 0, 6);
@@ -103,10 +103,14 @@ void initialize() {
     FILE* log_angularOut = fopen("/usd/log_angularOut.txt", "w");
     FILE* log_distance = fopen("/usd/log_distance.txt", "w");
     FILE* log_pose = fopen("/usd/log_pose.txt", "w");
+    FILE* log_horiz = fopen("/usd/log_horiz.txt", "w");
+    FILE* log_vert = fopen("/usd/log_vert.txt", "w");
     if (log_linearOut) fclose(log_linearOut);
     if (log_angularOut) fclose(log_angularOut);
     if (log_distance) fclose(log_distance);
     if (log_pose) fclose(log_pose);
+    if (log_horiz) fclose(log_horiz);
+    if (log_vert) fclose(log_vert);
 
     pros::lcd::initialize(); // initialze llemu
     master.clear();
@@ -135,13 +139,29 @@ void disabled() {
 
 }
 
+void logger() {
+    FILE* log_pose = fopen("/usd/log_pose.txt", "a");
+    FILE* log_horiz = fopen("/usd/log_horiz.txt", "a");
+    FILE* log_vert = fopen("/usd/log_vert.txt", "a");
+    while (true) {
+        auto pose = chassis.getPose();
+        if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", pose.x, pose.y);
+        if (log_horiz) fprintf(log_horiz, "(%d,%.2f),", pros::millis(), (float)horizontal_rotation.get_position()/100.0f);
+        if (log_vert) fprintf(log_vert, "(%d,%.2f),", pros::millis(), (float)vertical_rotation.get_position()/100.0f);
+        pros::delay(10);
+    }
+}
+
 void autonomous() {
+    pros::Task log(logger);
     chassis.setPose(0, 0, 0);
 
     // chassis.moveToPoint(1_tiles, 2_tiles, 5000, false, 100, 0);
     // chassis.moveToPoint(0, 10, 5000, false, 50, 0);
-    chassis.turnToHeading(90, 2000);
+    // chassis.turnToHeading(90, 2000);
     // chassis.turnToHeading(180, 2000);
+    left_mg.move(-40);
+    right_mg.move(40);
 }
 
 void opcontrol() {
