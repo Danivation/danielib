@@ -293,10 +293,10 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         }
 
         // log data
-        if (log_linearOut) fprintf(log_linearOut, "(%d,%.1f),", pros::millis() - startTime, linearOut);
-        if (log_angularOut) fprintf(log_angularOut, "(%d,%.1f),", pros::millis() - startTime, angularOut);
-        if (log_distance) fprintf(log_distance, "(%d,%.1f),", pros::millis() - startTime, distance);
-        if (log_pose) fprintf(log_pose, "(%.1f,%.1f),", robotPose.x, robotPose.y);
+        if (log_linearOut) fprintf(log_linearOut, "(%d,%.2f),", pros::millis() - startTime, linearOut);
+        if (log_angularOut) fprintf(log_angularOut, "(%d,%.2f),", pros::millis() - startTime, angularOut);
+        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis() - startTime, distance);
+        if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", robotPose.x, robotPose.y);
 
         // move motors and delay
         leftMotors.move(leftPower);

@@ -40,7 +40,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
         if (angularMaxSlew != 0) power = d_slew(power, prevAngularOut, angularMaxSlew);
         prevAngularOut = power;
         
-        if (log_pose) fprintf(log_pose, "(%.1f,%.1f),", getPose().x, getPose().y);
+        if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", getPose().x, getPose().y);
 
         // move motors
         leftMotors.move(power);
