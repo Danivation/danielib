@@ -152,7 +152,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
     // tunable parameters and stuff
     const float closeDist = 6;  // distance for it to be considered close
-    const float lineDist = 6;   // distance where the target is the line instead of the point
+    const float lineDist = 7;   // distance where the target is the line instead of the point
     float linearMaxSlew = mtpLinearPID.slew;
     float angularMaxSlew = mtpAngularPID.slew;
 
