@@ -200,7 +200,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
         // if not close, recalculate target pose angle (used for angular PID target)
         if (!close) {
-            targetPose.theta = d_fixRadians(robotPose.angle(targetPose));
+            targetPose.theta = robotPose.angle(targetPose);
         }
 
         // once inside line dist circle
@@ -215,28 +215,27 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             }
         }
 
-        // distance deltas
-        float dx = robotPose.x - targetPose.x;
-        float dy = robotPose.y - targetPose.y;
-
-        // robot heading vector
-        float cosH = std::cos(robotPose.theta);
-        float sinH = std::sin(robotPose.theta);
-
-        // denominator (detect parallel case)
-        float denom = cosH * lineNx + sinH * lineNy;
-        float distanceToLine = 0;
-
-        // get distance to line from the robot's current heading
-        if (std::abs(denom) > 1e-4) {
-            distanceToLine = -(dx * lineNx + dy * lineNy) / denom;
-        } else {
-            // heading parallel to line → fall back to perpendicular distance
-            distanceToLine = dx * lineNx + dy * lineNy;
-        }
-
-        // if within line distance, use the line distance for pids
+        // calculate line distance
         if (usingLine) {
+            // distance deltas
+            float dx = robotPose.x - targetPose.x;
+            float dy = robotPose.y - targetPose.y;
+
+            // robot heading vector
+            float cosH = std::cos(robotPose.theta);
+            float sinH = std::sin(robotPose.theta);
+
+            // denominator (detect parallel case)
+            float denom = cosH * lineNx + sinH * lineNy;
+            float distanceToLine = 0;
+
+            // get distance to line from the robot's current heading
+            if (std::abs(denom) > 1e-4) {
+                distanceToLine = -(dx * lineNx + dy * lineNy) / denom;
+            } else {
+                // heading parallel to line, fall back to perpendicular distance
+                distanceToLine = dx * lineNx + dy * lineNy;
+            }
             distance = distanceToLine;
         }
 
@@ -286,9 +285,9 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         }
 
         // log data
-        if (log_linearOut) fprintf(log_linearOut, "(%d,%.1f),", pros::millis() - startTime, linearOut);
+        if (log_linearOut) fprintf(log_linearOut, "(%d,%.1f),", pros::millis() - startTime, robotPose.theta);
         if (log_angularOut) fprintf(log_angularOut, "(%d,%.1f),", pros::millis() - startTime, angularError);
-        if (log_distance) fprintf(log_distance, "(%d,%.1f),", pros::millis() - startTime, distance);
+        if (log_distance) fprintf(log_distance, "(%d,%.1f),", pros::millis() - startTime, targetPose.theta);
         if (log_pose) fprintf(log_pose, "(%.1f,%.1f),", robotPose.x, robotPose.y);
 
         // move motors and delay

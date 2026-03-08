@@ -171,7 +171,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
 Pose Drivetrain::getPose(bool inRadians) {
     poseMutex.take();
     Pose pose = currentPose;
-    if (inRadians) pose.theta = d_fixRadians(d_toRadians(currentPose.theta));
+    if (inRadians) pose.theta = d_toRadians(currentPose.theta);
     poseMutex.give();
     return pose;
 }
