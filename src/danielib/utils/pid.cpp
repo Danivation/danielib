@@ -21,7 +21,7 @@ float PID::update(const float error) {
         integral = 0;
     }
     // if the error is outside of the windup range, do not increase the integral
-    if (fabs(error) > windupRange) {
+    if (std::abs(error) > windupRange) {
         integral = 0;
     }
 

@@ -1,8 +1,5 @@
-#include "danielib/danielib.hpp"
 #include "danielib/drivetrain.hpp"
-#include "danielib/exit.hpp"
 #include "danielib/utils.hpp"
-#include "danielib/pid.hpp"
 #include <cmath>
 
 using namespace danielib;
@@ -24,19 +21,21 @@ void Drivetrain::update() {
         localY = deltaVertical;
     } else {
         // convert wheel movement to local x and y deltas
-        localX = 2 * sinf(deltaTheta / 2) * ((deltaHorizontal / deltaTheta) + odomSensors.horizontalTracker.getOffset());
-        localY = 2 * sinf(deltaTheta / 2) * ((deltaVertical / deltaTheta) + odomSensors.verticalTracker.getOffset());
+        localX = 2 * std::sin(deltaTheta / 2) * ((deltaHorizontal / deltaTheta) + odomSensors.horizontalTracker.getOffset());
+        localY = 2 * std::sin(deltaTheta / 2) * ((deltaVertical / deltaTheta) + odomSensors.verticalTracker.getOffset());
     }
 
     // convert cartesian coordinates (local) to polar coordinates
     float avgTheta = prevTheta + (deltaTheta / 2);
+    float sinTheta = std::sin(avgTheta);
+    float cosTheta = std::cos(avgTheta);
 
     poseMutex.take();
     // update global positions (cooler math that works better)
-    currentPose.x += localY * sinf(avgTheta);
-    currentPose.y += localY * cosf(avgTheta);
-    currentPose.x += localX * -cosf(avgTheta);
-    currentPose.y += localX * sinf(avgTheta);
+    currentPose.x += localY *  sinTheta;
+    currentPose.y += localY *  cosTheta;
+    currentPose.x += localX * -cosTheta;
+    currentPose.y += localX *  sinTheta;
     currentPose.theta = odomSensors.imu.getRotation();
 
     // update delta pose for mcl
@@ -74,12 +73,14 @@ void Drivetrain::setPose(Pose pose) {
     poseMutex.give();
 }
 
-void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
+void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams, float maxChange) {
     float sumX = 0;
     float sumY = 0;
     int countX = 0;
     int countY = 0;
-    pros::delay(5);
+
+    // get pose once
+    auto startPose = getPose();
 
     // loop through all beams
     for (Beam* beamPtr : beams) {
@@ -95,23 +96,23 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
         if (wallDistance <= 0) continue;
 
         // find global beam angle and position
-        float robotAngle = d_fixRadians(d_toRadians(currentPose.theta));
-        float sinRobotAngle = sinf(robotAngle);
-        float cosRobotAngle = cosf(robotAngle);
+        float robotAngle = d_fixRadians(d_toRadians(startPose.theta));
+        float sinRobotAngle = std::sin(robotAngle);
+        float cosRobotAngle = std::cos(robotAngle);
 
         // calculate beam angle and position using offset
-        float beamAngle = d_fixRadians(d_toRadians(currentPose.theta + beam.angleOffset));
-        float beamX = currentPose.x + beam.yOffset * cosRobotAngle + beam.xOffset * sinRobotAngle;
-        float beamY = currentPose.y + beam.yOffset * sinRobotAngle - beam.xOffset * cosRobotAngle;
+        float beamAngle = d_fixRadians(d_toRadians(startPose.theta + beam.angleOffset));
+        float beamX = startPose.x + beam.yOffset * cosRobotAngle + beam.xOffset * sinRobotAngle;
+        float beamY = startPose.y + beam.yOffset * sinRobotAngle - beam.xOffset * cosRobotAngle;
 
-        float sinBeamAngle = sinf(beamAngle);
-        float cosBeamAngle = cosf(beamAngle);
+        float sinBeamAngle = std::sin(beamAngle);
+        float cosBeamAngle = std::cos(beamAngle);
 
         // calculate x and y positions of the wall based on beam distance
         // this is basically where it thinks the wall is based on that beam
         // (wallX, wallY) is the point on the wall that the beam is hitting
-        float wallX = beamX + wallDistance * cosf(beamAngle);
-        float wallY = beamY + wallDistance * sinf(beamAngle);
+        float wallX = beamX + wallDistance * cosBeamAngle;
+        float wallY = beamY + wallDistance * sinBeamAngle;
 
         // we need to filter this data to only use x and y positions that are actually on a wall
         // a beam facing one wall will not tell you anything useful about the other wall
@@ -134,7 +135,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
             float knownWallX = pointingEast ? 70.5 : -70.5;
             
             // Calculate where the beam sensor must be
-            float beamX = knownWallX - wallDistance * cosf(beamAngle);
+            float beamX = knownWallX - wallDistance * cosBeamAngle;
             
             // Now calculate robot center from beam position
             // Reverse the offset transformation
@@ -149,7 +150,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
             float knownWallY = pointingNorth ? 70.5 : -70.5;
             
             // Calculate where the beam sensor must be
-            float beamY = knownWallY - wallDistance * sinf(beamAngle);
+            float beamY = knownWallY - wallDistance * sinBeamAngle;
             
             // Now calculate robot center from beam position
             // Reverse the offset transformation
@@ -160,12 +161,16 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams) {
         }
     }
 
+    float newX = (countX > 0) ? (sumX / countX) : startPose.x;
+    float newY = (countY > 0) ? (sumY / countY) : startPose.y;
+    float changeX = std::abs(newX - startPose.x);
+    float changeY = std::abs(newY - startPose.y);
+
     // sets x and y based on averages of valid readings independently, keeps old value if no valid readings
     // if only x readings are valid, only x is changed (same for y)
-    setPose(
-        (countX > 0) ? (sumX / countX) : currentPose.x,
-        (countY > 0) ? (sumY / countY) : currentPose.y
-    );
+    if (changeX < maxChange && changeY < maxChange) {
+        setPose(newX, newY);
+    }
 }
 
 Pose Drivetrain::getPose(bool inRadians) {

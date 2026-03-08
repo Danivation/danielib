@@ -7,7 +7,7 @@ void TrackerWheel::reset() {
 }
 
 float TrackerWheel::getPosition() {
-    return (wheelDiameter * M_PI / 360) * (sensor.get_position() / 100);
+    return (wheelDiameter * M_PI / 360.0f) * ((float)sensor.get_position() / 100.0f);
 }
 
 float TrackerWheel::getOffset() {
@@ -22,7 +22,7 @@ void Inertial::calibrate() {
 
 float Inertial::getRotation() {
     if (sensor2 != nullptr) {
-        return ((sensor1.get_rotation() * scale1) + (sensor2->get_rotation() * scale2)) / 2;
+        return ((sensor1.get_rotation() * scale1) + (sensor2->get_rotation() * scale2)) / 2.0f;
     } else {
         return sensor1.get_rotation() * scale1;
     }

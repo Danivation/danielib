@@ -50,8 +50,9 @@ class Drivetrain {
          * @brief Resets the pose based on distance sensors
          * 
          * @param beams distance sensor beams to consider when resetting pose
+         * @param maxChange the max amount the pose can change in either direction for it to be valid
          */
-        void distanceResetPose(std::initializer_list<Beam*> beams);
+        void distanceResetPose(std::initializer_list<Beam*> beams, float maxChange = infinityf());
 
         /**
          * @brief Returns the current pose of the drivetrain

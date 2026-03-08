@@ -38,7 +38,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         error = distance - currentDistance;
 
         // exit if within exit range
-        if (fabs(error) < earlyExitRange) {
+        if (std::abs(error) < earlyExitRange) {
             motionChained = true;
             break;
         }
@@ -48,7 +48,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
 
         // calculate power
         power = std::clamp(power, -maxSpeed, maxSpeed);
-        if (linearMaxSlew != 0 && fabs(error) > 8) power = d_slew(power, prevLinearOut, linearMaxSlew);
+        if (linearMaxSlew != 0 && std::abs(error) > 8) power = d_slew(power, prevLinearOut, linearMaxSlew);
         prevLinearOut = power;
 
         if (log) fprintf(log, "(%d,%.1f),", pros::millis() - startTime, power);
