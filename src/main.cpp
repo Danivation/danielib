@@ -60,7 +60,7 @@ danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 
 danielib::PID linearPID(7.4, 0.09, 25, 0.75, 1, 70, 6);
-danielib::PID angularPID(3.1, 0, 28, 0, 0, 0, 0);
+danielib::PID angularPID(2.55, 0, 18, 0, 0, 0, 0);
 
 danielib::PID mtpLinearPID(7.36, 0, 27.5, 0, 1, 100, 6);
 danielib::PID mtpAngularPID(2.6, 0, 11.2, 0, 0, 0, 6);
@@ -140,8 +140,8 @@ void autonomous() {
 
     // chassis.moveToPoint(1_tiles, 2_tiles, 5000, false, 100, 0);
     // chassis.moveToPoint(0, 10, 5000, false, 50, 0);
-    chassis.turnToHeading(90, 1000);
-    chassis.turnToHeading(180, 1000);
+    chassis.turnToHeading(90, 2000);
+    // chassis.turnToHeading(180, 2000);
 }
 
 void opcontrol() {
