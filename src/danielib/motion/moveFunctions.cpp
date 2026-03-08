@@ -264,20 +264,15 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
         // calculate angular output and set to 0 if close
         float angularOut = mtpAngularPID.update(d_toDegrees(angularError));
-        if (usingLine) angularOut = d_slew(0, prevAngularOut, 6);
+        if (usingLine) angularOut = d_slew(0, prevAngularOut, 2.5);
 
         // clamp outputs to max speed
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
         // slew outputs to avoid slipping
-        if (!usingLine && linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
-        if (!usingLine && angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
-
-        // weird slew?
-        if (distance <= lineDist+0.5 && distance > closeDist) {
-            linearOut = d_slew(linearOut, prevLinearOut, 6);
-        }
+        if (linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
+        if (angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
         // update previous values
         prevLinearOut = linearOut;

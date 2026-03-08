@@ -62,8 +62,8 @@ danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
 danielib::PID linearPID(7.4, 0.09, 25, 0.75, 1, 70, 6);
 danielib::PID angularPID(3.1, 0, 11, 0, 0, 0, 0);
 
-danielib::PID mtpLinearPID(7.33, 0, 29, 0, 1, 100, 6);
-danielib::PID mtpAngularPID(2.6, 0, 8.5, 0, 0, 0, 0);
+danielib::PID mtpLinearPID(7.33, 0, 26, 0, 1, 100, 6);
+danielib::PID mtpAngularPID(2.8, 0, 8.4, 0, 0, 0, 0);
 
 danielib::PID swingAngularPID(6.2, 0.28, 61.8, 2, 0, 0, 0);
 
