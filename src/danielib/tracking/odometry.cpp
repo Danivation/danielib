@@ -63,6 +63,7 @@ void Drivetrain::setPose(float x, float y, float theta) {
     currentPose = Pose(x, y, theta);
     newPose = true;
     poseMutex.give();
+    pros::delay(10);
 }
 
 void Drivetrain::setPose(Pose pose) {
@@ -71,6 +72,7 @@ void Drivetrain::setPose(Pose pose) {
     currentPose = pose;
     newPose = true;
     poseMutex.give();
+    pros::delay(10);
 }
 
 void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams, float maxChange) {
