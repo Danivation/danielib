@@ -205,7 +205,9 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
         // if not close, recalculate target pose angle (used for angular PID target)
         if (!close) {
-            targetPose.theta = robotPose.angle(targetPose);
+            float targetTheta = robotPose.angle(targetPose);
+            // if (reverse) targetTheta += M_PI;
+            targetPose.theta = std::remainder(targetTheta, 2*M_PI);
         }
 
         // run once, when passing into line dist circle
@@ -215,6 +217,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
                 // lock line angle
                 lineAngle = d_fixRadians(targetPose.theta);
+                if (reverse) lineAngle = 
                 lineNx = std::cos(lineAngle);
                 lineNy = std::sin(lineAngle);
 
@@ -245,6 +248,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             // once inside of line distance, turn into a linear pid
             currentDistance = odomSensors.verticalTracker.getPosition() - linePosition;
             distance = distanceToLine - currentDistance;
+            if (reverse) distance = -distance;
         }
 
         // calculate angular error
@@ -252,8 +256,14 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         if (reverse) driveHeading += M_PI;
         driveHeading = std::remainder(driveHeading, 2*M_PI);
         float angularError = d_angleError(targetPose.theta, driveHeading, true);
+        // if (reverse) angularError = -angularError;
         if (usingLine) angularError = 0;
 
+        // calculate angular output and set to 0 if close
+        float angularOut = mtpAngularPID.update(d_toDegrees(angularError));
+        if (usingLine) angularOut = d_slew(0, prevAngularOut, 1.3);
+        // if (reverse) angularOut = -angularOut;
+        
         // calculate linear error and cosine scale
         // float linearError = distance * std::cos(angularError);
         float linearError = distance;
@@ -263,10 +273,6 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         float linearOut = mtpLinearPID.update(linearError);
         if (reverse) linearOut = -linearOut;
 
-        // calculate angular output and set to 0 if close
-        float angularOut = mtpAngularPID.update(d_toDegrees(angularError));
-        if (usingLine) angularOut = d_slew(0, prevAngularOut, 1.3);
-
         // clamp outputs to max speed
         linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
@@ -275,8 +281,8 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         if (linearMaxSlew != 0) linearOut = d_slew(linearOut, prevLinearOut, linearMaxSlew);
         if (angularMaxSlew != 0) angularOut = d_slew(angularOut, prevAngularOut, angularMaxSlew);
 
-        // cosine scale AFTER slew
-        linearOut *= std::pow(std::cos(angularError), 2.1);
+        // cosine scale AFTER slew - (max(cos(x), 0))^2.1
+        linearOut *= std::pow(std::max(std::cos(angularError), 0.0f), 2.1);
 
         // update previous values
         prevLinearOut = linearOut;
@@ -295,7 +301,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         // log data
         if (log_linearOut) fprintf(log_linearOut, "(%d,%.2f),", pros::millis() - startTime, linearOut);
         if (log_angularOut) fprintf(log_angularOut, "(%d,%.2f),", pros::millis() - startTime, angularOut);
-        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis() - startTime, distance);
+        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis() - startTime, angularError);
         if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", robotPose.x, robotPose.y);
 
         // move motors and delay

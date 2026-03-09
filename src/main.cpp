@@ -153,15 +153,12 @@ void logger() {
 }
 
 void autonomous() {
-    // pros::Task log(logger);
-    // chassis.setPose(0, 0, 0);
+    chassis.setPose(0, 0, 0);
+    pros::delay(200);
+    chassis.moveToPoint(-1_tiles, -2_tiles, 1500, true, 100);
 
-    // chassis.moveToPoint(0, 1.5_tiles, 1500, false, 100, 7);
-    // chassis.moveToPoint(-1_tiles, 2.5_tiles, 1500, false, 70);
-
-    chassis.setPose(-2_tiles, -2_tiles, 180);
-
-    chassis.moveToPoint(-1.95_tiles, -24, 1000, true, 90);
+    // chassis.setPose(-2_tiles, -2_tiles, 180);
+    // chassis.moveToPoint(-1.95_tiles, -24, 1000, true, 90);
 }
 
 void opcontrol() {
