@@ -52,9 +52,9 @@ danielib::TrackerWheel vertical_tracker(vertical_rotation, 2, 0.28);
 danielib::TrackerWheel horizontal_tracker(horizontal_rotation, 2.744, -1.3);
 danielib::Inertial inertial(imu_1, 360/(360-1.05));          // G TEAM IMU GOOD
 
-danielib::Beam left_beam(-90, -4.375, 2.9, distance_left);
-danielib::Beam right_beam(90, 4.375, 2.9, distance_right);
-danielib::Beam front_beam(0, -4, 4.2, distance_front);
+danielib::Beam left_beam(-90, -4.375, 2.5, distance_left);
+danielib::Beam right_beam(90, 4.375, 2.5, distance_right);
+danielib::Beam front_beam(0, -4, 4, distance_front);
 
 danielib::Localization mcl({left_beam, right_beam, front_beam});
 danielib::Sensors sensors(vertical_tracker, horizontal_tracker, inertial, mcl);
@@ -68,7 +68,6 @@ danielib::PID mtpAngularPID(2.46, 0, 13.9, 0, 0, 0, 0);
 danielib::PID swingAngularPID(6.2, 0.28, 61.8, 2, 0, 0, 0);
 
 danielib::Drivetrain chassis(left_mg, right_mg, sensors, 10.8, 3.25, 450, linearPID, angularPID, mtpLinearPID, mtpAngularPID, swingAngularPID);
-
 
 // convert vex field tiles to inches
 constexpr double operator""_tiles(long double value) {
