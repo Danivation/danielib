@@ -3,11 +3,11 @@
 #include "danielib/utils.hpp"
 #include "danielib/pid.hpp"
 
-void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSpeed) {
+void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSpeed, bool slewEnabled) {
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
-        pros::Task task([&]() { turnToHeading(heading, timeout, maxSpeed); });
+        pros::Task task([&]() { turnToHeading(heading, timeout, maxSpeed, slewEnabled); });
         pros::delay(10);  // give the task some time to start
         return;
     }
@@ -23,6 +23,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
     const int startTime = pros::millis();
     ExitCondition angularExit(angularPID.exitRange, angularPID.exitTime);
     float angularMaxSlew = angularPID.slew;
+    if (!slewEnabled) angularMaxSlew = 0;
 
     float power = 0;
     float currentHeading = odomSensors.imu.getHeading();
@@ -68,18 +69,18 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
     motionMutex.give();
 }
 
-void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, bool reverse, float maxSpeed) {
+void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, bool reverse, float maxSpeed, bool slewEnabled) {
     if (!isTracking()) return;
     float angle = d_toDegrees(currentPose.angle({x, y, currentPose.theta}));
     if (reverse) angle = d_reduce_to_0_360(angle + 180);
-    turnToHeading(angle, timeout, maxSpeed);
+    turnToHeading(angle, timeout, maxSpeed, slewEnabled);
 }
 
-void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int timeout, float maxSpeed) {
+void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int timeout, float maxSpeed, bool slewEnabled) {
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
-        pros::Task task([&]() { swingToHeading(heading, side, timeout, maxSpeed); });
+        pros::Task task([&]() { swingToHeading(heading, side, timeout, maxSpeed, slewEnabled); });
         pros::delay(10);  // give the task some time to start
         return;
     }
@@ -91,6 +92,7 @@ void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int tim
     const int startTime = pros::millis();
     ExitCondition angularExit(swingAngularPID.exitRange, swingAngularPID.exitTime);
     float angularMaxSlew = swingAngularPID.slew;
+    if (!slewEnabled) angularMaxSlew = 0;
 
     float power = 0;
     float currentHeading = odomSensors.imu.getHeading();

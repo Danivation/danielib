@@ -70,8 +70,6 @@ class Drivetrain {
             return *this;
         }
 
-
-
         /**
          * @brief Drives straight for a given distance
          * 
@@ -79,7 +77,7 @@ class Drivetrain {
          * @param timeout timeout in ms
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void driveForDistance(float distance, int timeout = infinityf(), float maxSpeed = 100, float earlyExitRange = 0);
+        void driveForDistance(float distance, int timeout = infinityf(), float maxSpeed = 100, float earlyExitRange = 0, bool slewEnabled = true);
 
         /**
          * @brief Turns to a given target heading
@@ -88,7 +86,7 @@ class Drivetrain {
          * @param timeout timeout in ms
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void turnToHeading(float heading, int timeout = infinityf(), float maxSpeed = 100);
+        void turnToHeading(float heading, int timeout = infinityf(), float maxSpeed = 100, bool slewEnabled = true);
 
         /**
          * @brief Turns to face a given target point
@@ -99,7 +97,7 @@ class Drivetrain {
          * @param reverse face away from the point
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void turnToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 100);
+        void turnToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 100, bool slewEnabled = true);
 
         /**
          * @brief Turns to a given target heading
@@ -109,7 +107,7 @@ class Drivetrain {
          * @param timeout timeout in ms
          * @param maxSpeed max speed the drivetrain can move out of 100
          */
-        void swingToHeading(float heading, SwingSide side, int timeout = infinityf(), float maxSpeed = 100);
+        void swingToHeading(float heading, SwingSide side, int timeout = infinityf(), float maxSpeed = 100, bool slewEnabled = true);
 
         /**
          * @brief Moves to a given target point (not heading) using PIDs
@@ -121,7 +119,7 @@ class Drivetrain {
          * @param maxSpeed max speed the drivetrain can move out of 100
          * @param earlyExitRange range to exit the motion early
          */
-        void moveToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 100, float earlyExitRange = 0);
+        void moveToPoint(float x, float y, int timeout = infinityf(), bool reverse = false, float maxSpeed = 100, float earlyExitRange = 0, bool slewEnabled = true);
 
         /**
          * @brief Moves to a given target pose using a boomerang controller
@@ -136,7 +134,7 @@ class Drivetrain {
          * 
          * @note This does not obey exit conditions, only timeouts
          */
-        void moveToPose(float x, float y, float heading, int timeout = infinityf(), bool reverse = false, float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 100, float earlyExitRange = 0);
+        void moveToPose(float x, float y, float heading, int timeout = infinityf(), bool reverse = false, float leadDist = 0.4, float driftFactor = 3, float maxSpeed = 100, float earlyExitRange = 0, bool slewEnabled = true);
 
     private:
         PID& linearPID;

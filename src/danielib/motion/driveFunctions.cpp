@@ -3,11 +3,11 @@
 #include "danielib/utils.hpp"
 #include "danielib/pid.hpp"
 
-void danielib::Drivetrain::driveForDistance(float distance, int timeout, float maxSpeed, float earlyExitRange) {
+void danielib::Drivetrain::driveForDistance(float distance, int timeout, float maxSpeed, float earlyExitRange, bool slewEnabled) {
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
-        pros::Task task([&]() { driveForDistance(distance, timeout, maxSpeed, earlyExitRange); });
+        pros::Task task([&]() { driveForDistance(distance, timeout, maxSpeed, earlyExitRange, slewEnabled); });
         pros::delay(10);  // give the task some time to start
         return;
     }
@@ -23,6 +23,7 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
     const int startTime = pros::millis();
     ExitCondition linearExit(linearPID.exitRange, linearPID.exitTime);
     float linearMaxSlew = linearPID.slew;
+    if (!slewEnabled) linearMaxSlew = 0;
 
     float power = 0;
     float currentDistance;

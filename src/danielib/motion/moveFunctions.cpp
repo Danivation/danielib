@@ -3,11 +3,11 @@
 #include "danielib/utils.hpp"
 #include "danielib/pid.hpp"
 
-void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, bool reverse, float leadDist, float driftFactor, float maxSpeed, float earlyExitRange) {
+void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeout, bool reverse, float leadDist, float driftFactor, float maxSpeed, float earlyExitRange, bool slewEnabled) {
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
-        pros::Task task([&]() { moveToPose(x, y, heading, timeout, reverse, leadDist, driftFactor, maxSpeed, earlyExitRange); });
+        pros::Task task([&]() { moveToPose(x, y, heading, timeout, reverse, leadDist, driftFactor, maxSpeed, earlyExitRange, slewEnabled); });
         pros::delay(10);  // give the task some time to start
         return;
     }
@@ -22,6 +22,7 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     // tunable parameters and stuff
     float linearMaxSlew = mtpLinearPID.slew;
     float angularMaxSlew = mtpAngularPID.slew;
+    if (!slewEnabled) linearMaxSlew = 0; angularMaxSlew = 0;
 
     const int startTime = pros::millis();
     ExitCondition linearExit(mtpLinearPID.exitRange, mtpLinearPID.exitTime);
@@ -132,11 +133,11 @@ void danielib::Drivetrain::moveToPose(float x, float y, float heading, int timeo
     motionMutex.give();
 }
 
-void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool reverse, float maxSpeed, float earlyExitRange) {
+void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool reverse, float maxSpeed, float earlyExitRange, bool slewEnabled) {
     if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
-        pros::Task task([&]() { moveToPoint(x, y, timeout, reverse, maxSpeed, earlyExitRange); });
+        pros::Task task([&]() { moveToPoint(x, y, timeout, reverse, maxSpeed, earlyExitRange, slewEnabled); });
         pros::delay(10);  // give the task some time to start
         return;
     }
@@ -156,6 +157,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     const float lineDist = 7;   // distance where the target is the line instead of the point
     float linearMaxSlew = mtpLinearPID.slew;
     float angularMaxSlew = mtpAngularPID.slew;
+    if (!slewEnabled) linearMaxSlew = 0; angularMaxSlew = 0;
 
     // pids and exit conditions
     ExitCondition linearExit(mtpLinearPID.exitRange, mtpLinearPID.exitTime);
