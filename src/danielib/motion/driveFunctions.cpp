@@ -13,8 +13,9 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
     }
 
     motionMutex.take();
-    FILE* log = fopen("/usd/log.txt", "a");
-    // if (log) fputs("[", log);
+    FILE* log_linearOut = fopen("/usd/log_linearOut.txt", "a");
+    FILE* log_distance = fopen("/usd/log_distance.txt", "a");
+    FILE* log_pose = fopen("/usd/log_pose.txt", "a");
 
     currentMovementEnabled = true;
     maxSpeed *= 1.27;
@@ -50,12 +51,15 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         power = std::clamp(power, -maxSpeed, maxSpeed);
         if (linearMaxSlew != 0 && std::abs(error) > 8) power = d_slew(power, prevLinearOut, linearMaxSlew);
         prevLinearOut = power;
-
-        if (log) fprintf(log, "(%d,%.1f),", pros::millis() - startTime, power);
-
+        
         // move motors
         leftMotors.move(power);
         rightMotors.move(power);
+
+        if (log_linearOut) fprintf(log_linearOut, "(%d,%.2f),", pros::millis() - startTime, power);
+        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis() - startTime, error);
+        auto pose = getPose();
+        if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", pose.x, pose.y);
 
         pros::Task::delay_until(&time, 10);
     }
@@ -65,7 +69,9 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         prevAngularOut = 0;
     }
 
-    if (log) fclose(log);
+    if (log_linearOut) fclose(log_linearOut);
+    if (log_distance) fclose(log_distance);
+    if (log_pose) fclose(log_pose);
 
     // stop motors
     leftMotors.brake();

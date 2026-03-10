@@ -99,19 +99,6 @@ void print_to_displays() {
     pros::Task controllerTask(controller_print);
 }
 void initialize() {
-    FILE* log_linearOut = fopen("/usd/log_linearOut.txt", "w");
-    FILE* log_angularOut = fopen("/usd/log_angularOut.txt", "w");
-    FILE* log_distance = fopen("/usd/log_distance.txt", "w");
-    FILE* log_pose = fopen("/usd/log_pose.txt", "w");
-    FILE* log_horiz = fopen("/usd/log_horiz.txt", "w");
-    FILE* log_vert = fopen("/usd/log_vert.txt", "w");
-    if (log_linearOut) fclose(log_linearOut);
-    if (log_angularOut) fclose(log_angularOut);
-    if (log_distance) fclose(log_distance);
-    if (log_pose) fclose(log_pose);
-    if (log_horiz) fclose(log_horiz);
-    if (log_vert) fclose(log_vert);
-
     pros::lcd::initialize(); // initialze llemu
     master.clear();
     print_to_displays();
@@ -153,12 +140,19 @@ void logger() {
 }
 
 void autonomous() {
-    chassis.setPose(0, 0, 0);
-    pros::delay(200);
-    chassis.moveToPoint(-1_tiles, -2_tiles, 1500, true, 100);
+    chassis.setPose(-2_tiles, 28, 0);
+    chassis.distanceResetPose({&left_beam, &front_beam}, 3);
+    // loader.retract();
 
-    // chassis.setPose(-2_tiles, -2_tiles, 180);
-    // chassis.moveToPoint(-1.95_tiles, -24, 1000, true, 90);
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                       BLUE PARK ZONE SIDE                                      */
+    /* ---------------------------------------------------------------------------------------------- */
+
+    // curve motion to side of blue park zone
+    chassis.moveToPoint(-1.9_tiles, 2.1_tiles, 1500, false, 80, 7);
+    // stop();
+    chassis.moveToPoint(-24, 62.5, 1500, false, 75, 6);
+    chassis.moveToPoint(-17, 62.5, 1800, false, 75);
 }
 
 void opcontrol() {

@@ -145,6 +145,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     FILE* log_linearOut = fopen("/usd/log_linearOut.txt", "a");
     FILE* log_angularOut = fopen("/usd/log_angularOut.txt", "a");
     FILE* log_distance = fopen("/usd/log_distance.txt", "a");
+    FILE* log_angularError = fopen("/usd/log_angularError.txt", "a");
     FILE* log_pose = fopen("/usd/log_pose.txt", "a");
 
     currentMovementEnabled = true;
@@ -165,6 +166,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     // poses in radians
     Pose robotPose = getPose(true);
     Pose targetPose(x, y, 0);
+    targetPose.theta = robotPose.angle(targetPose);
 
     // loop variables
     bool close = false;
@@ -217,7 +219,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
                 // lock line angle
                 lineAngle = d_fixRadians(targetPose.theta);
-                if (reverse) lineAngle = 
+                // if (reverse) lineAngle = 
                 lineNx = std::cos(lineAngle);
                 lineNy = std::sin(lineAngle);
 
@@ -298,15 +300,18 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
             rightPower /= ratio;
         }
 
+        // move motors
+        leftMotors.move(leftPower);
+        rightMotors.move(rightPower);
+
         // log data
         if (log_linearOut) fprintf(log_linearOut, "(%d,%.2f),", pros::millis() - startTime, linearOut);
         if (log_angularOut) fprintf(log_angularOut, "(%d,%.2f),", pros::millis() - startTime, angularOut);
-        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis() - startTime, angularError);
+        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis() - startTime, distance);
+        if (log_angularError) fprintf(log_angularError, "(%d,%.2f),", pros::millis() - startTime, angularError);
         if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", robotPose.x, robotPose.y);
 
-        // move motors and delay
-        leftMotors.move(leftPower);
-        rightMotors.move(rightPower);
+        // delay
         pros::Task::delay_until(&time, 10);
     }
 
@@ -318,6 +323,7 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
     if (log_linearOut) fclose(log_linearOut);
     if (log_angularOut) fclose(log_angularOut);
     if (log_distance) fclose(log_distance);
+    if (log_angularError) fclose(log_angularError);
     if (log_pose) fclose(log_pose);
 
     // stop motors

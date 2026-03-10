@@ -14,8 +14,9 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
 
     motionMutex.take();
     FILE* log_angularOut = fopen("/usd/log_angularOut.txt", "a");
-    FILE* log_distance = fopen("/usd/log_distance.txt", "a");
+    FILE* log_angularError = fopen("/usd/log_angularError.txt", "a");
     FILE* log_pose = fopen("/usd/log_pose.txt", "a");
+
     currentMovementEnabled = true;
     maxSpeed *= 1.27;
 
@@ -42,13 +43,14 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
         if (angularMaxSlew != 0) power = d_slew(power, prevAngularOut, angularMaxSlew);
         prevAngularOut = power;
 
-        if (log_angularOut) fprintf(log_angularOut, "(%d,%.2f),", pros::millis() - startTime, power);
-        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis() - startTime, error);
-        if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", getPose().x, getPose().y);
-
         // move motors
         leftMotors.move(power);
         rightMotors.move(-power);
+
+        if (log_angularOut) fprintf(log_angularOut, "(%d,%.2f),", pros::millis() - startTime, power);
+        if (log_angularError) fprintf(log_angularError, "(%d,%.2f),", pros::millis() - startTime, error);
+        auto pose = getPose();
+        if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", pose.x, pose.y);
 
         pros::Task::delay_until(&time, 10);
     }
@@ -57,7 +59,7 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
     prevAngularOut = 0;
 
     if (log_angularOut) fclose(log_angularOut);
-    if (log_distance) fclose(log_distance);
+    if (log_angularError) fclose(log_angularError);
     if (log_pose) fclose(log_pose);
 
     // stop motors
