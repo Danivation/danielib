@@ -139,19 +139,18 @@ void logger() {
 }
 
 void autonomous() {
-    chassis.setPose(-2_tiles, 28, 0);
-    chassis.distanceResetPose({&left_beam, &front_beam}, 3);
-    // loader.retract();
+    // chassis.setPose(0, 0, 0);
+    // chassis.moveToPoint(0, -4, 1000, true, 100, 0, true);
+
+    chassis.setPose(12, 12.5, 0);
+    chassis.swingToHeading(45, danielib::SwingSide::RIGHT, 600);
 
     /* ---------------------------------------------------------------------------------------------- */
-    /*                                       BLUE PARK ZONE SIDE                                      */
+    /*                                            MID GOAL                                            */
     /* ---------------------------------------------------------------------------------------------- */
 
-    // curve motion to side of blue park zone
-    chassis.moveToPoint(-1.9_tiles, 2.1_tiles, 1500, false, 80, 7);
-    // stop();
-    chassis.moveToPoint(-24, 62.5, 1500, false, 75, 6);
-    chassis.moveToPoint(-17, 62.5, 1800, false, 75);
+    // move back to goal
+    chassis.moveToPoint(11, 10, 400, true, 70);
 }
 
 void opcontrol() {

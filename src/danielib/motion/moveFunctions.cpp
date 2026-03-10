@@ -221,7 +221,6 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
 
                 // lock line angle
                 lineAngle = d_fixRadians(targetPose.theta);
-                // if (reverse) lineAngle = 
                 lineNx = std::cos(lineAngle);
                 lineNy = std::sin(lineAngle);
 
@@ -260,16 +259,13 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         if (reverse) driveHeading += M_PI;
         driveHeading = std::remainder(driveHeading, 2*M_PI);
         float angularError = d_angleError(targetPose.theta, driveHeading, true);
-        // if (reverse) angularError = -angularError;
-        if (usingLine) angularError = 0;
+        if (usingLine || close) angularError = 0;
 
         // calculate angular output and set to 0 if close
         float angularOut = mtpAngularPID.update(d_toDegrees(angularError));
         if (usingLine) angularOut = d_slew(0, prevAngularOut, 1.3);
-        // if (reverse) angularOut = -angularOut;
         
         // calculate linear error and cosine scale
-        // float linearError = distance * std::cos(angularError);
         float linearError = distance;
         linearExit.update(distance);
 
@@ -278,7 +274,8 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         if (reverse) linearOut = -linearOut;
 
         // clamp outputs to max speed
-        linearOut = std::clamp(linearOut, -maxSpeed, maxSpeed);
+        if (!reverse) linearOut = std::clamp(linearOut, 0.0f, maxSpeed);
+        if (reverse) linearOut = std::clamp(linearOut, -maxSpeed, 0.0f);
         angularOut = std::clamp(angularOut, -maxSpeed, maxSpeed);
 
         // slew outputs to avoid slipping
