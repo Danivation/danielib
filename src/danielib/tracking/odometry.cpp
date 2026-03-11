@@ -75,7 +75,7 @@ void Drivetrain::setPose(Pose pose) {
     pros::delay(10);
 }
 
-void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams, float maxChange) {
+void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams, float xChange, float yChange) {
     float sumX = 0;
     float sumY = 0;
     int countX = 0;
@@ -134,7 +134,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams, float max
         
         if (pointingEast || pointingWest) {
             // Known wall position
-            float knownWallX = pointingEast ? 70.5 : -70.5;
+            float knownWallX = pointingEast ? 70.65 : -70.65;
             
             // Calculate where the beam sensor must be
             float beamX = knownWallX - wallDistance * cosBeamAngle;
@@ -149,7 +149,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams, float max
 
         if (pointingNorth || pointingSouth) {
             // Known wall position
-            float knownWallY = pointingNorth ? 70.5 : -70.5;
+            float knownWallY = pointingNorth ? 70.65 : -70.65;
             
             // Calculate where the beam sensor must be
             float beamY = knownWallY - wallDistance * sinBeamAngle;
@@ -170,7 +170,7 @@ void Drivetrain::distanceResetPose(std::initializer_list<Beam*> beams, float max
 
     // sets x and y based on averages of valid readings independently, keeps old value if no valid readings
     // if only x readings are valid, only x is changed (same for y)
-    if (changeX < maxChange && changeY < maxChange) {
+    if (changeX < xChange && changeY < yChange && std::abs(newX) < 80 && std::abs(newY) < 80) {
         setPose(newX, newY);
     }
 }
