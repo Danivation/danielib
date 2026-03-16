@@ -304,10 +304,10 @@ void danielib::Drivetrain::moveToPoint(float x, float y, int timeout, bool rever
         rightMotors.move(rightPower);
 
         // log data
-        if (log_linearOut) fprintf(log_linearOut, "(%d,%.2f),", pros::millis() - startTime, linearOut);
-        if (log_angularOut) fprintf(log_angularOut, "(%d,%.2f),", pros::millis() - startTime, angularOut);
-        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis() - startTime, distance);
-        if (log_angularError) fprintf(log_angularError, "(%d,%.2f),", pros::millis() - startTime, angularError);
+        if (log_linearOut) fprintf(log_linearOut, "(%d,%.2f),", pros::millis(), linearOut);
+        if (log_angularOut) fprintf(log_angularOut, "(%d,%.2f),", pros::millis(), angularOut);
+        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis(), distance);
+        if (log_angularError) fprintf(log_angularError, "(%d,%.2f),", pros::millis(), angularError);
         if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", robotPose.x, robotPose.y);
 
         // delay

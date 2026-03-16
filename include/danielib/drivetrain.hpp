@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <atomic>
 #include "pros/motors.h"
 #include "pros/motor_group.hpp"
 #include "danielib/sensors.hpp"
@@ -164,11 +165,11 @@ class Drivetrain {
         Pose deltaPose = {0, 0, 0};
         
         // motion vars
-        bool newPose = false;
+        std::atomic<bool> newPose = false;
         pros::Mutex motionMutex;
         pros::Mutex poseMutex;
-        bool movementsEnabled = true;
-        bool currentMovementEnabled = true;
+        std::atomic<bool> movementsEnabled = true;
+        std::atomic<bool> currentMovementEnabled = true;
         bool runAsync = false;
         int currentMaxSpeed = 0;
 

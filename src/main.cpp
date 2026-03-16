@@ -139,18 +139,12 @@ void logger() {
 }
 
 void autonomous() {
-    // chassis.setPose(0, 0, 0);
-    // chassis.moveToPoint(0, -4, 1000, true, 100, 0, true);
+    chassis.setPose(-2_tiles, -55, 180);
+    
+    chassis.driveForDistance(-12, 700, 100, 8);
+    chassis.moveToPoint(-15, -15, 1700, true, 100, 8);
+    chassis.moveToPoint(-8, -8, 1000, true, 70);
 
-    chassis.setPose(12, 12.5, 0);
-    chassis.swingToHeading(45, danielib::SwingSide::RIGHT, 600);
-
-    /* ---------------------------------------------------------------------------------------------- */
-    /*                                            MID GOAL                                            */
-    /* ---------------------------------------------------------------------------------------------- */
-
-    // move back to goal
-    chassis.moveToPoint(11, 10, 400, true, 70);
 }
 
 void opcontrol() {

@@ -57,8 +57,8 @@ void danielib::Drivetrain::driveForDistance(float distance, int timeout, float m
         leftMotors.move(power);
         rightMotors.move(power);
 
-        if (log_linearOut) fprintf(log_linearOut, "(%d,%.2f),", pros::millis() - startTime, power);
-        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis() - startTime, error);
+        if (log_linearOut) fprintf(log_linearOut, "(%d,%.2f),", pros::millis(), power);
+        if (log_distance) fprintf(log_distance, "(%d,%.2f),", pros::millis(), error);
         auto pose = getPose();
         if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", pose.x, pose.y);
 

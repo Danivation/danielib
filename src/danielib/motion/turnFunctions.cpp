@@ -48,8 +48,8 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
         leftMotors.move(power);
         rightMotors.move(-power);
 
-        if (log_angularOut) fprintf(log_angularOut, "(%d,%.2f),", pros::millis() - startTime, power);
-        if (log_angularError) fprintf(log_angularError, "(%d,%.2f),", pros::millis() - startTime, error);
+        if (log_angularOut) fprintf(log_angularOut, "(%d,%.2f),", pros::millis(), power);
+        if (log_angularError) fprintf(log_angularError, "(%d,%.2f),", pros::millis(), error);
         auto pose = getPose();
         if (log_pose) fprintf(log_pose, "(%.3f,%.3f),", pose.x, pose.y);
 
