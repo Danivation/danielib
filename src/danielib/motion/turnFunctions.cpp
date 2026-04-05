@@ -4,7 +4,7 @@
 #include "danielib/pid.hpp"
 
 void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSpeed, bool slewEnabled) {
-    if (!isTracking()) return;
+    // if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
         pros::Task task([&]() { turnToHeading(heading, timeout, maxSpeed, slewEnabled); });
@@ -70,14 +70,14 @@ void danielib::Drivetrain::turnToHeading(float heading, int timeout, float maxSp
 }
 
 void danielib::Drivetrain::turnToPoint(float x, float y, int timeout, bool reverse, float maxSpeed, bool slewEnabled) {
-    if (!isTracking()) return;
+    // if (!isTracking()) return;
     float angle = d_toDegrees(currentPose.angle({x, y, currentPose.theta}));
     if (reverse) angle = d_reduce_to_0_360(angle + 180);
     turnToHeading(angle, timeout, maxSpeed, slewEnabled);
 }
 
 void danielib::Drivetrain::swingToHeading(float heading, SwingSide side, int timeout, float maxSpeed, bool slewEnabled) {
-    if (!isTracking()) return;
+    // if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
         pros::Task task([&]() { swingToHeading(heading, side, timeout, maxSpeed, slewEnabled); });

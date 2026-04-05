@@ -4,7 +4,7 @@
 #include "danielib/pid.hpp"
 
 void danielib::Drivetrain::driveForDistance(float distance, int timeout, float maxSpeed, float earlyExitRange, bool slewEnabled) {
-    if (!isTracking()) return;
+    // if (!isTracking()) return;
     if (runAsync) {
         runAsync = false;
         pros::Task task([&]() { driveForDistance(distance, timeout, maxSpeed, earlyExitRange, slewEnabled); });
