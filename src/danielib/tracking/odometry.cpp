@@ -50,11 +50,10 @@ void Drivetrain::update() {
     poseMutex.give();
 }
 
-void Drivetrain::calibrate() {
+void Drivetrain::calibrate(bool blocking) {
     odomSensors.horizontalTracker.reset();
     odomSensors.verticalTracker.reset();
-    odomSensors.imu.calibrate();
-    // pros::c::controller_rumble(pros::E_CONTROLLER_MASTER, ".");
+    odomSensors.imu.calibrate(blocking);
 }
 
 void Drivetrain::setPose(float x, float y, float theta) {

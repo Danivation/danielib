@@ -14,10 +14,9 @@ float TrackerWheel::getOffset() {
     return offset;
 }
 
-void Inertial::calibrate() {
-    sensor1.reset(false);
-    if (sensor2 != nullptr) sensor2->reset(false);
-    pros::delay(2500);
+void Inertial::calibrate(bool blocking) {
+    sensor1.reset(blocking);
+    if (sensor2 != nullptr) sensor2->reset(blocking);
 }
 
 float Inertial::getRotation() {

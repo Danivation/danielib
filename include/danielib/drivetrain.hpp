@@ -43,7 +43,7 @@ class Drivetrain {
         void waitUntilDone();
         // void setSpeed();
 
-        void calibrate();
+        void calibrate(bool blocking = true);
         void setPose(float x, float y, float theta = infinityf());
         void setPose(Pose pose);
 

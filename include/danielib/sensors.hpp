@@ -21,7 +21,7 @@ class Inertial {
     public:
         Inertial(pros::Imu& sensor1, float scale1 = 1.0f, pros::Imu* sensor2 = nullptr, float scale2 = 1.0f);
 
-        void calibrate();
+        void calibrate(bool blocking = true);
         float getRotation();
         float getHeading();
         void setRotation(float angle);
